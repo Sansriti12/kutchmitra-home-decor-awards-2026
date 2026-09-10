@@ -1,0 +1,143 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    --bg-main: #F7F5F0;
+    --bg-secondary: #FBFAF7;
+    --text-primary: #0B132B;
+    --text-secondary: #4A4F5C;
+    --navy-header: #070D1E;
+    --navy-footer: #070D1E;
+    --navy-supporting: #14213D;
+    --gold-500: #C5A059;
+    --gold-600: #B38E46;
+    --gold-400: #D8B46E;
+  }
+
+  html {
+    scroll-behavior: smooth;
+  }
+
+  body {
+    color: #0B132B;
+    background-color: #F7F5F0;
+    font-feature-settings: "cv02", "cv03", "cv04", "cv11";
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    overflow-x: hidden;
+  }
+
+  ::selection {
+    background-color: #C5A059;
+    color: #070D1E;
+  }
+
+  /* Accessibility focus ring */
+  :focus-visible {
+    outline: 2px solid #C5A059;
+    outline-offset: 2px;
+  }
+}
+
+@layer components {
+  /* Editorial Container System */
+  .container-editorial {
+    @apply max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 w-full;
+  }
+
+  .container-editorial-narrow {
+    @apply max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 w-full;
+  }
+
+  /* Section Spacing System */
+  .section-spacing {
+    @apply py-14 sm:py-20 lg:py-28;
+  }
+
+  .section-spacing-compact {
+    @apply py-10 sm:py-14 lg:py-16;
+  }
+
+  /* Typography Styles */
+  .heading-display {
+    @apply font-display text-4xl sm:text-5xl lg:text-6xl font-medium tracking-tight leading-[1.12] text-navy-900;
+  }
+
+  .heading-editorial {
+    @apply font-display text-3xl sm:text-4xl lg:text-5xl font-medium tracking-tight leading-[1.18] text-navy-900;
+  }
+
+  .heading-sub {
+    @apply font-display text-2xl sm:text-3xl font-medium tracking-tight leading-snug text-navy-900;
+  }
+
+  .body-editorial {
+    @apply font-sans text-base sm:text-lg leading-relaxed text-[#4A4F5C] font-normal;
+  }
+
+  .body-editorial-light {
+    @apply font-sans text-base sm:text-lg leading-relaxed text-slate-300 font-normal;
+  }
+
+  /* Micro Labels & Eyebrows */
+  .eyebrow-label {
+    @apply text-xs font-semibold tracking-[0.2em] uppercase text-gold-600 font-mono;
+  }
+
+  /* Architectural Hairlines & Grid details */
+  .hairline-rule {
+    @apply h-px w-full bg-navy-900/10;
+  }
+
+  .hairline-rule-dark {
+    @apply h-px w-full bg-white/10;
+  }
+
+  .hairline-rule-gold {
+    @apply h-px w-full bg-gradient-to-r from-transparent via-gold-500/50 to-transparent;
+  }
+
+  /* Editorial Link with hover underline reveal */
+  .editorial-link {
+    @apply relative inline-flex items-center gap-1.5 text-sm font-medium tracking-wide transition-colors duration-200;
+  }
+
+  .editorial-link::after {
+    content: '';
+    @apply absolute -bottom-0.5 left-0 w-0 h-px bg-gold-500 transition-all duration-300 ease-out;
+  }
+
+  .editorial-link:hover::after {
+    @apply w-full;
+  }
+}
+
+/* Animations & Motion */
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(12px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.animate-fade-up {
+  animation: fadeIn 0.6s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+/* Prefers Reduced Motion */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  ::before,
+  ::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
