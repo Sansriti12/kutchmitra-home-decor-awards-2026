@@ -1,4 +1,18 @@
 -- ==============================================================================
+-- KUTCHMITRA HOME & DECOR AWARDS 2026 — SUPABASE MASTER MIGRATION V1
+-- Platform: Supabase Free (PostgreSQL 15+)
+-- Ground Truth: 04_Database/schema.sql & 04_Database/seed_reference_data.sql
+-- Contains:
+--   - All 28 Tables from schema.sql (Fully preserved)
+--   - Multi-edition composite integrity & partial indexes
+--   - Supabase Auth sync trigger (auth.users -> public.users + default role)
+--   - Granular RLS policies (Public, Applicant, Jury, Admin)
+--   - Private storage bucket (application-files) with folder-level access policies
+--   - Seed data for 2026 Edition, 5 roles, 10 workflow states, 12 categories
+-- NOTE: Scoring criteria are intentionally omitted pending committee ratification.
+-- ==============================================================================
+
+-- ==============================================================================
 -- KUTCHMITRA HOME & DECOR AWARDS — DATABASE SCHEMA (PostgreSQL)
 -- Architecture: Multi-Edition, Configurable Awards & Nomination Management System
 -- Compatibility: Standard PostgreSQL 14+ / Supabase PostgreSQL
@@ -51,7 +65,7 @@ COMMENT ON TABLE roles IS 'System roles: applicant, verification_team, jury_memb
 -- Central application users directory.
 -- When integrated with Supabase Auth or external JWT auth, id matches auth.users.id.
 CREATE TABLE users (
-    id UUID PRIMARY KEY,
+    id UUID PRIMARY KEY REFERENCES auth.users(id) ON DELETE CASCADE,
     email VARCHAR(255) NOT NULL UNIQUE,
     phone VARCHAR(30) NULL,
     full_name VARCHAR(150) NOT NULL,
@@ -595,3 +609,351 @@ CREATE INDEX idx_notifications_recipient ON notifications(recipient_user_id, sta
 CREATE INDEX idx_audit_actor ON audit_logs(actor_id);
 CREATE INDEX idx_audit_entity ON audit_logs(entity_type, entity_id);
 CREATE INDEX idx_audit_created ON audit_logs(created_at DESC);
+
+
+-- ==============================================================================
+-- 12. SUPABASE AUTH SYNCHRONIZATION TRIGGER (Rule #7)
+-- ==============================================================================
+
+CREATE OR REPLACE FUNCTION public.handle_new_user()
+RETURNS TRIGGER
+LANGUAGE plpgsql
+SECURITY DEFINER SET search_path = public
+AS $$
+BEGIN
+    -- 1. Insert or synchronize with public.users
+    INSERT INTO public.users (id, email, phone, full_name, is_active)
+    VALUES (
+        new.id,
+        new.email,
+        new.phone,
+        COALESCE(new.raw_user_meta_data->>'full_name', split_part(new.email, '@', 1)),
+        TRUE
+    )
+    ON CONFLICT (id) DO UPDATE SET
+        email = EXCLUDED.email,
+        phone = COALESCE(EXCLUDED.phone, public.users.phone),
+        updated_at = CURRENT_TIMESTAMP;
+
+    -- 2. Default role assignment as 'applicant' (preserves role architecture)
+    INSERT INTO public.user_roles (user_id, role_id)
+    VALUES (new.id, 'applicant')
+    ON CONFLICT DO NOTHING;
+
+    RETURN NEW;
+END;
+$$;
+
+DROP TRIGGER IF EXISTS on_auth_user_created ON auth.users;
+CREATE TRIGGER on_auth_user_created
+    AFTER INSERT ON auth.users
+    FOR EACH ROW EXECUTE FUNCTION public.handle_new_user();
+
+-- ==============================================================================
+-- 13. ROLE HELPER FUNCTIONS & RLS POLICIES (Rule #8)
+-- ==============================================================================
+
+CREATE OR REPLACE FUNCTION public.has_role(required_role VARCHAR)
+RETURNS BOOLEAN
+LANGUAGE sql
+STABLE
+SECURITY DEFINER
+AS $$
+  SELECT EXISTS (
+    SELECT 1 FROM public.user_roles
+    WHERE user_id = auth.uid()
+    AND role_id = required_role
+  );
+$$;
+
+-- Enable Row Level Security across all 28 tables
+ALTER TABLE award_editions ENABLE ROW LEVEL SECURITY;
+ALTER TABLE roles ENABLE ROW LEVEL SECURITY;
+ALTER TABLE users ENABLE ROW LEVEL SECURITY;
+ALTER TABLE user_roles ENABLE ROW LEVEL SECURITY;
+ALTER TABLE applicant_profiles ENABLE ROW LEVEL SECURITY;
+ALTER TABLE jury_profiles ENABLE ROW LEVEL SECURITY;
+ALTER TABLE categories ENABLE ROW LEVEL SECURITY;
+ALTER TABLE category_questions ENABLE ROW LEVEL SECURITY;
+ALTER TABLE question_options ENABLE ROW LEVEL SECURITY;
+ALTER TABLE category_upload_requirements ENABLE ROW LEVEL SECURITY;
+ALTER TABLE application_statuses ENABLE ROW LEVEL SECURITY;
+ALTER TABLE status_transitions ENABLE ROW LEVEL SECURITY;
+ALTER TABLE applications ENABLE ROW LEVEL SECURITY;
+ALTER TABLE application_status_history ENABLE ROW LEVEL SECURITY;
+ALTER TABLE application_answers ENABLE ROW LEVEL SECURITY;
+ALTER TABLE application_files ENABLE ROW LEVEL SECURITY;
+ALTER TABLE verification_records ENABLE ROW LEVEL SECURITY;
+ALTER TABLE clarification_requests ENABLE ROW LEVEL SECURITY;
+ALTER TABLE jury_category_assignments ENABLE ROW LEVEL SECURITY;
+ALTER TABLE jury_assignments ENABLE ROW LEVEL SECURITY;
+ALTER TABLE scoring_criteria ENABLE ROW LEVEL SECURITY;
+ALTER TABLE jury_evaluations ENABLE ROW LEVEL SECURITY;
+ALTER TABLE jury_scores ENABLE ROW LEVEL SECURITY;
+ALTER TABLE application_shortlists ENABLE ROW LEVEL SECURITY;
+ALTER TABLE winners ENABLE ROW LEVEL SECURITY;
+ALTER TABLE notifications ENABLE ROW LEVEL SECURITY;
+ALTER TABLE audit_logs ENABLE ROW LEVEL SECURITY;
+ALTER TABLE cms_content_blocks ENABLE ROW LEVEL SECURITY;
+
+-- --- Public Read Policies (Anon & Authenticated) ---
+CREATE POLICY "Public can view active editions" ON award_editions FOR SELECT USING (TRUE);
+CREATE POLICY "Public can view active categories" ON categories FOR SELECT USING (is_active = TRUE);
+CREATE POLICY "Public can view active questions" ON category_questions FOR SELECT USING (is_active = TRUE);
+CREATE POLICY "Public can view question options" ON question_options FOR SELECT USING (is_active = TRUE);
+CREATE POLICY "Public can view upload requirements" ON category_upload_requirements FOR SELECT USING (is_active = TRUE);
+CREATE POLICY "Public can view public jury profiles" ON jury_profiles FOR SELECT USING (is_public = TRUE);
+CREATE POLICY "Public can view published winners" ON winners FOR SELECT USING (is_published = TRUE);
+CREATE POLICY "Public can view published cms content" ON cms_content_blocks FOR SELECT USING (is_published = TRUE);
+CREATE POLICY "Public can view statuses" ON application_statuses FOR SELECT USING (is_active = TRUE);
+CREATE POLICY "Public can view roles" ON roles FOR SELECT USING (TRUE);
+
+-- --- Applicant Access Policies (Scoped to auth.uid()) ---
+CREATE POLICY "Users can view own profile" ON users FOR SELECT USING (id = auth.uid() OR public.has_role('admin') OR public.has_role('super_admin'));
+CREATE POLICY "Users can update own profile" ON users FOR UPDATE USING (id = auth.uid());
+
+CREATE POLICY "Users can view own roles" ON user_roles FOR SELECT USING (user_id = auth.uid() OR public.has_role('admin') OR public.has_role('super_admin'));
+
+CREATE POLICY "Applicants can manage own profile" ON applicant_profiles FOR ALL USING (user_id = auth.uid());
+
+CREATE POLICY "Applicants view own applications" ON applications FOR SELECT USING (applicant_id = auth.uid() OR public.has_role('admin') OR public.has_role('super_admin') OR public.has_role('verification_team'));
+CREATE POLICY "Applicants insert own applications" ON applications FOR INSERT WITH CHECK (applicant_id = auth.uid());
+CREATE POLICY "Applicants update unlocked applications" ON applications FOR UPDATE USING (applicant_id = auth.uid() AND is_locked = FALSE);
+
+CREATE POLICY "Applicants view own answers" ON application_answers FOR SELECT USING (EXISTS (SELECT 1 FROM applications a WHERE a.id = application_id AND (a.applicant_id = auth.uid() OR public.has_role('admin') OR public.has_role('super_admin') OR public.has_role('verification_team'))));
+CREATE POLICY "Applicants insert own answers" ON application_answers FOR INSERT WITH CHECK (EXISTS (SELECT 1 FROM applications a WHERE a.id = application_id AND a.applicant_id = auth.uid() AND a.is_locked = FALSE));
+CREATE POLICY "Applicants update own answers" ON application_answers FOR UPDATE USING (EXISTS (SELECT 1 FROM applications a WHERE a.id = application_id AND a.applicant_id = auth.uid() AND a.is_locked = FALSE));
+CREATE POLICY "Applicants delete own answers" ON application_answers FOR DELETE USING (EXISTS (SELECT 1 FROM applications a WHERE a.id = application_id AND a.applicant_id = auth.uid() AND a.is_locked = FALSE));
+
+CREATE POLICY "Applicants view own files" ON application_files FOR SELECT USING (EXISTS (SELECT 1 FROM applications a WHERE a.id = application_id AND (a.applicant_id = auth.uid() OR public.has_role('admin') OR public.has_role('super_admin') OR public.has_role('verification_team'))));
+CREATE POLICY "Applicants insert own files" ON application_files FOR INSERT WITH CHECK (EXISTS (SELECT 1 FROM applications a WHERE a.id = application_id AND a.applicant_id = auth.uid() AND a.is_locked = FALSE));
+CREATE POLICY "Applicants delete own files" ON application_files FOR DELETE USING (EXISTS (SELECT 1 FROM applications a WHERE a.id = application_id AND a.applicant_id = auth.uid() AND a.is_locked = FALSE));
+
+CREATE POLICY "Applicants view clarifications" ON clarification_requests FOR SELECT USING (EXISTS (SELECT 1 FROM applications a WHERE a.id = application_id AND (a.applicant_id = auth.uid() OR public.has_role('admin') OR public.has_role('super_admin') OR public.has_role('verification_team'))));
+CREATE POLICY "Applicants respond to clarifications" ON clarification_requests FOR UPDATE USING (EXISTS (SELECT 1 FROM applications a WHERE a.id = application_id AND a.applicant_id = auth.uid()));
+
+CREATE POLICY "Users view own notifications" ON notifications FOR SELECT USING (recipient_user_id = auth.uid());
+
+-- --- Jury Member Policies (Confidential & Scoped) ---
+CREATE POLICY "Jurors view assigned applications" ON applications FOR SELECT USING (
+    EXISTS (
+        SELECT 1 FROM jury_assignments ja
+        JOIN jury_profiles jp ON ja.jury_profile_id = jp.id
+        WHERE ja.application_id = applications.id
+        AND jp.user_id = auth.uid()
+        AND ja.conflict_declared = FALSE
+    )
+);
+
+CREATE POLICY "Jurors view assigned answers" ON application_answers FOR SELECT USING (
+    EXISTS (
+        SELECT 1 FROM jury_assignments ja
+        JOIN jury_profiles jp ON ja.jury_profile_id = jp.id
+        WHERE ja.application_id = application_answers.application_id
+        AND jp.user_id = auth.uid()
+        AND ja.conflict_declared = FALSE
+    )
+);
+
+CREATE POLICY "Jurors view assigned files" ON application_files FOR SELECT USING (
+    EXISTS (
+        SELECT 1 FROM jury_assignments ja
+        JOIN jury_profiles jp ON ja.jury_profile_id = jp.id
+        WHERE ja.application_id = application_files.application_id
+        AND jp.user_id = auth.uid()
+        AND ja.conflict_declared = FALSE
+    )
+);
+
+CREATE POLICY "Jurors manage own evaluations" ON jury_evaluations FOR ALL USING (
+    EXISTS (
+        SELECT 1 FROM jury_assignments ja
+        JOIN jury_profiles jp ON ja.jury_profile_id = jp.id
+        WHERE ja.id = jury_assignment_id
+        AND jp.user_id = auth.uid()
+    )
+);
+
+CREATE POLICY "Jurors manage own scores" ON jury_scores FOR ALL USING (
+    EXISTS (
+        SELECT 1 FROM jury_evaluations je
+        JOIN jury_assignments ja ON je.jury_assignment_id = ja.id
+        JOIN jury_profiles jp ON ja.jury_profile_id = jp.id
+        WHERE je.id = evaluation_id
+        AND jp.user_id = auth.uid()
+    )
+);
+
+-- --- Verification Team Policies ---
+CREATE POLICY "Verifiers manage records" ON verification_records FOR ALL USING (public.has_role('verification_team') OR public.has_role('admin') OR public.has_role('super_admin'));
+CREATE POLICY "Verifiers create clarifications" ON clarification_requests FOR INSERT WITH CHECK (public.has_role('verification_team') OR public.has_role('admin') OR public.has_role('super_admin'));
+
+-- --- Admin & Super Admin Full Access ---
+CREATE POLICY "Admins full access editions" ON award_editions FOR ALL USING (public.has_role('admin') OR public.has_role('super_admin'));
+CREATE POLICY "Admins full access categories" ON categories FOR ALL USING (public.has_role('admin') OR public.has_role('super_admin'));
+CREATE POLICY "Admins full access questions" ON category_questions FOR ALL USING (public.has_role('admin') OR public.has_role('super_admin'));
+CREATE POLICY "Admins full access question options" ON question_options FOR ALL USING (public.has_role('admin') OR public.has_role('super_admin'));
+CREATE POLICY "Admins full access upload reqs" ON category_upload_requirements FOR ALL USING (public.has_role('admin') OR public.has_role('super_admin'));
+CREATE POLICY "Admins full access jury profiles" ON jury_profiles FOR ALL USING (public.has_role('admin') OR public.has_role('super_admin'));
+CREATE POLICY "Admins full access jury assignments" ON jury_assignments FOR ALL USING (public.has_role('admin') OR public.has_role('super_admin'));
+CREATE POLICY "Admins full access scoring criteria" ON scoring_criteria FOR ALL USING (public.has_role('admin') OR public.has_role('super_admin'));
+CREATE POLICY "Admins full access shortlists" ON application_shortlists FOR ALL USING (public.has_role('admin') OR public.has_role('super_admin'));
+CREATE POLICY "Admins full access winners" ON winners FOR ALL USING (public.has_role('admin') OR public.has_role('super_admin'));
+CREATE POLICY "Admins full access cms" ON cms_content_blocks FOR ALL USING (public.has_role('admin') OR public.has_role('super_admin'));
+CREATE POLICY "Admins view audit logs" ON audit_logs FOR SELECT USING (public.has_role('admin') OR public.has_role('super_admin'));
+
+-- ==============================================================================
+-- 14. PRIVATE STORAGE BUCKET CONFIGURATION (Rule #9)
+-- ==============================================================================
+
+INSERT INTO storage.buckets (id, name, public)
+VALUES ('application-files', 'application-files', FALSE)
+ON CONFLICT (id) DO NOTHING;
+
+CREATE POLICY "Applicants upload to own folder" ON storage.objects
+FOR INSERT WITH CHECK (
+    bucket_id = 'application-files' AND
+    (storage.foldername(name))[1] = auth.uid()::text
+);
+
+CREATE POLICY "Applicants view own files" ON storage.objects
+FOR SELECT USING (
+    bucket_id = 'application-files' AND
+    (storage.foldername(name))[1] = auth.uid()::text
+);
+
+CREATE POLICY "Staff view application files" ON storage.objects
+FOR SELECT USING (
+    bucket_id = 'application-files' AND
+    (public.has_role('admin') OR public.has_role('super_admin') OR public.has_role('verification_team'))
+);
+
+-- ==============================================================================
+-- 15. INITIAL REFERENCE SEED DATA (Rule #1, #6)
+-- ==============================================================================
+
+-- ==============================================================================
+-- KUTCHMITRA HOME & DECOR AWARDS 2026 — REFERENCE SEED DATA
+-- Purpose: Initial operational configuration & BRD-approved reference data
+-- Note: Contains ZERO fake users, ZERO fake jurors, ZERO fake winners, ZERO fake dates.
+-- ==============================================================================
+
+-- 1. AWARD EDITION: 2026 (Inaugural Edition)
+-- Fixed ID used so foreign keys in reference seed scripts can reliably attach.
+INSERT INTO award_editions (
+    id,
+    year,
+    name,
+    slug,
+    status,
+    nomination_start_at,
+    nomination_end_at,
+    verification_start_at,
+    verification_end_at,
+    judging_start_at,
+    judging_end_at,
+    ceremony_date,
+    description,
+    is_current
+) VALUES (
+    'e2026000-0000-0000-0000-000000002026'::uuid,
+    2026,
+    'Kutchmitra Home & Decor Awards 2026',
+    '2026',
+    'upcoming',
+    NULL, -- Dates strictly marked NULL (TBD by organizing committee)
+    NULL,
+    NULL,
+    NULL,
+    NULL,
+    NULL,
+    NULL,
+    'Recognizing visionary architecture, interior design, residential craftsmanship, and spatial innovation across the region.',
+    TRUE
+) ON CONFLICT (year) DO NOTHING;
+
+-- 2. SYSTEM ROLES
+INSERT INTO roles (id, name, description) VALUES
+('applicant', 'Applicant', 'Registers, creates and manages project nomination entries.'),
+('verification_team', 'Verification Team', 'Reviews submitted entries for eligibility and dossier completeness; issues clarifications.'),
+('jury_member', 'Jury Member', 'Evaluates assigned entries and submits confidential criteria scores and commentary.'),
+('admin', 'Administrator', 'Operational management of categories, applications, assignments, shortlisting, and CMS.'),
+('super_admin', 'Super Administrator', 'Full platform governance, security controls, role assignments, and audit management.')
+ON CONFLICT (id) DO UPDATE SET name = EXCLUDED.name, description = EXCLUDED.description;
+
+-- 3. WORKFLOW STATUSES
+INSERT INTO application_statuses (code, label, description, step_order, is_active, is_terminal) VALUES
+('draft', 'Draft', 'Applicant has created a draft nomination entry; unsubmitted.', 1, TRUE, FALSE),
+('submitted', 'Submitted', 'Application submitted by applicant; locked against further edits.', 2, TRUE, FALSE),
+('under_verification', 'Under Verification', 'Verification team is auditing document compliance and eligibility.', 3, TRUE, FALSE),
+('clarification_required', 'Clarification Required', 'Action required from applicant to resolve missing or ambiguous details.', 4, TRUE, FALSE),
+('eligible', 'Eligible', 'Application passed verification checks; ready for jury assignment.', 5, TRUE, FALSE),
+('jury_review', 'Jury Review', 'Entry is assigned to jury members and undergoing scoring.', 6, TRUE, FALSE),
+('shortlisted', 'Shortlisted', 'Entry has advanced to the final shortlist upon committee review.', 7, TRUE, FALSE),
+('winner', 'Winner', 'Honored as an official award winner or commended recipient.', 8, TRUE, TRUE),
+('rejected', 'Rejected', 'Application does not meet eligibility requirements or was not selected.', 9, TRUE, TRUE),
+('disqualified', 'Disqualified', 'Entry disqualified due to breach of guidelines or false declaration.', 10, TRUE, TRUE)
+ON CONFLICT (code) DO UPDATE SET label = EXCLUDED.label, description = EXCLUDED.description;
+
+-- 4. STATUS WORKFLOW TRANSITIONS
+INSERT INTO status_transitions (from_status, to_status, allowed_role) VALUES
+('draft', 'submitted', 'applicant'),
+('submitted', 'under_verification', 'verification_team'),
+('submitted', 'under_verification', 'admin'),
+('under_verification', 'eligible', 'verification_team'),
+('under_verification', 'eligible', 'admin'),
+('under_verification', 'clarification_required', 'verification_team'),
+('under_verification', 'clarification_required', 'admin'),
+('clarification_required', 'under_verification', 'applicant'),
+('clarification_required', 'under_verification', 'verification_team'),
+('clarification_required', 'under_verification', 'admin'),
+('under_verification', 'rejected', 'verification_team'),
+('under_verification', 'rejected', 'admin'),
+('eligible', 'jury_review', 'admin'),
+('eligible', 'jury_review', 'super_admin'),
+('jury_review', 'shortlisted', 'admin'),
+('jury_review', 'shortlisted', 'super_admin'),
+('shortlisted', 'winner', 'admin'),
+('shortlisted', 'winner', 'super_admin'),
+('jury_review', 'rejected', 'admin'),
+('shortlisted', 'rejected', 'admin'),
+('submitted', 'disqualified', 'admin'),
+('under_verification', 'disqualified', 'admin'),
+('eligible', 'disqualified', 'admin'),
+('jury_review', 'disqualified', 'admin'),
+('shortlisted', 'disqualified', 'admin')
+ON CONFLICT DO NOTHING;
+
+-- 5. THE 12 APPROVED AWARD CATEGORIES (2026 Edition)
+INSERT INTO categories (id, edition_id, code, name, slug, short_description, display_order, is_active) VALUES
+('c2026000-0000-0000-0000-000000000001'::uuid, 'e2026000-0000-0000-0000-000000002026'::uuid, '01', 'Architect of the Year', 'architect-of-the-year', 'Honoring comprehensive architectural excellence, spatial innovation, and leadership in residential built design.', 1, TRUE),
+('c2026000-0000-0000-0000-000000000002'::uuid, 'e2026000-0000-0000-0000-000000002026'::uuid, '02', 'Best Luxury Residence', 'best-luxury-residence', 'Recognizing exceptional bespoke residential architecture defined by elevated craftsmanship and refined materiality.', 2, TRUE),
+('c2026000-0000-0000-0000-000000000003'::uuid, 'e2026000-0000-0000-0000-000000002026'::uuid, '03', 'Best Apartment Design', 'best-apartment-design', 'Celebrating intelligent spatial layouts, bespoke interior interventions, and elevated urban living environments.', 3, TRUE),
+('c2026000-0000-0000-0000-000000000004'::uuid, 'e2026000-0000-0000-0000-000000002026'::uuid, '04', 'Best Renovation Project', 'best-renovation-project', 'Highlighting exemplary transformations that reimagine existing structures while honoring structural character.', 4, TRUE),
+('c2026000-0000-0000-0000-000000000005'::uuid, 'e2026000-0000-0000-0000-000000002026'::uuid, '05', 'Best Sustainable Home', 'best-sustainable-home', 'Commending climate-responsive architecture, resource-efficient practices, and environmentally conscious design.', 5, TRUE),
+('c2026000-0000-0000-0000-000000000006'::uuid, 'e2026000-0000-0000-0000-000000002026'::uuid, '06', 'Ultra-Luxury Residential Project of the Year', 'ultra-luxury-residential-project-of-the-year', 'Acknowledging landmark residential developments that embody peerless luxury, scale, and detailing.', 6, TRUE),
+('c2026000-0000-0000-0000-000000000007'::uuid, 'e2026000-0000-0000-0000-000000002026'::uuid, '07', 'Interior Designer of the Year', 'interior-designer-of-the-year', 'Spotlighting creative mastery in interior architecture, materiality curation, bespoke fixtures, and experiential ambience.', 7, TRUE),
+('c2026000-0000-0000-0000-000000000008'::uuid, 'e2026000-0000-0000-0000-000000002026'::uuid, '08', 'Emerging Designer', 'emerging-designer', 'Encouraging promising design practitioners demonstrating forward-thinking perspective and original creative rigor.', 8, TRUE),
+('c2026000-0000-0000-0000-000000000009'::uuid, 'e2026000-0000-0000-0000-000000002026'::uuid, '09', 'Best Compact Home', 'best-compact-home', 'Recognizing inventive multi-functional planning and meticulous design optimization in compact residential footprints.', 9, TRUE),
+('c2026000-0000-0000-0000-000000000010'::uuid, 'e2026000-0000-0000-0000-000000002026'::uuid, '10', 'Best Smart Home', 'best-smart-home', 'Celebrating seamless synergy between intuitive home automation, lighting technology, and architectural aesthetics.', 10, TRUE),
+('c2026000-0000-0000-0000-000000000011'::uuid, 'e2026000-0000-0000-0000-000000002026'::uuid, '11', 'Best Themed Project of the Year', 'best-themed-project-of-the-year', 'Commending distinctive design narratives that embody cohesive thematic, cultural, or stylistic execution.', 11, TRUE),
+('c2026000-0000-0000-0000-000000000012'::uuid, 'e2026000-0000-0000-0000-000000002026'::uuid, '12', 'Luxury Villa Project of the Year', 'luxury-villa-project-of-the-year', 'Honoring sprawling standalone villas showcasing harmonious landscape integration, architectural grandeur, and indoor-outdoor synergy.', 12, TRUE)
+ON CONFLICT (edition_id, slug) DO UPDATE SET
+    name = EXCLUDED.name,
+    short_description = EXCLUDED.short_description,
+    display_order = EXCLUDED.display_order;
+
+-- 6. SCORING CRITERIA FRAMEWORK (INTENTIONALLY OMITTED FROM SEED DATA)
+-- Per BRD governance, the recommended 5-criterion framework (Design Excellence 25%,
+-- Creativity 20%, Functionality 20%, Sustainability 15%, Overall Impact 20%) is a
+-- non-binding recommendation. To prevent unconfirmed weights from being treated as
+-- official production configuration, scoring criteria records are omitted from seed data.
+-- Configurable criteria and weights will be populated via the Admin Panel once
+-- formally ratified by the organizing committee.
+
+-- 7. INITIAL CMS CONTENT BLOCKS (2026 Edition)
+INSERT INTO cms_content_blocks (edition_id, block_key, title, content_json, is_published) VALUES
+('e2026000-0000-0000-0000-000000002026'::uuid, 'hero_announcement', 'Homepage Hero Announcement', '{"badge": "2026 Edition", "headline": "Kutchmitra Home & Decor Awards 2026", "tagline": "Recognizing excellence across architecture, interior design, residential design, craftsmanship and spatial innovation."}'::jsonb, TRUE),
+('e2026000-0000-0000-0000-000000002026'::uuid, 'timeline_status', 'Timeline Schedule Notice', '{"status_notice": "All dates are currently provisional and subject to formal confirmation by the organizing committee.", "default_status": "TBD"}'::jsonb, TRUE),
+('e2026000-0000-0000-0000-000000002026'::uuid, 'jury_notice', 'Jury Evaluation Governance Notice', '{"notice": "Jury profiles will be announced by the organizing committee.", "framework": "Independent evaluation conducted with strict criteria scoring and conflict-of-interest safeguards."}'::jsonb, TRUE)
+ON CONFLICT (edition_id, block_key) DO UPDATE SET content_json = EXCLUDED.content_json;

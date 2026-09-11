@@ -1,0 +1,158 @@
+<USER_REQUEST>
+# STEP 8 — APPLICANT DASHBOARD LAUNCH READINESS
+## Final UI/UX Refinement, Functional QA & Review Preparation
+
+We are now focusing ONLY on the authenticated Applicant Dashboard for
+Kutchmitra Home & Decor Awards 2026.
+
+The Dynamic Nomination Wizard has already been implemented and reviewed.
+DO NOT redesign or rebuild the nomination wizard in this task.
+
+The objective of this task is to make the Applicant Dashboard polished,
+stable, responsive, secure and ready to be shown to the client/review team
+as the applicant-facing launch module.
+
+--------------------------------------------------
+## 1. IMPORTANT SCOPE BOUNDARY
+--------------------------------------------------
+
+ONLY work on the Applicant Dashboard and the applicant-facing functionality
+directly connected to it.
+
+Primary route:
+
+/dashboard
+
+Relevant existing dashboard files may include:
+
+- src/app/dashboard/page.tsx
+- src/components/dashboard/ApplicantDashboardClient.tsx
+- existing dashboard-related server actions
+- existing middleware/authentication logic
+- existing Supabase queries/RLS policies
+
+You may inspect related nomination routes/actions when necessary to understand
+the dashboard integration, but DO NOT redesign or rewrite the nomination wizard.
+
+DO NOT work on:
+
+- Admin panel
+- Jury portal
+- CMS
+- Scoring
+- Shortlisting
+- Winner management
+- Verification panel
+- New notification infrastructure
+- New payment system
+- New database schema
+- New database tables
+- Public website redesign
+- Official category-question content
+- Official upload requirements
+- New legal wording
+
+--------------------------------------------------
+## 2. FIRST: INSPECT BEFORE MODIFYING
+--------------------------------------------------
+
+Before changing anything, inspect the existing implementation.
+
+Inspect:
+
+1. Current Applicant Dashboard UI
+2. src/app/dashboard/page.tsx
+3. ApplicantDashboardClient.tsx
+4. Existing dashboard server actions
+5. Existing authentication/session handling
+6. Existing
+<truncated 13344 bytes>
+ons are isolated to the applicant
+14. Another applicant's application cannot be accessed by ID manipulation
+15. Empty states work
+16. Error states work
+17. Mobile layout works
+18. Tablet layout works
+19. Desktop layout works
+20. No horizontal overflow
+21. No console-breaking errors
+22. No TypeScript errors
+23. Production build succeeds
+
+--------------------------------------------------
+## 22. IMPORTANT: DO NOT CLAIM SUCCESS WITHOUT EVIDENCE
+--------------------------------------------------
+
+Do not say "production ready" merely because the page renders.
+
+Report actual test results.
+
+If something cannot be verified, explicitly state:
+
+"Not verified"
+
+instead of claiming it passed.
+
+--------------------------------------------------
+## 23. FINAL REPORT REQUIRED
+--------------------------------------------------
+
+When finished, provide a concise implementation report containing:
+
+### A. Files Modified
+List every file changed.
+
+### B. Files Created
+List every file created.
+
+### C. Dashboard Features Verified
+List what is now working.
+
+### D. UI/UX Improvements
+List the visual/responsive improvements.
+
+### E. Security Verification
+Explain applicant isolation and RLS verification.
+
+### F. Database
+List database tables/fields READ or UPDATED.
+
+Explicitly state:
+
+"Zero schema changes"
+
+if no DDL was performed.
+
+### G. Testing
+Report exact results for:
+
+- tsc
+- build
+- dashboard tests
+- security tests
+- responsive verification
+
+### H. Remaining Blockers
+Separate into:
+
+1. Technical blockers
+2. Official information still required
+3. Future modules intentionally out of scope
+
+### I. Launch Readiness
+Give one of:
+
+READY FOR CLIENT REVIEW
+
+or
+
+NOT READY — [specific blockers]
+
+Do not proceed to Admin, Jury, CMS, scoring, winners, or other modules after
+this task.
+
+STOP after the Applicant Dashboard milestone and wait for review.
+</USER_REQUEST>
+<ADDITIONAL_METADATA>
+The current local time is: 2026-09-11T17:03:02+05:30.
+</ADDITIONAL_METADATA>

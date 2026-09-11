@@ -172,7 +172,14 @@ The database comprises **21 normalized tables** organized into 8 functional doma
    - A juror can evaluate an assigned application exactly once per assignment: `UNIQUE(jury_assignment_id)`.
    - A criterion can be scored only once per evaluation: `UNIQUE(evaluation_id, criterion_id)`.
    - Score values are constrained between 0 and `max_score`: `CHECK (score >= 0)`.
-5. **Winner Gating & Non-Duplication:**
+5. **Partial Unique Indexes for Scoped Uniqueness:**
+   - `user_roles`: Surrogate PK `id UUID`. Uniqueness enforced via partial unique indexes:
+     - `uq_user_roles_edition`: `UNIQUE(user_id, role_id, edition_id) WHERE edition_id IS NOT NULL` (edition-specific role)
+     - `uq_user_roles_global`: `UNIQUE(user_id, role_id) WHERE edition_id IS NULL` (global role)
+   - `scoring_criteria`: Surrogate PK `id UUID`. Uniqueness enforced via partial unique indexes:
+     - `uq_scoring_criteria_category`: `UNIQUE(edition_id, category_id, code) WHERE category_id IS NOT NULL`
+     - `uq_scoring_criteria_edition_default`: `UNIQUE(edition_id, code) WHERE category_id IS NULL`
+6. **Winner Gating & Non-Duplication:**
    - An application can be awarded at most one title in an edition: `UNIQUE(application_id)`.
    - Category primary winner uniqueness enforced via partial index:
      - `CREATE UNIQUE INDEX uq_category_primary_winner ON winners(category_id) WHERE award_title = 'Winner';`

@@ -1,0 +1,688 @@
+<USER_REQUEST>
+# STEP 8 — APPLICANT DASHBOARD LAUNCH READINESS
+## Final UI/UX Refinement, Functional QA & Review Preparation
+
+We are now focusing ONLY on the authenticated Applicant Dashboard for
+Kutchmitra Home & Decor Awards 2026.
+
+The Dynamic Nomination Wizard has already been implemented and reviewed.
+DO NOT redesign or rebuild the nomination wizard in this task.
+
+The objective of this task is to make the Applicant Dashboard polished,
+stable, responsive, secure and ready to be shown to the client/review team
+as the applicant-facing launch module.
+
+--------------------------------------------------
+## 1. IMPORTANT SCOPE BOUNDARY
+--------------------------------------------------
+
+ONLY work on the Applicant Dashboard and the applicant-facing functionality
+directly connected to it.
+
+Primary route:
+
+/dashboard
+
+Relevant existing dashboard files may include:
+
+- src/app/dashboard/page.tsx
+- src/components/dashboard/ApplicantDashboardClient.tsx
+- existing dashboard-related server actions
+- existing middleware/authentication logic
+- existing Supabase queries/RLS policies
+
+You may inspect related nomination routes/actions when necessary to understand
+the dashboard integration, but DO NOT redesign or rewrite the nomination wizard.
+
+DO NOT work on:
+
+- Admin panel
+- Jury portal
+- CMS
+- Scoring
+- Shortlisting
+- Winner management
+- Verification panel
+- New notification infrastructure
+- New payment system
+- New database schema
+- New database tables
+- Public website redesign
+- Official category-question content
+- Official upload requirements
+- New legal wording
+
+--------------------------------------------------
+## 2. FIRST: INSPECT BEFORE MODIFYING
+--------------------------------------------------
+
+Before changing anything, inspect the existing implementation.
+
+Inspect:
+
+1. Current Applicant Dashboard UI
+2. src/app/dashboard/page.tsx
+3. ApplicantDashboardClient.tsx
+4. Existing dashboard server actions
+5. Existing authentication/session handling
+6. Existing Supabase queries
+7. Existing RLS policies relevant to:
+   - users
+   - applicant_profiles
+   - applications
+   - categories
+   - notifications
+8. Existing application status workflow
+9. Existing nomination routes
+10. Existing dashboard-to-wizard links
+11. Existing acknowledgement/receipt implementation
+12. Existing project documentation / Website Review & Action List
+13. Existing responsive behavior
+14. Existing loading/error/empty states
+
+Do not assume something is missing merely because it is not visible in one
+screen. Verify the implementation and database structure first.
+
+Create a short internal checklist of:
+- Already working
+- Needs UI refinement
+- Needs functional correction
+- Needs verification only
+- Blocked by official information
+
+Then implement only the items that are actually necessary.
+
+--------------------------------------------------
+## 3. REVIEW DOCUMENT COMPLIANCE
+--------------------------------------------------
+
+The Website Review & Action List requires the Applicant Dashboard to provide:
+
+- Profile: view/edit permitted applicant information
+- My Nominations
+- Continue Draft
+- Submission View
+- Status Timeline
+- Nomination ID
+- Acknowledgement
+- Notifications
+- Support/helpdesk
+
+The current implementation already contains many of these.
+
+DO NOT duplicate existing functionality.
+
+Instead, verify every requirement against the current implementation and
+correct/refine anything incomplete.
+
+--------------------------------------------------
+## 4. DASHBOARD INFORMATION ARCHITECTURE
+--------------------------------------------------
+
+The dashboard should have a clear hierarchy:
+
+A. Applicant identity/header
+B. Primary "Start New Nomination" CTA
+C. KPI/status summary
+D. Draft nominations
+E. Submitted nominations
+F. Notifications / action required
+G. Profile summary
+H. Help & support
+
+The applicant should immediately understand:
+
+1. Who am I logged in as?
+2. Do I have a draft?
+3. Do I have a submitted nomination?
+4. What action do I need to take?
+5. What is the current status?
+6. Where do I continue my nomination?
+7. How do I view my submitted dossier?
+8. How do I edit my profile?
+
+Do not overload the screen with unnecessary cards.
+
+--------------------------------------------------
+## 5. START NEW NOMINATION
+--------------------------------------------------
+
+Verify that:
+
+"Start New Nomination"
+
+opens the existing category-selection/nomination flow.
+
+Do not create a duplicate nomination flow.
+
+Do not create mock applications.
+
+Do not create an application until the applicant actually begins the
+nomination according to the existing workflow.
+
+Verify that the applicant cannot accidentally create duplicate drafts from
+rapid repeated clicks.
+
+If the existing implementation already handles this safely, preserve it.
+
+--------------------------------------------------
+## 6. DRAFT NOMINATIONS
+--------------------------------------------------
+
+For every draft belonging to the authenticated applicant, verify that the
+dashboard displays:
+
+- Category
+- Project name if available
+- Nomination/Draft ID
+- Location if available
+- Current step
+- Step X of 7
+- Progress percentage
+- Last modified time
+- Continue Nomination CTA
+
+The Continue Nomination button must open the correct draft.
+
+It must restore the applicant to the saved wizard step.
+
+Do not expose another applicant's draft.
+
+Test changing the ID manually in the URL.
+
+--------------------------------------------------
+## 7. SUBMITTED NOMINATIONS
+--------------------------------------------------
+
+For submitted applications verify:
+
+- Nomination ID
+- Category
+- Project name
+- Location
+- Submission date/time
+- Current status
+- Locked/read-only indication
+- View Dossier action
+- Acknowledgement/receipt action where available
+
+Submitted nominations must NEVER show an editable "Continue" action.
+
+Use clear language such as:
+
+"Submitted & Locked"
+
+or the existing approved equivalent.
+
+Do not invent new award statuses.
+
+Use only statuses already represented in the database/application workflow.
+
+--------------------------------------------------
+## 8. STATUS EXPERIENCE
+--------------------------------------------------
+
+Improve the status presentation so an applicant can understand what their
+current application status means.
+
+For example, if the database status is:
+
+Draft
+Submitted
+Under Verification
+Clarification Required
+Eligible
+Jury Review
+Shortlisted
+Winner
+Rejected / Disqualified
+
+display the existing status using the existing workflow configuration.
+
+IMPORTANT:
+
+Do NOT invent status transitions.
+
+Do NOT fake future status history.
+
+If status-history data already exists, use it.
+
+If a status timeline cannot be truthfully populated from existing data,
+display the current status clearly without manufacturing historical events.
+
+--------------------------------------------------
+## 9. ACTION REQUIRED
+--------------------------------------------------
+
+The "Action Required" area must only show real actions.
+
+Examples:
+
+- Draft awaiting completion
+- Clarification Required
+- Profile incomplete, if this is actually detected
+- No action required
+
+Never create fake notifications or fake clarification requests.
+
+If there is no action:
+
+"No pending applicant action"
+
+is acceptable.
+
+--------------------------------------------------
+## 10. PROFILE SECTION
+--------------------------------------------------
+
+Refine the existing Profile Summary and Edit Profile experience.
+
+Verify that applicants can view permitted information such as:
+
+- Full name
+- Studio / Organization
+- Designation
+- Email
+- Mobile
+- City
+- State
+- Address
+- Website
+- Portfolio
+
+Reuse the existing database fields.
+
+Do not duplicate information into unnecessary new fields.
+
+Do not change authentication email through an ordinary profile-edit form
+unless the existing authentication architecture explicitly supports it.
+
+Make the profile editor:
+
+- responsive
+- keyboard accessible
+- clearly validated
+- easy to cancel
+- clear about saved state
+- safe against accidental submission
+
+--------------------------------------------------
+## 11. NOTIFICATIONS
+--------------------------------------------------
+
+Use the existing notifications data if available.
+
+Verify:
+
+- correct applicant ownership
+- readable notification layout
+- date/time
+- notification type/channel where already available
+- empty state
+- mobile layout
+
+Do not build a new email/SMS/WhatsApp notification system in this task.
+
+Do not generate fake notifications.
+
+If the existing notifications table is empty, show an honest empty state.
+
+--------------------------------------------------
+## 12. ACKNOWLEDGEMENT / RECEIPT
+--------------------------------------------------
+
+Verify the existing acknowledgement experience.
+
+It must not claim that the applicant has won or been certified.
+
+It should represent only an official submission acknowledgement if the
+application is genuinely submitted.
+
+Do not generate fake PDF files.
+
+If the existing implementation uses browser print functionality, preserve it
+unless there is a real defect.
+
+Do not add PDF-generation infrastructure in this task.
+
+--------------------------------------------------
+## 13. RESPONSIVE UI/UX
+--------------------------------------------------
+
+This is a major priority.
+
+Test the dashboard at approximately:
+
+Desktop:
+1440px
+
+Tablet:
+768px
+
+Mobile:
+375px
+
+The dashboard must remain usable without horizontal overflow.
+
+Check:
+
+- Header
+- Applicant name
+- CTA buttons
+- KPI cards
+- Draft cards
+- Submitted cards
+- Status badges
+- Profile card
+- Notifications
+- Modals
+- Buttons
+- Long project names
+- Long category names
+- Long notification messages
+
+On mobile:
+
+- Stack cards naturally
+- Keep primary CTA prominent
+- Make buttons touch-friendly
+- Prevent text clipping
+- Prevent horizontal scrolling
+- Keep important status information above the fold where practical
+
+Do not simply shrink desktop UI.
+
+Use intentional responsive layouts.
+
+--------------------------------------------------
+## 14. LOADING / ERROR / EMPTY STATES
+--------------------------------------------------
+
+Every major dashboard data area should have an appropriate state:
+
+Loading
+Empty
+Error
+Populated
+
+Verify graceful behavior when:
+
+- Applicant has no drafts
+- Applicant has no submissions
+- Applicant has no notifications
+- Profile information is incomplete
+- Database request fails
+- Category lookup fails
+- Application lookup fails
+
+Do not expose raw database errors to applicants.
+
+Provide useful, professional messaging.
+
+--------------------------------------------------
+## 15. SECURITY / APPLICANT ISOLATION
+--------------------------------------------------
+
+This is mandatory.
+
+Verify:
+
+- Dashboard requires authentication
+- Applicant only sees their own profile
+- Applicant only sees their own applications
+- Applicant only sees their own notifications
+- Submitted applications remain read-only
+- Changing application IDs cannot expose another applicant's application
+- Changing IDs cannot allow modification of another applicant's application
+- RLS remains enforced
+- No service-role key reaches client components
+- No sensitive database credentials are exposed
+
+DO NOT weaken or bypass RLS.
+
+DO NOT add service-role access to client components.
+
+If a security issue is found, fix it using the existing secure architecture.
+
+--------------------------------------------------
+## 16. VISUAL DESIGN
+--------------------------------------------------
+
+Preserve the existing Kutchmitra visual language.
+
+Use the already-established design tokens:
+
+Navy:
+#1A2536
+
+Warm Ivory:
+#FBFAF7 / #F4F1EA
+
+Champagne Gold:
+#C5A880
+
+Typography:
+
+Cormorant Garamond — display/editorial headings
+Plus Jakarta Sans — body/UI
+JetBrains Mono — metadata/IDs
+
+The dashboard should feel:
+
+- premium
+- editorial
+- architectural
+- trustworthy
+- spacious
+- professional
+
+Avoid:
+
+- excessive rounded cards
+- generic SaaS dashboard appearance
+- excessive gradients
+- excessive animations
+- bright unrelated colors
+- unnecessary icons
+- overly dense information
+
+Keep the current Kutchmitra identity.
+
+--------------------------------------------------
+## 17. ACCESSIBILITY
+--------------------------------------------------
+
+Verify:
+
+- semantic buttons/links
+- keyboard navigation
+- visible focus states
+- sufficient contrast
+- labels for form fields
+- accessible modal behavior
+- meaningful button labels
+- no icon-only buttons without accessible labels
+- status information is understandable without relying only on color
+
+Do not introduce accessibility regressions.
+
+--------------------------------------------------
+## 18. PERFORMANCE
+--------------------------------------------------
+
+Do not unnecessarily convert server components to client components.
+
+Keep database fetching server-side where appropriate.
+
+Avoid unnecessary duplicate Supabase queries.
+
+Avoid unnecessary client-side polling.
+
+Do not add large dependencies for simple UI functionality.
+
+--------------------------------------------------
+## 19. DO NOT MODIFY DATABASE SCHEMA
+--------------------------------------------------
+
+ABSOLUTE RULE:
+
+ZERO DDL.
+
+Do not:
+
+- create tables
+- alter tables
+- add columns
+- remove columns
+- create migrations
+- modify RLS policies unless an existing policy is demonstrably incorrect and
+  absolutely required for the dashboard
+
+Prefer using the existing database exactly as it is.
+
+Do not insert demo/mock applications.
+
+Do not insert fake notifications.
+
+Do not seed official questions.
+
+Do not seed official upload requirements.
+
+--------------------------------------------------
+## 20. IMPORTANT CONTENT BOUNDARY
+--------------------------------------------------
+
+Official award information is still pending in several areas.
+
+Do NOT invent:
+
+- eligibility rules
+- category requirements
+- official questions
+- upload quotas
+- scoring
+- official dates
+- legal wording
+- winner information
+- jury information
+
+Where official information is unavailable, use the existing configuration-
+pending messaging or existing approved placeholder language.
+
+--------------------------------------------------
+## 21. TESTING
+--------------------------------------------------
+
+After implementation run:
+
+npx.cmd tsc --noEmit
+
+npm.cmd run build
+
+Also run the existing dashboard/security test scripts if they are present.
+
+Inspect package.json and scratch/ before inventing new test commands.
+
+At minimum verify:
+
+1. Unauthenticated /dashboard redirects correctly
+2. Authenticated applicant can open dashboard
+3. Profile loads correctly
+4. Profile editing persists correctly
+5. Start New Nomination opens the existing flow
+6. Draft appears after creation
+7. Draft progress is accurate
+8. Continue Nomination opens correct draft
+9. Submitted application appears correctly
+10. Submitted application is read-only
+11. Nomination ID is correct
+12. Acknowledgement works
+13. Notifications are isolated to the applicant
+14. Another applicant's application cannot be accessed by ID manipulation
+15. Empty states work
+16. Error states work
+17. Mobile layout works
+18. Tablet layout works
+19. Desktop layout works
+20. No horizontal overflow
+21. No console-breaking errors
+22. No TypeScript errors
+23. Production build succeeds
+
+--------------------------------------------------
+## 22. IMPORTANT: DO NOT CLAIM SUCCESS WITHOUT EVIDENCE
+--------------------------------------------------
+
+Do not say "production ready" merely because the page renders.
+
+Report actual test results.
+
+If something cannot be verified, explicitly state:
+
+"Not verified"
+
+instead of claiming it passed.
+
+--------------------------------------------------
+## 23. FINAL REPORT REQUIRED
+--------------------------------------------------
+
+When finished, provide a concise implementation report containing:
+
+### A. Files Modified
+List every file changed.
+
+### B. Files Created
+List every file created.
+
+### C. Dashboard Features Verified
+List what is now working.
+
+### D. UI/UX Improvements
+List the visual/responsive improvements.
+
+### E. Security Verification
+Explain applicant isolation and RLS verification.
+
+### F. Database
+List database tables/fields READ or UPDATED.
+
+Explicitly state:
+
+"Zero schema changes"
+
+if no DDL was performed.
+
+### G. Testing
+Report exact results for:
+
+- tsc
+- build
+- dashboard tests
+- security tests
+- responsive verification
+
+### H. Remaining Blockers
+Separate into:
+
+1. Technical blockers
+2. Official information still required
+3. Future modules intentionally out of scope
+
+### I. Launch Readiness
+Give one of:
+
+READY FOR CLIENT REVIEW
+
+or
+
+NOT READY — [specific blockers]
+
+Do not proceed to Admin, Jury, CMS, scoring, winners, or other modules after
+this task.
+
+STOP after the Applicant Dashboard milestone and wait for review.
+</USER_REQUEST>
+<ADDITIONAL_METADATA>
+The current local time is: 2026-09-11T17:03:02+05:30.
+</ADDITIONAL_METADATA>
