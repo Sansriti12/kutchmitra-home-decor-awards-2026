@@ -39,7 +39,7 @@ export default function FaqsPage() {
   return (
     <main className="flex-1 bg-ivory text-navy-900">
       {/* Banner */}
-      <section className="py-16 sm:py-24 border-b border-navy-900/10 bg-[#FBFAF7]">
+      <section className="py-10 sm:py-14 lg:py-16 border-b border-navy-900/10 bg-[#FBFAF7]">
         <div className="container-editorial space-y-6">
           <SectionMarker number="01" label="Support &amp; Guidance" theme="light" />
           <h1 className="heading-display text-navy-900 max-w-3xl">
@@ -52,7 +52,7 @@ export default function FaqsPage() {
       </section>
 
       {/* FAQ Accordion Section */}
-      <section className="py-16 sm:py-24 border-b border-navy-900/10">
+      <section className="py-10 sm:py-14 lg:py-16 border-b border-navy-900/10">
         <div className="container-editorial max-w-4xl space-y-8">
           <div className="divide-y divide-navy-900/10 border-y border-navy-900/10">
             {EXTENDED_FAQS.map((faq) => {

@@ -22,7 +22,7 @@ export default function ContactPage() {
   return (
     <main className="flex-1 bg-ivory text-navy-900">
       {/* Banner */}
-      <section className="py-16 sm:py-24 border-b border-navy-900/10 bg-[#FBFAF7]">
+      <section className="py-10 sm:py-14 lg:py-16 border-b border-navy-900/10 bg-[#FBFAF7]">
         <div className="container-editorial space-y-6">
           <SectionMarker number="01" label="Secretariat Helpdesk" theme="light" />
           <div className="space-y-2">
@@ -40,7 +40,7 @@ export default function ContactPage() {
       </section>
 
       {/* Main Form & Information Section */}
-      <section className="py-16 sm:py-24 border-b border-navy-900/10">
+      <section className="py-10 sm:py-14 lg:py-16 border-b border-navy-900/10">
         <div className="container-editorial">
           <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 lg:gap-16 items-start">
             {/* Left: Official Notice & CMS Ready Contact Placeholders (5 cols) */}
@@ -148,7 +148,7 @@ export default function ContactPage() {
                         value={formData.name}
                         onChange={(e) => setFormData({ ...formData, name: e.target.value })}
                         placeholder="Architect / Designer Name"
-                        className="w-full px-3.5 py-2.5 text-sm bg-white border border-navy-900/15 focus:border-gold-500 focus:outline-none transition-colors"
+                        className="w-full px-3.5 py-2.5 text-sm bg-white border border-navy-900/15 focus:border-gold-500 focus:ring-1 focus:ring-gold-500 focus:outline-none transition-colors"
                       />
                     </div>
 
@@ -163,7 +163,7 @@ export default function ContactPage() {
                         value={formData.email}
                         onChange={(e) => setFormData({ ...formData, email: e.target.value })}
                         placeholder="name@firm.com"
-                        className="w-full px-3.5 py-2.5 text-sm bg-white border border-navy-900/15 focus:border-gold-500 focus:outline-none transition-colors"
+                        className="w-full px-3.5 py-2.5 text-sm bg-white border border-navy-900/15 focus:border-gold-500 focus:ring-1 focus:ring-gold-500 focus:outline-none transition-colors"
                       />
                     </div>
                   </div>
@@ -179,7 +179,7 @@ export default function ContactPage() {
                       value={formData.subject}
                       onChange={(e) => setFormData({ ...formData, subject: e.target.value })}
                       placeholder="Category guidance, eligibility, or technical query"
-                      className="w-full px-3.5 py-2.5 text-sm bg-white border border-navy-900/15 focus:border-gold-500 focus:outline-none transition-colors"
+                      className="w-full px-3.5 py-2.5 text-sm bg-white border border-navy-900/15 focus:border-gold-500 focus:ring-1 focus:ring-gold-500 focus:outline-none transition-colors"
                     />
                   </div>
 
@@ -194,7 +194,7 @@ export default function ContactPage() {
                       value={formData.message}
                       onChange={(e) => setFormData({ ...formData, message: e.target.value })}
                       placeholder="Please write your inquiry in detail..."
-                      className="w-full px-3.5 py-2.5 text-sm bg-white border border-navy-900/15 focus:border-gold-500 focus:outline-none transition-colors resize-none"
+                      className="w-full px-3.5 py-2.5 text-sm bg-white border border-navy-900/15 focus:border-gold-500 focus:ring-1 focus:ring-gold-500 focus:outline-none transition-colors resize-none"
                     />
                   </div>
 

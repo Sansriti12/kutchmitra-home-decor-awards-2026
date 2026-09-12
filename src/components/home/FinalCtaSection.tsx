@@ -4,13 +4,13 @@ import { Button } from "@/components/ui/Button";
 
 export function FinalCtaSection() {
   return (
-    <section className="bg-navy-950 text-white py-16 sm:py-20 relative overflow-hidden">
+    <section className="bg-navy-900 text-white py-12 sm:py-16 relative overflow-hidden border-t-2 border-gold-500/30 border-b border-navy-950">
       {/* Architectural ambient lighting & grid */}
-      <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,_rgba(197,160,89,0.1)_0%,_transparent_70%)] pointer-events-none" />
-      <div className="absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-gold-500/30 to-transparent" />
+      <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,_rgba(197,160,89,0.08)_0%,_transparent_70%)] pointer-events-none" />
+      <div className="absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-gold-500/40 to-transparent" />
       
       {/* Structural Hairlines */}
-      <div className="container-editorial relative z-10 text-center max-w-3xl mx-auto space-y-8">
+      <div className="container-editorial relative z-10 text-center max-w-3xl mx-auto space-y-7">
         <div className="inline-flex items-center gap-2 px-3 py-1 border border-gold-500/40 bg-gold-500/10 text-gold-400 text-xs font-mono tracking-widest uppercase">
           <Award size={13} className="text-gold-400" />
           <span>Kutchmitra Home &amp; Decor Awards 2026</span>

@@ -95,7 +95,7 @@ export default function HowToNominatePage() {
   return (
     <main className="flex-1 bg-ivory text-navy-900">
       {/* Banner */}
-      <section className="py-16 sm:py-24 border-b border-navy-900/10 bg-[#FBFAF7]">
+      <section className="py-10 sm:py-14 lg:py-16 border-b border-navy-900/10 bg-[#FBFAF7]">
         <div className="container-editorial space-y-6">
           <SectionMarker number="01" label="Submission Guide" theme="light" />
           <h1 className="heading-display text-navy-900 max-w-3xl">
@@ -108,7 +108,7 @@ export default function HowToNominatePage() {
       </section>
 
       {/* 7-Step Detailed Workflow */}
-      <section className="py-16 sm:py-24 border-b border-navy-900/10">
+      <section className="py-10 sm:py-14 lg:py-16 border-b border-navy-900/10">
         <div className="container-editorial space-y-12">
           <div className="space-y-3 max-w-2xl">
             <SectionMarker number="02" label="Step-by-Step Workflow" theme="light" />
@@ -150,7 +150,7 @@ export default function HowToNominatePage() {
       </section>
 
       {/* Supported Upload Materials Section */}
-      <section className="py-16 sm:py-24 bg-[#FBFAF7] border-b border-navy-900/10">
+      <section className="py-10 sm:py-14 lg:py-16 bg-[#FBFAF7] border-b border-navy-900/10">
         <div className="container-editorial space-y-10">
           <div className="space-y-3 max-w-2xl">
             <SectionMarker number="03" label="Submission Materials" theme="light" />
@@ -197,7 +197,7 @@ export default function HowToNominatePage() {
       </section>
 
       {/* Key Portal Features */}
-      <section className="py-16 sm:py-24 border-b border-navy-900/10">
+      <section className="py-10 sm:py-14 lg:py-16 border-b border-navy-900/10">
         <div className="container-editorial space-y-12">
           <div className="space-y-3 max-w-2xl">
             <SectionMarker number="04" label="Platform Capabilities" theme="light" />

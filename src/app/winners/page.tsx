@@ -13,7 +13,7 @@ export default function WinnersPage() {
   return (
     <main className="flex-1 bg-ivory text-navy-900">
       {/* Banner */}
-      <section className="py-16 sm:py-24 border-b border-navy-900/10 bg-[#FBFAF7]">
+      <section className="py-10 sm:py-14 lg:py-16 border-b border-navy-900/10 bg-[#FBFAF7]">
         <div className="container-editorial space-y-6">
           <SectionMarker number="01" label="Honors Archive" theme="light" />
           <h1 className="heading-display text-navy-900 max-w-3xl">
@@ -26,7 +26,7 @@ export default function WinnersPage() {
       </section>
 
       {/* Elegant Pre-Event Showcase Placeholder */}
-      <section className="py-20 sm:py-28 border-b border-navy-900/10">
+      <section className="py-12 sm:py-16 lg:py-20 border-b border-navy-900/10">
         <div className="container-editorial max-w-3xl mx-auto text-center space-y-8">
           <div className="w-16 h-16 mx-auto bg-sand-100 border border-gold-500/30 flex items-center justify-center text-gold-600">
             <Award size={32} />

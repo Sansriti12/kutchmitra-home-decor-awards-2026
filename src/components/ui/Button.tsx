@@ -26,9 +26,9 @@ export const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
     };
 
     const sizeStyles = {
-      sm: "text-xs tracking-wider uppercase px-4 py-2 gap-1.5 min-h-[38px]",
-      md: "text-sm tracking-wide px-5 py-2.5 gap-2 min-h-[44px]",
-      lg: "text-base tracking-wide px-7 py-3.5 gap-2.5 min-h-[50px]",
+      sm: "text-xs tracking-wider uppercase px-3.5 py-1.5 gap-1.5 min-h-[36px]",
+      md: "text-sm tracking-wide px-5 py-2 gap-2 min-h-[42px]",
+      lg: "text-base tracking-wide px-6 py-2.5 gap-2.5 min-h-[46px]",
     };
 
     const classes = cn(baseStyles, variantStyles[variant], sizeStyles[size], className);

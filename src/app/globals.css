@@ -53,11 +53,11 @@
 
   /* Section Spacing System */
   .section-spacing {
-    @apply py-14 sm:py-20 lg:py-28;
+    @apply py-10 sm:py-14 lg:py-16;
   }
 
   .section-spacing-compact {
-    @apply py-10 sm:py-14 lg:py-16;
+    @apply py-6 sm:py-8 lg:py-10;
   }
 
   /* Typography Styles */

@@ -16,7 +16,7 @@ export default function CategoriesPage() {
   return (
     <main className="flex-1 bg-ivory text-navy-900">
       {/* Banner */}
-      <section className="py-16 sm:py-24 border-b border-navy-900/10 bg-[#FBFAF7]">
+      <section className="py-10 sm:py-14 lg:py-16 border-b border-navy-900/10 bg-[#FBFAF7]">
         <div className="container-editorial space-y-6">
           <SectionMarker number="01" label="Award Directory" theme="light" />
           <h1 className="heading-display text-navy-900 max-w-3xl">
@@ -29,7 +29,7 @@ export default function CategoriesPage() {
       </section>
 
       {/* Categories Grid */}
-      <section className="py-16 sm:py-24">
+      <section className="py-10 sm:py-14 lg:py-16">
         <div className="container-editorial space-y-12">
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 lg:gap-8">
             {AWARD_CATEGORIES.map((category) => (

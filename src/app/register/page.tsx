@@ -249,7 +249,7 @@ export default function RegisterPage() {
                       onChange={(e) => setFormData({ ...formData, fullName: e.target.value })}
                       placeholder="Architect / Designer Full Name"
                       disabled={loading}
-                      className="w-full pl-10 pr-3.5 py-2.5 text-sm bg-white border border-navy-900/15 focus:border-gold-500 focus:outline-none transition-colors disabled:bg-slate-50"
+                      className="w-full pl-10 pr-3.5 py-2.5 text-sm bg-white border border-navy-900/15 focus:border-gold-500 focus:ring-1 focus:ring-gold-500 focus:outline-none transition-colors disabled:bg-slate-50"
                     />
                   </div>
                 </div>
@@ -270,7 +270,7 @@ export default function RegisterPage() {
                         onChange={(e) => setFormData({ ...formData, email: e.target.value })}
                         placeholder="name@firm.com"
                         disabled={loading}
-                        className="w-full pl-10 pr-3.5 py-2.5 text-sm bg-white border border-navy-900/15 focus:border-gold-500 focus:outline-none transition-colors disabled:bg-slate-50"
+                        className="w-full pl-10 pr-3.5 py-2.5 text-sm bg-white border border-navy-900/15 focus:border-gold-500 focus:ring-1 focus:ring-gold-500 focus:outline-none transition-colors disabled:bg-slate-50"
                       />
                     </div>
                   </div>
@@ -289,7 +289,7 @@ export default function RegisterPage() {
                         onChange={(e) => setFormData({ ...formData, mobile: e.target.value })}
                         placeholder="9876543210"
                         disabled={loading}
-                        className="w-full pl-10 pr-3.5 py-2.5 text-sm bg-white border border-navy-900/15 focus:border-gold-500 focus:outline-none transition-colors disabled:bg-slate-50"
+                        className="w-full pl-10 pr-3.5 py-2.5 text-sm bg-white border border-navy-900/15 focus:border-gold-500 focus:ring-1 focus:ring-gold-500 focus:outline-none transition-colors disabled:bg-slate-50"
                       />
                     </div>
                   </div>
@@ -310,7 +310,7 @@ export default function RegisterPage() {
                       onChange={(e) => setFormData({ ...formData, firm: e.target.value })}
                       placeholder="Studio / Architectural Firm Name"
                       disabled={loading}
-                      className="w-full pl-10 pr-3.5 py-2.5 text-sm bg-white border border-navy-900/15 focus:border-gold-500 focus:outline-none transition-colors disabled:bg-slate-50"
+                      className="w-full pl-10 pr-3.5 py-2.5 text-sm bg-white border border-navy-900/15 focus:border-gold-500 focus:ring-1 focus:ring-gold-500 focus:outline-none transition-colors disabled:bg-slate-50"
                     />
                   </div>
                 </div>
@@ -331,7 +331,7 @@ export default function RegisterPage() {
                         onChange={(e) => setFormData({ ...formData, city: e.target.value })}
                         placeholder="e.g. Bhuj, Gandhidham"
                         disabled={loading}
-                        className="w-full pl-10 pr-3.5 py-2.5 text-sm bg-white border border-navy-900/15 focus:border-gold-500 focus:outline-none transition-colors disabled:bg-slate-50"
+                        className="w-full pl-10 pr-3.5 py-2.5 text-sm bg-white border border-navy-900/15 focus:border-gold-500 focus:ring-1 focus:ring-gold-500 focus:outline-none transition-colors disabled:bg-slate-50"
                       />
                     </div>
                   </div>
@@ -350,7 +350,7 @@ export default function RegisterPage() {
                         onChange={(e) => setFormData({ ...formData, state: e.target.value })}
                         placeholder="Gujarat"
                         disabled={loading}
-                        className="w-full pl-10 pr-3.5 py-2.5 text-sm bg-white border border-navy-900/15 focus:border-gold-500 focus:outline-none transition-colors disabled:bg-slate-50"
+                        className="w-full pl-10 pr-3.5 py-2.5 text-sm bg-white border border-navy-900/15 focus:border-gold-500 focus:ring-1 focus:ring-gold-500 focus:outline-none transition-colors disabled:bg-slate-50"
                       />
                     </div>
                   </div>
@@ -373,7 +373,7 @@ export default function RegisterPage() {
                         onChange={(e) => setFormData({ ...formData, password: e.target.value })}
                         placeholder="••••••••"
                         disabled={loading}
-                        className="w-full pl-10 pr-3.5 py-2.5 text-sm bg-white border border-navy-900/15 focus:border-gold-500 focus:outline-none transition-colors disabled:bg-slate-50"
+                        className="w-full pl-10 pr-3.5 py-2.5 text-sm bg-white border border-navy-900/15 focus:border-gold-500 focus:ring-1 focus:ring-gold-500 focus:outline-none transition-colors disabled:bg-slate-50"
                       />
                     </div>
                   </div>
@@ -393,7 +393,7 @@ export default function RegisterPage() {
                         onChange={(e) => setFormData({ ...formData, confirmPassword: e.target.value })}
                         placeholder="••••••••"
                         disabled={loading}
-                        className="w-full pl-10 pr-3.5 py-2.5 text-sm bg-white border border-navy-900/15 focus:border-gold-500 focus:outline-none transition-colors disabled:bg-slate-50"
+                        className="w-full pl-10 pr-3.5 py-2.5 text-sm bg-white border border-navy-900/15 focus:border-gold-500 focus:ring-1 focus:ring-gold-500 focus:outline-none transition-colors disabled:bg-slate-50"
                       />
                     </div>
                   </div>

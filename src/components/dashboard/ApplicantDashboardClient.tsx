@@ -106,13 +106,44 @@ interface ApplicantDashboardClientProps {
 }
 
 const WIZARD_STEP_LABELS: Record<number, string> = {
-  1: "Applicant Profile",
-  2: "Category Selection",
-  3: "Project Details",
-  4: "Category Questionnaire",
-  5: "Media & Documents",
-  6: "Complete Preview",
-  7: "Declaration & Submit",
+  1: "Complete Entrant & Practice Profile",
+  2: "Confirm Award Discipline",
+  3: "Enter Project Details & Spatial Data",
+  4: "Review Category Questionnaire (Official config pending)",
+  5: "Upload Architectural Drawings & Media",
+  6: "Inspect Full Dossier Preview",
+  7: "Review Declaration & Submit when officially unlocked",
+};
+
+const WIZARD_NEXT_ACTIONS: Record<number, { title: string; desc: string }> = {
+  1: {
+    title: "Complete Entrant & Practice Profile",
+    desc: "Verify your architectural studio, designation, contact numbers, and official practice details.",
+  },
+  2: {
+    title: "Confirm Award Category",
+    desc: "Review your selected discipline or switch to another of the 12 official award categories.",
+  },
+  3: {
+    title: "Enter Project Details & Spatial Data",
+    desc: "Specify project location, completion year, built-up area in sq. ft., and design narrative.",
+  },
+  4: {
+    title: "Review Category Questionnaire",
+    desc: "Category questions are currently pending organizing committee ratification. You may proceed directly to uploads.",
+  },
+  5: {
+    title: "Upload Architectural Drawings & Media",
+    desc: "Attach project photography, floor plans, 3D renderings, and studio portfolio files.",
+  },
+  6: {
+    title: "Inspect Complete Dossier Preview",
+    desc: "Inspect a comprehensive, formatted preview of your application before proceeding to declaration.",
+  },
+  7: {
+    title: "Review Declaration & Official Submission Status",
+    desc: "Review the declaration checkpoints. Final submission opens upon official criteria ratification.",
+  },
 };
 
 const STATUS_CONFIG: Record<
@@ -347,22 +378,25 @@ export default function ApplicantDashboardClient({
         {/* ========================================================================= */}
         {/* DASHBOARD SUMMARY / KPI STRIP */}
         {/* ========================================================================= */}
+        {/* ========================================================================= */}
+        {/* DASHBOARD SUMMARY / KPI STRIP */}
+        {/* ========================================================================= */}
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
           <div className="bg-[#FBFAF7] border border-navy-900/10 p-5 shadow-card space-y-1">
-            <span className="text-[10px] font-mono uppercase tracking-wider text-slate-500 block">
-              In-Progress Drafts
+            <span className="text-[10px] font-mono uppercase tracking-wider text-slate-500 block font-medium">
+              Active Drafts
             </span>
             <div className="flex items-baseline gap-2">
               <span className="font-display text-3xl text-navy-900 font-semibold">{drafts.length}</span>
               <span className="text-xs font-mono text-amber-700">
-                {drafts.length === 1 ? "1 active entry" : `${drafts.length} active entries`}
+                {drafts.length === 1 ? "1 in progress" : `${drafts.length} in progress`}
               </span>
             </div>
           </div>
 
           <div className="bg-[#FBFAF7] border border-navy-900/10 p-5 shadow-card space-y-1">
-            <span className="text-[10px] font-mono uppercase tracking-wider text-slate-500 block">
-              Submitted Nominations
+            <span className="text-[10px] font-mono uppercase tracking-wider text-slate-500 block font-medium">
+              Submitted Entries
             </span>
             <div className="flex items-baseline gap-2">
               <span className="font-display text-3xl text-navy-900 font-semibold">{submitted.length}</span>
@@ -373,48 +407,58 @@ export default function ApplicantDashboardClient({
           </div>
 
           <div className="bg-[#FBFAF7] border border-navy-900/10 p-5 shadow-card space-y-1">
-            <span className="text-[10px] font-mono uppercase tracking-wider text-slate-500 block">
-              Action Required
+            <span className="text-[10px] font-mono uppercase tracking-wider text-slate-500 block font-medium">
+              Total Nominations
             </span>
-            <div className="text-xs font-medium text-navy-900 pt-1">
-              {drafts.length > 0 ? (
-                <span className="text-amber-800 font-mono">
-                  {drafts.length} draft{drafts.length > 1 ? "s" : ""} awaiting completion
-                </span>
-              ) : submitted.some((s) => s.status === "clarification_required") ? (
-                <span className="text-orange-700 font-mono font-semibold flex items-center gap-1">
-                  <AlertCircle size={13} /> Clarification requested
-                </span>
-              ) : (
-                <span className="text-emerald-700 font-mono flex items-center gap-1">
-                  <CheckCircle2 size={13} /> No pending applicant action
-                </span>
-              )}
+            <div className="flex items-baseline gap-2">
+              <span className="font-display text-3xl text-navy-900 font-semibold">{applications.length}</span>
+              <span className="text-xs font-mono text-slate-500">
+                {applications.length === 1 ? "1 total entry" : `${applications.length} total entries`}
+              </span>
             </div>
           </div>
 
           <div className="bg-[#FBFAF7] border border-navy-900/10 p-5 shadow-card space-y-1">
-            <span className="text-[10px] font-mono uppercase tracking-wider text-slate-500 block">
-              Latest Award Status
+            <span className="text-[10px] font-mono uppercase tracking-wider text-slate-500 block font-medium">
+              Portal Submission State
             </span>
             <div className="pt-1">
-              {submitted.length > 0 ? (
-                (() => {
-                  const cfg = STATUS_CONFIG[submitted[0].status] || STATUS_CONFIG.submitted;
-                  return (
-                    <span
-                      className={`inline-block px-2.5 py-0.5 text-[11px] font-mono uppercase tracking-wider font-semibold border ${cfg.bg} ${cfg.text} ${cfg.border}`}
-                    >
-                      {cfg.label}
-                    </span>
-                  );
-                })()
-              ) : (
-                <span className="text-xs font-mono text-slate-400">No submissions yet</span>
-              )}
+              <span className="inline-block px-2.5 py-1 text-[10px] font-mono uppercase tracking-wider font-semibold border bg-amber-50 text-amber-900 border-amber-300">
+                Drafts Open • Official Submission Pending Committee Ratification
+              </span>
             </div>
           </div>
         </div>
+
+        {/* ========================================================================= */}
+        {/* GLOBAL EMPTY STATE: When applicant has zero drafts and zero submissions */}
+        {/* ========================================================================= */}
+        {applications.length === 0 && (
+          <div className="bg-[#FBFAF7] border-2 border-dashed border-gold-500/30 p-8 sm:p-12 text-center space-y-4 shadow-sm">
+            <div className="w-14 h-14 rounded-full bg-gold-500/10 border border-gold-500/20 text-gold-700 flex items-center justify-center mx-auto">
+              <Sparkles size={26} />
+            </div>
+            <div className="space-y-2 max-w-md mx-auto">
+              <h3 className="font-display text-2xl text-navy-900 font-medium">
+                Begin Your First Nomination
+              </h3>
+              <p className="text-xs sm:text-sm text-[#4A4F5C] leading-relaxed font-sans">
+                Welcome to the Kutchmitra Home &amp; Decor Awards 2026. You can begin a nomination in any of our 12 award disciplines, save your draft at any step, and return to complete it whenever you wish.
+              </p>
+            </div>
+            <div className="pt-2">
+              <Button
+                href="/dashboard/nominations/new"
+                variant="primary"
+                size="lg"
+                icon={<ArrowRight size={15} />}
+                className="px-8 font-semibold tracking-wider text-xs uppercase"
+              >
+                Start Your First Nomination
+              </Button>
+            </div>
+          </div>
+        )}
 
         {/* ========================================================================= */}
         {/* MAIN BODY: Two Columns (Nominations Left, Profile & Notifications Right) */}
@@ -437,52 +481,52 @@ export default function ApplicantDashboardClient({
               </div>
 
               {drafts.length === 0 ? (
-                <div className="bg-[#FBFAF7] border border-dashed border-navy-900/15 p-8 text-center space-y-3">
-                  <div className="inline-flex p-3 rounded-full bg-navy-900/5 text-slate-400">
-                    <FileText size={24} />
+                applications.length > 0 && (
+                  <div className="bg-[#FBFAF7] border border-dashed border-navy-900/15 p-6 text-center space-y-2">
+                    <p className="text-xs text-[#4A4F5C]">
+                      You currently have no unsubmitted drafts. All your entries are submitted and locked.
+                    </p>
+                    <div className="pt-1">
+                      <Button
+                        href="/dashboard/nominations/new"
+                        variant="primary"
+                        size="sm"
+                        icon={<PlusCircle size={13} />}
+                      >
+                        Start Another Nomination
+                      </Button>
+                    </div>
                   </div>
-                  <h3 className="font-display text-base text-navy-900 font-medium">
-                    No Draft Nominations
-                  </h3>
-                  <p className="text-xs text-[#4A4F5C] max-w-sm mx-auto">
-                    You currently have no unsubmitted drafts. You can start a new nomination in any of
-                    the 12 categories, save your progress anytime, and resume whenever you wish.
-                  </p>
-                  <Button
-                    href="/dashboard/nominations/new"
-                    variant="primary"
-                    size="sm"
-                    icon={<PlusCircle size={13} />}
-                  >
-                    Start a Nomination
-                  </Button>
-                </div>
+                )
               ) : (
-                <div className="space-y-3">
+                <div className="space-y-4">
                   {drafts.map((draft) => {
                     const stepNum = draft.current_wizard_step || 1;
                     const stepLabel = WIZARD_STEP_LABELS[stepNum] || `Step ${stepNum}`;
                     const progressPercent = Math.round(((stepNum - 1) / 7) * 100);
+                    const nextAction = WIZARD_NEXT_ACTIONS[stepNum] || WIZARD_NEXT_ACTIONS[1];
+                    const isAutoName = !draft.project_name || draft.project_name.startsWith("Draft Entry (");
+                    const displayTitle = isAutoName ? "Untitled Nomination" : draft.project_name;
 
                     return (
                       <div
                         key={draft.id}
-                        className="bg-[#FBFAF7] border border-navy-900/10 p-5 shadow-card hover:border-gold-500/40 transition-colors space-y-4"
+                        className="bg-[#FBFAF7] border border-navy-900/10 p-5 sm:p-6 shadow-card hover:border-gold-500/40 transition-colors space-y-4"
                       >
-                        <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-2">
-                          <div>
-                            <div className="flex items-center gap-2">
+                        <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-3">
+                          <div className="space-y-1">
+                            <div className="flex items-center gap-2 flex-wrap">
                               <span className="text-[10px] font-mono uppercase tracking-wider text-gold-700 bg-gold-500/10 px-2 py-0.5 border border-gold-500/20 font-semibold">
-                                {draft.category?.name || "Category Pending"}
+                                #{draft.category?.code || "CAT"} • {draft.category?.name || "Category Pending"}
                               </span>
                               <span className="text-[11px] font-mono text-slate-400">
                                 Draft ID: {draft.nomination_id || "Unassigned"}
                               </span>
                             </div>
-                            <h3 className="font-display text-lg text-navy-900 font-medium pt-1">
-                              {draft.project_name || "Untitled Project Entry"}
+                            <h3 className="font-display text-lg sm:text-xl text-navy-900 font-medium pt-1">
+                              {displayTitle}
                             </h3>
-                            <p className="text-xs text-[#4A4F5C]">
+                            <p className="text-xs text-[#4A4F5C] font-sans">
                               Location: {draft.project_city || profile?.city || "Kutch"},{" "}
                               {draft.project_state || profile?.state || "Gujarat"}
                             </p>
@@ -491,13 +535,26 @@ export default function ApplicantDashboardClient({
                           <Button
                             href={`/dashboard/nominations/${draft.id}`}
                             variant="primary"
-                            size="sm"
+                            size="md"
                             icon={<ArrowRight size={13} />}
-                            className="whitespace-nowrap flex-shrink-0"
+                            className="whitespace-nowrap flex-shrink-0 !px-4 !py-2 text-xs font-semibold tracking-wider uppercase"
                           >
-                            Continue Nomination
+                            Continue Nomination →
                           </Button>
                         </div>
+
+                        {/* What Do I Do Next Guidance */}
+                        {nextAction && (
+                          <div className="p-3 bg-white border border-gold-500/30 space-y-1">
+                            <div className="flex items-center gap-1.5 text-gold-700 font-mono text-[11px] uppercase tracking-wider font-semibold">
+                              <Sparkles size={13} className="text-gold-600" />
+                              <span>Next Action Required: {nextAction.title}</span>
+                            </div>
+                            <p className="text-xs text-[#4A4F5C] font-sans leading-relaxed">
+                              {nextAction.desc}
+                            </p>
+                          </div>
+                        )}
 
                         {/* Step Progress Bar */}
                         <div className="space-y-1.5 pt-2 border-t border-navy-900/10">
@@ -516,8 +573,12 @@ export default function ApplicantDashboardClient({
                               style={{ width: `${Math.max(progressPercent, 10)}%` }}
                             />
                           </div>
-                          <span className="text-[10px] font-mono text-slate-400 block">
-                            Last modified: {new Date(draft.updated_at).toLocaleDateString("en-IN")} at{" "}
+                          <span className="text-[10px] font-mono text-slate-500 block">
+                            Last updated: {new Date(draft.updated_at).toLocaleDateString("en-IN", {
+                              day: "numeric",
+                              month: "short",
+                              year: "numeric",
+                            })} at{" "}
                             {new Date(draft.updated_at).toLocaleTimeString("en-IN", {
                               hour: "2-digit",
                               minute: "2-digit",
@@ -890,7 +951,7 @@ export default function ApplicantDashboardClient({
                   required
                   value={profileForm.fullName}
                   onChange={(e) => setProfileForm({ ...profileForm, fullName: e.target.value })}
-                  className="w-full px-3 py-2 text-sm bg-white border border-navy-900/15 focus:border-gold-500 focus:outline-none"
+                  className="w-full px-3 py-2 text-sm bg-white border border-navy-900/15 focus:border-gold-500 focus:ring-1 focus:ring-gold-500 focus:outline-none"
                 />
               </div>
 
@@ -904,7 +965,7 @@ export default function ApplicantDashboardClient({
                     required
                     value={profileForm.phone}
                     onChange={(e) => setProfileForm({ ...profileForm, phone: e.target.value })}
-                    className="w-full px-3 py-2 text-sm bg-white border border-navy-900/15 focus:border-gold-500 focus:outline-none"
+                    className="w-full px-3 py-2 text-sm bg-white border border-navy-900/15 focus:border-gold-500 focus:ring-1 focus:ring-gold-500 focus:outline-none"
                   />
                 </div>
 
@@ -917,7 +978,7 @@ export default function ApplicantDashboardClient({
                     placeholder="e.g. Principal Architect"
                     value={profileForm.designation}
                     onChange={(e) => setProfileForm({ ...profileForm, designation: e.target.value })}
-                    className="w-full px-3 py-2 text-sm bg-white border border-navy-900/15 focus:border-gold-500 focus:outline-none"
+                    className="w-full px-3 py-2 text-sm bg-white border border-navy-900/15 focus:border-gold-500 focus:ring-1 focus:ring-gold-500 focus:outline-none"
                   />
                 </div>
               </div>
@@ -931,7 +992,7 @@ export default function ApplicantDashboardClient({
                   required
                   value={profileForm.organizationName}
                   onChange={(e) => setProfileForm({ ...profileForm, organizationName: e.target.value })}
-                  className="w-full px-3 py-2 text-sm bg-white border border-navy-900/15 focus:border-gold-500 focus:outline-none"
+                  className="w-full px-3 py-2 text-sm bg-white border border-navy-900/15 focus:border-gold-500 focus:ring-1 focus:ring-gold-500 focus:outline-none"
                 />
               </div>
 
@@ -944,7 +1005,7 @@ export default function ApplicantDashboardClient({
                   placeholder="Street, Suite or Building"
                   value={profileForm.addressLine}
                   onChange={(e) => setProfileForm({ ...profileForm, addressLine: e.target.value })}
-                  className="w-full px-3 py-2 text-sm bg-white border border-navy-900/15 focus:border-gold-500 focus:outline-none"
+                  className="w-full px-3 py-2 text-sm bg-white border border-navy-900/15 focus:border-gold-500 focus:ring-1 focus:ring-gold-500 focus:outline-none"
                 />
               </div>
 
@@ -958,7 +1019,7 @@ export default function ApplicantDashboardClient({
                     required
                     value={profileForm.city}
                     onChange={(e) => setProfileForm({ ...profileForm, city: e.target.value })}
-                    className="w-full px-3 py-2 text-sm bg-white border border-navy-900/15 focus:border-gold-500 focus:outline-none"
+                    className="w-full px-3 py-2 text-sm bg-white border border-navy-900/15 focus:border-gold-500 focus:ring-1 focus:ring-gold-500 focus:outline-none"
                   />
                 </div>
 
@@ -971,7 +1032,7 @@ export default function ApplicantDashboardClient({
                     required
                     value={profileForm.state}
                     onChange={(e) => setProfileForm({ ...profileForm, state: e.target.value })}
-                    className="w-full px-3 py-2 text-sm bg-white border border-navy-900/15 focus:border-gold-500 focus:outline-none"
+                    className="w-full px-3 py-2 text-sm bg-white border border-navy-900/15 focus:border-gold-500 focus:ring-1 focus:ring-gold-500 focus:outline-none"
                   />
                 </div>
 
@@ -984,7 +1045,7 @@ export default function ApplicantDashboardClient({
                     placeholder="370001"
                     value={profileForm.postalCode}
                     onChange={(e) => setProfileForm({ ...profileForm, postalCode: e.target.value })}
-                    className="w-full px-3 py-2 text-sm bg-white border border-navy-900/15 focus:border-gold-500 focus:outline-none"
+                    className="w-full px-3 py-2 text-sm bg-white border border-navy-900/15 focus:border-gold-500 focus:ring-1 focus:ring-gold-500 focus:outline-none"
                   />
                 </div>
               </div>
@@ -999,7 +1060,7 @@ export default function ApplicantDashboardClient({
                     placeholder="https://firm.com"
                     value={profileForm.websiteUrl}
                     onChange={(e) => setProfileForm({ ...profileForm, websiteUrl: e.target.value })}
-                    className="w-full px-3 py-2 text-sm bg-white border border-navy-900/15 focus:border-gold-500 focus:outline-none"
+                    className="w-full px-3 py-2 text-sm bg-white border border-navy-900/15 focus:border-gold-500 focus:ring-1 focus:ring-gold-500 focus:outline-none"
                   />
                 </div>
 
@@ -1012,7 +1073,7 @@ export default function ApplicantDashboardClient({
                     placeholder="https://instagram.com/firm"
                     value={profileForm.portfolioUrl}
                     onChange={(e) => setProfileForm({ ...profileForm, portfolioUrl: e.target.value })}
-                    className="w-full px-3 py-2 text-sm bg-white border border-navy-900/15 focus:border-gold-500 focus:outline-none"
+                    className="w-full px-3 py-2 text-sm bg-white border border-navy-900/15 focus:border-gold-500 focus:ring-1 focus:ring-gold-500 focus:outline-none"
                   />
                 </div>
               </div>

@@ -140,7 +140,12 @@ export function Header() {
             <button
               type="button"
               onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-              className="p-2 text-slate-300 hover:text-white hover:bg-white/5 border border-white/10 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-gold-500"
+              className={cn(
+                "p-2 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-gold-500",
+                mobileMenuOpen
+                  ? "text-gold-400 bg-gold-500/10 border border-gold-500/40"
+                  : "text-slate-300 hover:text-white hover:bg-white/5 border border-white/10"
+              )}
               aria-label={mobileMenuOpen ? "Close navigation menu" : "Open navigation menu"}
               aria-expanded={mobileMenuOpen}
             >
@@ -150,65 +155,69 @@ export function Header() {
         </div>
       </div>
 
-      {/* Mobile Navigation Drawer */}
-      {mobileMenuOpen && (
-        <div
-          role="dialog"
-          aria-modal="true"
-          aria-label="Mobile Navigation Menu"
-          className="xl:hidden fixed inset-x-0 top-[calc(4rem+1px)] lg:top-[calc(4.5rem+1px)] bottom-0 z-50 bg-navy-950/98 backdrop-blur-lg border-t border-white/10 overflow-y-auto animate-fade-up"
-        >
-          <div className="container-editorial py-6 flex flex-col min-h-full justify-between gap-8">
-            <nav aria-label="Mobile Navigation" className="flex flex-col divide-y divide-white/5">
-              {NAV_LINKS.map((link) => {
-                const isActive = pathname === link.href;
-                return (
-                  <Link
-                    key={link.href}
-                    href={link.href}
-                    className={cn(
-                      "py-3.5 text-base font-medium tracking-wide flex items-center justify-between transition-colors",
-                      isActive
-                        ? "text-gold-400 font-semibold pl-2 border-l-2 border-gold-500"
-                        : "text-slate-200 hover:text-white"
-                    )}
-                  >
-                    <span>{link.label}</span>
-                    <ArrowRight size={14} className={isActive ? "text-gold-400" : "text-slate-600"} />
-                  </Link>
-                );
-              })}
-            </nav>
+      {/* Mobile Navigation Drawer — Solid Warm Ivory Background for Maximum Contrast & Readability */}
+      <div
+        role="dialog"
+        aria-modal="true"
+        aria-label="Mobile Navigation Menu"
+        className={cn(
+          "xl:hidden fixed inset-x-0 top-[calc(4rem+1px)] lg:top-[calc(4.5rem+1px)] bottom-0 z-50 bg-[#FBFAF7] border-t border-navy-900/15 shadow-2xl overflow-y-auto transition-all duration-200",
+          mobileMenuOpen
+            ? "opacity-100 pointer-events-auto translate-y-0 visible"
+            : "opacity-0 pointer-events-none -translate-y-2 invisible"
+        )}
+      >
+        <div className="container-editorial py-6 flex flex-col min-h-full justify-between gap-8">
+          <nav aria-label="Mobile Navigation" className="flex flex-col divide-y divide-navy-900/10">
+            {NAV_LINKS.map((link) => {
+              const isActive = pathname === link.href;
+              return (
+                <Link
+                  key={link.href}
+                  href={link.href}
+                  className={cn(
+                    "py-3.5 px-3 text-base font-medium tracking-wide flex items-center justify-between transition-colors",
+                    isActive
+                      ? "text-gold-700 font-semibold bg-gold-500/10 pl-3.5 border-l-4 border-gold-500"
+                      : "text-navy-900 hover:text-gold-700 hover:bg-navy-900/5"
+                  )}
+                >
+                  <span>{link.label}</span>
+                  <ArrowRight
+                    size={15}
+                    className={isActive ? "text-gold-600" : "text-navy-900/50"}
+                  />
+                </Link>
+              );
+            })}
+          </nav>
 
-            {/* Mobile Footer Actions */}
-            <div className="pt-6 border-t border-white/10 space-y-3 pb-8">
-              <Button
-                href="/register"
-                variant="primary"
-                size="md"
-                className="w-full"
-                icon={<ArrowRight size={14} />}
-              >
-                Nominate Now
-              </Button>
+          {/* Mobile Footer Actions */}
+          <div className="pt-6 border-t border-navy-900/10 space-y-3 pb-8">
+            <Button
+              href="/register"
+              variant="primary"
+              size="md"
+              className="w-full justify-center text-xs uppercase tracking-wider font-semibold"
+              icon={<ArrowRight size={14} />}
+            >
+              Nominate Now
+            </Button>
 
-              <Button
-                href="/login"
-                variant="secondary"
-                size="md"
-                className="w-full"
-                icon={<User size={14} />}
-              >
-                Applicant Portal Login
-              </Button>
+            <Link
+              href="/login"
+              className="w-full flex items-center justify-center gap-2 py-3 px-4 border border-navy-900/20 bg-white hover:bg-navy-900 hover:text-white text-navy-900 text-xs font-mono uppercase tracking-wider font-semibold transition-colors duration-150 shadow-sm"
+            >
+              <User size={14} className="text-gold-600" />
+              <span>Applicant Portal Login</span>
+            </Link>
 
-              <p className="text-[11px] text-center text-slate-500 font-mono tracking-wider uppercase pt-2">
-                Kutchmitra Home &amp; Decor Awards 2026
-              </p>
-            </div>
+            <p className="text-[11px] text-center text-slate-500 font-mono tracking-wider uppercase pt-2">
+              Kutchmitra Home &amp; Decor Awards 2026 &bull; Janmabhoomi Group
+            </p>
           </div>
         </div>
-      )}
+      </div>
     </header>
   );
 }

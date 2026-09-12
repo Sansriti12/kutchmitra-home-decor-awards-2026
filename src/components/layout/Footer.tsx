@@ -36,11 +36,11 @@ const CATEGORIES_SAMPLE = [
 
 export function Footer() {
   return (
-    <footer className="bg-navy-950 text-slate-300 border-t border-white/10 mt-auto">
+    <footer className="bg-[#060B18] text-slate-300 border-t border-white/15 mt-auto">
       {/* Top Hairline Gold Accent */}
-      <div className="w-full h-px bg-gradient-to-r from-transparent via-gold-500/40 to-transparent" />
+      <div className="w-full h-px bg-gradient-to-r from-transparent via-gold-500/50 to-transparent" />
 
-      <div className="container-editorial py-8 sm:py-10">
+      <div className="container-editorial py-7 sm:py-9">
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-12 gap-6 lg:gap-8 items-start">
           {/* Col 1: Concise Brand & Edition (4 cols) */}
           <div className="lg:col-span-4 space-y-3">

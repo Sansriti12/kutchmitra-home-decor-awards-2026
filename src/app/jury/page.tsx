@@ -36,7 +36,7 @@ export default function JuryPage() {
   return (
     <main className="flex-1 bg-ivory text-navy-900">
       {/* Banner */}
-      <section className="py-16 sm:py-24 border-b border-navy-900/10 bg-[#FBFAF7]">
+      <section className="py-10 sm:py-14 lg:py-16 border-b border-navy-900/10 bg-[#FBFAF7]">
         <div className="container-editorial space-y-6">
           <SectionMarker number="01" label="Independent Assessment" theme="light" />
           <h1 className="heading-display text-navy-900 max-w-3xl">
@@ -49,7 +49,7 @@ export default function JuryPage() {
       </section>
 
       {/* Jury Panel Announcement Section */}
-      <section className="py-16 sm:py-24 border-b border-navy-900/10">
+      <section className="py-10 sm:py-14 lg:py-16 border-b border-navy-900/10">
         <div className="container-editorial space-y-8">
           <div className="space-y-3">
             <SectionMarker number="02" label="Evaluation Panel" theme="light" />
@@ -107,7 +107,7 @@ export default function JuryPage() {
       </section>
 
       {/* Suggested Scoring Framework */}
-      <section className="py-16 sm:py-24 bg-[#FBFAF7] border-b border-navy-900/10">
+      <section className="py-10 sm:py-14 lg:py-16 bg-[#FBFAF7] border-b border-navy-900/10">
         <div className="container-editorial space-y-12">
           <div className="space-y-3 max-w-2xl">
             <SectionMarker number="03" label="Evaluation Standards" theme="light" />
@@ -145,7 +145,7 @@ export default function JuryPage() {
       </section>
 
       {/* Confidentiality & Integrity */}
-      <section className="py-16 sm:py-24 border-b border-navy-900/10">
+      <section className="py-10 sm:py-14 lg:py-16 border-b border-navy-900/10">
         <div className="container-editorial">
           <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-12 items-center">
             <div className="lg:col-span-4 space-y-3">
