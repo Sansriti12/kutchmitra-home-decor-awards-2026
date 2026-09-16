@@ -38,6 +38,7 @@ export default function RegisterPage() {
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
   const [successMessage, setSuccessMessage] = useState<string | null>(null);
   const [emailConfirmationRequired, setEmailConfirmationRequired] = useState(false);
+  const [isDuplicateAccount, setIsDuplicateAccount] = useState(false);
 
   // Validate Indian mobile number (10 digits starting with 6, 7, 8, or 9, optional +91 or 0 prefix)
   const validateMobile = (mobile: string): boolean => {
@@ -58,6 +59,7 @@ export default function RegisterPage() {
     e.preventDefault();
     setErrorMessage(null);
     setSuccessMessage(null);
+    setIsDuplicateAccount(false);
 
     // Client-side validations
     if (!formData.fullName.trim()) {
@@ -111,11 +113,13 @@ export default function RegisterPage() {
       const supabase = createClient();
       const cleanedPhone = cleanMobileNumber(formData.mobile);
       const now = new Date().toISOString();
+      const redirectOrigin = typeof window !== "undefined" ? window.location.origin : "";
 
       const { data, error } = await supabase.auth.signUp({
         email: formData.email.trim().toLowerCase(),
         password: formData.password,
         options: {
+          emailRedirectTo: redirectOrigin ? `${redirectOrigin}/auth/callback` : undefined,
           data: {
             full_name: formData.fullName.trim(),
             phone: cleanedPhone,
@@ -129,27 +133,53 @@ export default function RegisterPage() {
       });
 
       if (error) {
+        console.error("Supabase registration error:", error);
+        const errorMsgLower = error.message.toLowerCase();
+
         if (
-          error.message.toLowerCase().includes("already registered") ||
-          error.message.toLowerCase().includes("user already exists")
+          errorMsgLower.includes("already registered") ||
+          errorMsgLower.includes("user already exists") ||
+          errorMsgLower.includes("already in use")
         ) {
-          setErrorMessage("An account with this email address already exists. Please sign in instead.");
+          setIsDuplicateAccount(true);
+          setErrorMessage("This email address is already registered. Please sign in instead.");
+        } else if (
+          errorMsgLower.includes("rate limit") ||
+          (error as any).code === "over_email_send_rate_limit"
+        ) {
+          setErrorMessage("Too many registration requests. Please wait a few moments before trying again, or check your email if you already initiated registration.");
+        } else if (errorMsgLower.includes("email") && errorMsgLower.includes("invalid")) {
+          setErrorMessage("The email address provided could not be verified by the authentication server. Please check your email spelling.");
         } else {
-          setErrorMessage(error.message);
+          setErrorMessage(error.message || "Registration could not be completed. Please try again.");
         }
+        setLoading(false);
+        return;
+      }
+
+      // Supabase returns a user with empty identities when email already exists (security mitigation)
+      const userIdentities = data.user?.identities;
+      if (data.user && Array.isArray(userIdentities) && userIdentities.length === 0) {
+        setIsDuplicateAccount(true);
+        setErrorMessage("This email address is already registered. Please sign in instead.");
         setLoading(false);
         return;
       }
 
       // Check if session was created immediately (email confirmation disabled)
       if (data.session && data.user) {
-        await ensureApplicantProfile(supabase, data.user, {
-          organization_name: formData.firm.trim(),
-          city: formData.city.trim(),
-          state: formData.state.trim(),
-          terms_accepted_at: now,
-          privacy_accepted_at: now,
-        });
+        try {
+          await ensureApplicantProfile(supabase, data.user, {
+            organization_name: formData.firm.trim(),
+            city: formData.city.trim(),
+            state: formData.state.trim(),
+            terms_accepted_at: now,
+            privacy_accepted_at: now,
+          });
+        } catch (profileErr) {
+          // Log profile creation error; user account exists and profile will be reconciled upon dashboard entry
+          console.error("Non-fatal profile initialization notice:", profileErr);
+        }
 
         setSuccessMessage("Account created successfully! Redirecting to your applicant portal...");
         setTimeout(() => {
@@ -164,8 +194,19 @@ export default function RegisterPage() {
         );
       }
     } catch (err: unknown) {
-      console.error("Registration error:", err);
-      setErrorMessage("An unexpected error occurred during registration. Please try again.");
+      console.error("Registration caught exception:", err);
+      const rawMessage = err instanceof Error ? err.message : String(err);
+      const lower = rawMessage.toLowerCase();
+
+      if (lower.includes("failed to fetch") || lower.includes("networkerror")) {
+        setErrorMessage("Unable to connect to the authentication server. Please check your internet connection or disable adblockers blocking authentication requests.");
+      } else if (lower.includes("missing supabase") || lower.includes("environment variable")) {
+        setErrorMessage("Authentication service configuration is currently unavailable. Please try again shortly or contact support.");
+      } else if (err instanceof Error && err.message) {
+        setErrorMessage(err.message);
+      } else {
+        setErrorMessage("An unexpected error occurred during registration. Please check your details and try again.");
+      }
     } finally {
       setLoading(false);
     }
@@ -190,24 +231,57 @@ export default function RegisterPage() {
 
           {/* Email Confirmation Notice Screen */}
           {emailConfirmationRequired ? (
-            <div className="p-6 bg-white border border-gold-500/40 text-center space-y-4">
+            <div className="p-6 sm:p-8 bg-white border border-gold-500/40 text-center space-y-5">
               <div className="inline-flex p-3 rounded-full bg-gold-500/10 text-gold-600">
                 <CheckCircle2 size={32} />
               </div>
-              <h2 className="font-display text-xl text-navy-900 font-medium">
-                Check Your Email
-              </h2>
-              <p className="text-xs text-[#4A4F5C] leading-relaxed">
-                We have sent an account verification email to{" "}
-                <strong className="text-navy-900">{formData.email}</strong>. Please click the link
-                in that email to activate your account and proceed to the applicant portal.
+
+              <div className="space-y-1.5">
+                <span className="text-[10px] font-mono uppercase tracking-widest text-gold-700 bg-gold-500/10 px-2.5 py-0.5 border border-gold-500/20 font-semibold inline-block">
+                  Registration Submitted
+                </span>
+                <h2 className="font-display text-2xl text-navy-900 font-medium">
+                  Verification Required
+                </h2>
+              </div>
+
+              <p className="text-xs sm:text-sm text-[#4A4F5C] leading-relaxed max-w-md mx-auto">
+                Your account registration request has been received. An activation link has been requested for{" "}
+                <strong className="text-navy-900 font-semibold">{formData.email}</strong>.
               </p>
-              <div className="pt-4 border-t border-navy-900/10">
+
+              {/* Delivery Advisory Box */}
+              <div className="p-4 bg-[#FBFAF7] border border-navy-900/10 text-left space-y-2 text-xs text-[#4A4F5C]">
+                <div className="flex items-center gap-2 font-mono text-[11px] font-semibold text-navy-900 uppercase">
+                  <ShieldCheck size={14} className="text-gold-600" />
+                  <span>Important Delivery Advisory</span>
+                </div>
+                <ul className="space-y-1.5 list-disc list-inside text-[11px] text-slate-600">
+                  <li>
+                    Please check both your <strong>Inbox</strong> and <strong>Spam / Junk</strong> folder.
+                  </li>
+                  <li>
+                    Automated authentication emails may take a few minutes to arrive depending on mail server traffic.
+                  </li>
+                  <li>
+                    If the email is not received, verify that your email address was entered correctly, or contact awards support.
+                  </li>
+                </ul>
+              </div>
+
+              <div className="pt-2 flex flex-col sm:flex-row items-center justify-center gap-3 border-t border-navy-900/10">
+                <button
+                  type="button"
+                  onClick={() => setEmailConfirmationRequired(false)}
+                  className="w-full sm:w-auto px-4 py-2.5 border border-navy-900/15 bg-white text-xs font-mono uppercase tracking-wider text-slate-600 hover:text-navy-900 transition-colors cursor-pointer"
+                >
+                  Back to Form
+                </button>
                 <Button
                   href="/login"
                   variant="primary"
                   size="md"
-                  className="w-full"
+                  className="w-full sm:w-auto"
                   icon={<ArrowRight size={14} />}
                 >
                   Go to Sign In
@@ -218,9 +292,22 @@ export default function RegisterPage() {
             <>
               {/* Error Banner */}
               {errorMessage && (
-                <div className="p-3 bg-red-50 border border-red-200 text-xs font-sans text-red-700 flex items-start gap-2 animate-fade-up">
-                  <AlertCircle size={15} className="flex-shrink-0 mt-0.5 text-red-600" />
-                  <span>{errorMessage}</span>
+                <div className="p-4 bg-red-50 border border-red-200 text-xs font-sans text-red-800 space-y-2 animate-fade-up">
+                  <div className="flex items-start gap-2">
+                    <AlertCircle size={16} className="flex-shrink-0 mt-0.5 text-red-600" />
+                    <span className="leading-relaxed font-medium">{errorMessage}</span>
+                  </div>
+                  {isDuplicateAccount && (
+                    <div className="pt-2 border-t border-red-200/60 flex items-center justify-end">
+                      <Link
+                        href="/login"
+                        className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-navy-900 text-white hover:bg-navy-800 text-xs font-mono uppercase tracking-wider font-semibold transition-colors"
+                      >
+                        <span>Go to Sign In</span>
+                        <ArrowRight size={12} />
+                      </Link>
+                    </div>
+                  )}
                 </div>
               )}
 

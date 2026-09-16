@@ -137,6 +137,9 @@ export default function AboutPage() {
 
           {/* Main Editorial Heading */}
           <div className="space-y-3.5 max-w-4xl">
+            <span className="font-mono text-xs sm:text-sm uppercase tracking-[0.2em] text-gold-700 font-semibold block">
+              About Kutchmitra Home &amp; Decor Awards 2026
+            </span>
             <h1 className="font-display text-3xl sm:text-4xl md:text-5xl lg:text-5xl text-navy-900 font-medium leading-[1.18] tracking-tight">
               A Legacy of Journalism, Public Service &amp; Regional Connect
             </h1>

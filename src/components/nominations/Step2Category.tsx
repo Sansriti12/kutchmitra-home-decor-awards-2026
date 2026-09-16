@@ -1,7 +1,17 @@
 "use client";
 
-import React, { useState } from "react";
-import { Layers, CheckCircle2, ArrowRight, ArrowLeft, RefreshCw, AlertTriangle, ShieldCheck } from "lucide-react";
+import React, { useState, useEffect } from "react";
+import {
+  Layers,
+  CheckCircle2,
+  ArrowRight,
+  ArrowLeft,
+  RefreshCw,
+  AlertTriangle,
+  ShieldCheck,
+  X,
+  Loader2,
+} from "lucide-react";
 import { Button } from "@/components/ui/Button";
 
 export interface CategoryOption {
@@ -32,12 +42,26 @@ export default function Step2Category({
 }: Step2CategoryProps) {
   const [isChanging, setIsChanging] = useState(false);
   const [pendingCategoryId, setPendingCategoryId] = useState<string | null>(null);
+  const [showConfirmModal, setShowConfirmModal] = useState(false);
   const [switching, setSwitching] = useState(false);
 
   const currentCategory = categories.find((c) => c.id === selectedCategoryId) || categories[0];
+  const targetCategory = categories.find((c) => c.id === pendingCategoryId);
+
+  // Close modal on Escape key press if not actively switching
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === "Escape" && showConfirmModal && !switching) {
+        setShowConfirmModal(false);
+      }
+    };
+    window.addEventListener("keydown", handleKeyDown);
+    return () => window.removeEventListener("keydown", handleKeyDown);
+  }, [showConfirmModal, switching]);
 
   const handleConfirmSwitch = async () => {
     if (!pendingCategoryId || pendingCategoryId === selectedCategoryId) {
+      setShowConfirmModal(false);
       setIsChanging(false);
       return;
     }
@@ -45,6 +69,7 @@ export default function Step2Category({
     setSwitching(true);
     try {
       await onCategoryChange(pendingCategoryId);
+      setShowConfirmModal(false);
       setIsChanging(false);
       setPendingCategoryId(null);
     } finally {
@@ -185,7 +210,10 @@ export default function Step2Category({
           <div className="flex items-center justify-end gap-3 pt-4 border-t border-navy-900/10">
             <button
               type="button"
-              onClick={() => setIsChanging(false)}
+              onClick={() => {
+                setIsChanging(false);
+                setPendingCategoryId(null);
+              }}
               disabled={switching}
               className="px-4 py-2 border border-navy-900/15 bg-white text-xs font-mono uppercase tracking-wider text-slate-600 hover:text-navy-900 transition-colors"
             >
@@ -193,12 +221,105 @@ export default function Step2Category({
             </button>
             <button
               type="button"
-              onClick={handleConfirmSwitch}
+              onClick={() => {
+                if (pendingCategoryId && pendingCategoryId !== selectedCategoryId) {
+                  setShowConfirmModal(true);
+                }
+              }}
               disabled={switching || !pendingCategoryId || pendingCategoryId === selectedCategoryId}
               className="px-5 py-2 bg-navy-900 hover:bg-navy-800 text-gold-400 font-mono text-xs uppercase tracking-wider font-semibold transition-colors disabled:opacity-50 shadow-xs cursor-pointer"
             >
-              {switching ? "Switching..." : "Confirm New Category"}
+              Change Category
             </button>
+          </div>
+        </div>
+      )}
+
+      {/* Confirmation Modal */}
+      {showConfirmModal && targetCategory && (
+        <div
+          className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-navy-950/70 backdrop-blur-xs animate-in fade-in duration-150"
+          role="dialog"
+          aria-modal="true"
+          aria-labelledby="category-modal-title"
+        >
+          <div
+            className="bg-[#FBFAF7] border-2 border-gold-500/50 max-w-lg w-full p-6 sm:p-8 shadow-2xl space-y-6 relative animate-in zoom-in-95 duration-150"
+            onClick={(e) => e.stopPropagation()}
+          >
+            {/* Close Button */}
+            <button
+              type="button"
+              onClick={() => !switching && setShowConfirmModal(false)}
+              disabled={switching}
+              aria-label="Close dialog"
+              className="absolute top-4 right-4 p-1.5 text-slate-400 hover:text-navy-900 transition-colors disabled:opacity-50 cursor-pointer"
+            >
+              <X size={18} />
+            </button>
+
+            {/* Header */}
+            <div className="flex items-start gap-3.5">
+              <div className="w-10 h-10 rounded-full bg-amber-500/10 border border-amber-500/30 text-amber-700 flex items-center justify-center flex-shrink-0">
+                <AlertTriangle size={20} />
+              </div>
+              <div className="space-y-1">
+                <span className="text-[10px] font-mono uppercase tracking-widest text-amber-800 font-semibold block">
+                  Confirmation Required
+                </span>
+                <h3 id="category-modal-title" className="font-display text-xl sm:text-2xl text-navy-900 font-bold">
+                  Change Award Category?
+                </h3>
+              </div>
+            </div>
+
+            {/* Body Explanation */}
+            <p className="text-sm text-[#4A4F5C] leading-relaxed">
+              You are changing the award category for this nomination. Category-specific information may need to be completed again for the new category.
+            </p>
+
+            {/* Category Comparison Box */}
+            <div className="p-4 bg-white border border-navy-900/10 space-y-3 text-xs">
+              <div className="flex items-center justify-between gap-2 pb-2 border-b border-navy-900/5">
+                <span className="font-mono text-[10px] uppercase text-slate-400">Current Category</span>
+                <span className="font-mono font-bold text-navy-900 text-right truncate">
+                  #{currentCategory?.code} · {currentCategory?.name}
+                </span>
+              </div>
+              <div className="flex items-center justify-between gap-2">
+                <span className="font-mono text-[10px] uppercase text-gold-700 font-semibold">New Category</span>
+                <span className="font-mono font-bold text-gold-800 text-right truncate">
+                  #{targetCategory?.code} · {targetCategory?.name}
+                </span>
+              </div>
+            </div>
+
+            {/* Modal Action Buttons */}
+            <div className="flex items-center justify-end gap-3 pt-2">
+              <button
+                type="button"
+                onClick={() => setShowConfirmModal(false)}
+                disabled={switching}
+                className="px-4 py-2.5 border border-navy-900/15 bg-white text-xs font-mono uppercase tracking-wider text-slate-700 hover:text-navy-900 hover:bg-slate-50 transition-colors disabled:opacity-50 cursor-pointer"
+              >
+                Cancel
+              </button>
+              <button
+                type="button"
+                onClick={handleConfirmSwitch}
+                disabled={switching}
+                className="inline-flex items-center gap-2 px-5 py-2.5 bg-navy-900 hover:bg-navy-800 text-gold-400 font-mono text-xs uppercase tracking-wider font-semibold transition-colors disabled:opacity-50 shadow-sm cursor-pointer"
+              >
+                {switching ? (
+                  <>
+                    <Loader2 size={13} className="animate-spin" />
+                    <span>Updating...</span>
+                  </>
+                ) : (
+                  <span>Change Category</span>
+                )}
+              </button>
+            </div>
           </div>
         </div>
       )}

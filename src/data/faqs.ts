@@ -9,7 +9,7 @@ export const HOMEPAGE_FAQS: FaqItem[] = [
     id: "faq-1",
     question: "Who can submit nominations for the awards?",
     answer:
-      "The awards celebrate excellence across architecture, interior design, and residential development. Detailed applicant eligibility guidelines for each of the 12 categories will be officially confirmed by the organizing committee prior to portal opening.",
+      "The awards celebrate excellence across architecture, interior design, and residential development. Detailed applicant eligibility guidelines for each of the 12 categories will be officially confirmed by Kutchmitra prior to portal opening.",
   },
   {
     id: "faq-2",
@@ -27,7 +27,7 @@ export const HOMEPAGE_FAQS: FaqItem[] = [
     id: "faq-4",
     question: "What types of media and documents can be uploaded?",
     answer:
-      "Supported upload types include cover image, project photos, interior/exterior photos, floor plans/drawings, 3D views/renderings, portfolio/brochure, and supporting documents. Detailed submission and file specifications will be confirmed by the organizing committee.",
+      "Supported upload types include cover image, project photos, interior/exterior photos, floor plans/drawings, 3D views/renderings, portfolio/brochure, and supporting documents. Detailed submission and file specifications will be confirmed by Kutchmitra.",
   },
   {
     id: "faq-5",

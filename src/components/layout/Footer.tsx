@@ -99,8 +99,40 @@ export function Footer() {
             </ul>
           </div>
 
-          {/* Col 4: Categories & Secretariat Notice (4 cols) */}
-          <div className="lg:col-span-4 space-y-3">
+          {/* Col 4: Contact Us (2 cols) */}
+          <div className="lg:col-span-2 space-y-2">
+            <h4 className="font-mono text-[11px] uppercase tracking-wider text-white font-semibold">
+              Contact Us
+            </h4>
+            <div className="text-xs font-sans space-y-1.5 text-slate-400 leading-relaxed">
+              <p className="text-white font-medium">Kutchmitra</p>
+              <p>Nr. Indirabai Park</p>
+              <p>Bhuj, Kutch – 370001</p>
+              <div className="pt-1 space-y-1">
+                <p>
+                  <span className="text-slate-500 block text-[10px] font-mono uppercase">Email:</span>
+                  <a
+                    href="mailto:Kutchmitraweb@gmail.com"
+                    className="text-slate-300 hover:text-gold-400 transition-colors break-all"
+                  >
+                    Kutchmitraweb@gmail.com
+                  </a>
+                </p>
+                <p>
+                  <span className="text-slate-500 block text-[10px] font-mono uppercase">Helpline:</span>
+                  <a
+                    href="tel:+917211189211"
+                    className="text-slate-300 hover:text-gold-400 transition-colors font-mono"
+                  >
+                    +91 7211189211
+                  </a>
+                </p>
+              </div>
+            </div>
+          </div>
+
+          {/* Col 5: Categories (2 cols) */}
+          <div className="lg:col-span-2 space-y-2">
             <div className="flex items-center justify-between">
               <h4 className="font-mono text-[11px] uppercase tracking-wider text-white font-semibold">
                 12 Categories
@@ -109,21 +141,15 @@ export function Footer() {
                 href="/categories"
                 className="text-[10px] font-mono uppercase tracking-wider text-gold-400 hover:text-gold-300"
               >
-                View All →
+                All →
               </Link>
             </div>
-            <div className="grid grid-cols-2 gap-x-2 gap-y-1 text-[11px] text-slate-400 font-sans">
+            <div className="space-y-1 text-[11px] text-slate-400 font-sans">
               {CATEGORIES_SAMPLE.slice(0, 6).map((cat) => (
-                <span key={cat} className="truncate">
+                <p key={cat} className="truncate">
                   • {cat}
-                </span>
+                </p>
               ))}
-            </div>
-            <div className="p-2.5 bg-navy-900/60 border border-white/5 text-[11px] text-slate-400 leading-relaxed">
-              <span className="text-gold-400 font-mono text-[10px] uppercase tracking-wider block font-semibold mb-0.5">
-                Secretariat Notice
-              </span>
-              Official helpline &amp; contact info will be published prior to nominations.
             </div>
           </div>
         </div>
@@ -141,10 +167,6 @@ export function Footer() {
             <Link href="/privacy" className="hover:text-gold-400 transition-colors">
               Privacy Policy
             </Link>
-            <span className="text-white/20">|</span>
-            <span className="text-slate-400 italic">
-              Provisional edition framework
-            </span>
           </div>
         </div>
       </div>

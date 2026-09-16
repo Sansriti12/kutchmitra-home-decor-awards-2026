@@ -74,17 +74,12 @@ export default function CategoryDetailPage({ params }: PageProps) {
                 {category.title}
               </h1>
 
-              <p className="body-editorial text-[#4A4F5C] text-lg sm:text-xl leading-relaxed">
-                {category.shortDescription}
-              </p>
-
-              {/* Status Banner per user requirement */}
-              <div className="p-5 bg-[#FBFAF7] border-l-2 border-gold-500 border-y border-r border-navy-900/10 space-y-2">
-                <span className="font-mono text-[10px] uppercase tracking-widest text-gold-600 font-semibold block">
-                  Edition 2026 Notice
+              <div className="p-6 bg-[#FBFAF7] border-l-2 border-gold-500 border-y border-r border-navy-900/10 space-y-2">
+                <span className="font-mono text-xs uppercase tracking-wider text-navy-900 font-semibold block">
+                  What This Category Recognizes
                 </span>
-                <p className="text-sm font-sans text-[#4A4F5C] leading-relaxed">
-                  Category details will be published as the 2026 edition guidelines are finalized.
+                <p className="text-base text-[#4A4F5C] leading-relaxed font-sans">
+                  {category.recognizes}
                 </p>
               </div>
 
@@ -149,7 +144,7 @@ export default function CategoryDetailPage({ params }: PageProps) {
 
               <div className="pt-3 border-t border-navy-900/10 space-y-1">
                 <p className="text-[11px] font-sans text-[#4A4F5C] italic leading-relaxed">
-                  Detailed submission and file specifications will be confirmed by the organizing committee.
+                  Detailed submission and file specifications will be confirmed by Kutchmitra.
                 </p>
                 <span className="text-[10px] font-mono text-slate-400 block pt-1">
                   CONFIDENTIAL JURY EVALUATION

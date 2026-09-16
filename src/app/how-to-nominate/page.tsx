@@ -187,7 +187,7 @@ export default function HowToNominatePage() {
               Official Submission Notice
             </span>
             <p className="text-sm font-sans text-navy-900 font-medium">
-              Detailed submission and file specifications will be confirmed by the organizing committee.
+              Detailed submission and file specifications will be confirmed by Kutchmitra.
             </p>
             <p className="text-xs font-sans text-[#4A4F5C]">
               Upload limits, allowed file formats, resolution recommendations, and maximum file sizes will be configured within the portal prior to nomination opening.

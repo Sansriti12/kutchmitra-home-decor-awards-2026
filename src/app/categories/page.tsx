@@ -90,7 +90,7 @@ export default function CategoriesPage() {
 
           {/* Bottom Note */}
           <div className="p-6 bg-[#FBFAF7] border border-navy-900/10 flex flex-col sm:flex-row items-center justify-between gap-4 text-xs font-mono text-[#4A4F5C]">
-            <span>Category details will be published as the 2026 edition guidelines are finalized.</span>
+            <span>Official nomination guidelines and category details are published for the 2026 edition.</span>
             <Button href="/register" variant="primary" size="sm" icon={<ArrowRight size={13} />}>
               Nominate Now
             </Button>

@@ -24,17 +24,14 @@ export default function ContactPage() {
       {/* Banner */}
       <section className="py-10 sm:py-14 lg:py-16 border-b border-navy-900/10 bg-[#FBFAF7]">
         <div className="container-editorial space-y-6">
-          <SectionMarker number="01" label="Secretariat Helpdesk" theme="light" />
+          <SectionMarker number="01" label="Awards Helpdesk" theme="light" />
           <div className="space-y-2">
-            <div className="inline-flex items-center gap-2 px-3 py-1 bg-sand-100 border border-gold-500/30 text-xs font-mono text-gold-600 font-semibold">
-              Frontend Prototype Only — Official Channels TBA
-            </div>
             <h1 className="heading-display text-navy-900 max-w-3xl">
-              Contact Secretariat
+              Contact Awards Desk
             </h1>
           </div>
           <p className="body-editorial text-[#4A4F5C] max-w-2xl text-lg">
-            Have an inquiry regarding categories, nomination requirements, or technical support? Connect with the awards desk.
+            Have an inquiry regarding categories, nomination requirements, or technical support? Connect with the awards team.
           </p>
         </div>
       </section>
@@ -43,32 +40,50 @@ export default function ContactPage() {
       <section className="py-10 sm:py-14 lg:py-16 border-b border-navy-900/10">
         <div className="container-editorial">
           <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 lg:gap-16 items-start">
-            {/* Left: Official Notice & CMS Ready Contact Placeholders (5 cols) */}
+            {/* Left: Communication Channels (5 cols) */}
             <div className="lg:col-span-5 space-y-8">
               <div className="space-y-4">
                 <span className="font-mono text-xs uppercase tracking-widest text-gold-600 font-semibold block">
-                  Secretariat Notice
+                  Support &amp; Inquiries
                 </span>
                 <h2 className="heading-editorial text-navy-900 leading-tight">
-                  Official Secretariat Communication
+                  Awards Helpdesk Communication
                 </h2>
                 <p className="body-editorial text-[#4A4F5C]">
-                  Official contact details, phone helplines, email addresses, and secretariat office details will be published by the organizing committee prior to registration opening.
+                  Official Kutchmitra contact channels for applicant inquiries, category questions, and technical support.
                 </p>
               </div>
 
-              {/* Prepared for CMS-Managed Details */}
+              {/* Official Contact Cards */}
               <div className="space-y-4">
                 <div className="p-5 bg-[#FBFAF7] border border-navy-900/10 space-y-2">
                   <div className="flex items-center gap-2.5 text-xs font-mono text-slate-400">
-                    <Mail size={14} className="text-gold-600" />
-                    <span className="uppercase tracking-wider">Official Email Helpline</span>
+                    <MapPin size={14} className="text-gold-600" />
+                    <span className="uppercase tracking-wider">Office Address</span>
                   </div>
-                  <p className="text-sm font-sans font-medium text-navy-900">
-                    To be announced by Secretariat
+                  <p className="text-sm font-sans font-medium text-navy-900 leading-snug">
+                    Kutchmitra<br />
+                    Nr. Indirabai Park<br />
+                    Bhuj, Kutch – 370001
                   </p>
                   <p className="text-xs text-[#4A4F5C] leading-relaxed">
-                    Official email address for applicant inquiries will be published here.
+                    Official regional office of Kutchmitra.
+                  </p>
+                </div>
+
+                <div className="p-5 bg-[#FBFAF7] border border-navy-900/10 space-y-2">
+                  <div className="flex items-center gap-2.5 text-xs font-mono text-slate-400">
+                    <Mail size={14} className="text-gold-600" />
+                    <span className="uppercase tracking-wider">Official Email</span>
+                  </div>
+                  <a
+                    href="mailto:Kutchmitraweb@gmail.com"
+                    className="text-sm font-sans font-medium text-navy-900 hover:text-gold-600 transition-colors block"
+                  >
+                    Kutchmitraweb@gmail.com
+                  </a>
+                  <p className="text-xs text-[#4A4F5C] leading-relaxed">
+                    Direct inquiries regarding awards participation and guidelines.
                   </p>
                 </div>
 
@@ -77,24 +92,14 @@ export default function ContactPage() {
                     <Phone size={14} className="text-gold-600" />
                     <span className="uppercase tracking-wider">Helpline &amp; Support</span>
                   </div>
-                  <p className="text-sm font-sans font-medium text-navy-900">
-                    To be announced by Secretariat
-                  </p>
+                  <a
+                    href="tel:+917211189211"
+                    className="text-sm font-sans font-medium text-navy-900 hover:text-gold-600 transition-colors font-mono block"
+                  >
+                    +91 7211189211
+                  </a>
                   <p className="text-xs text-[#4A4F5C] leading-relaxed">
-                    Dedicated support phone numbers will be listed before nomination launch.
-                  </p>
-                </div>
-
-                <div className="p-5 bg-[#FBFAF7] border border-navy-900/10 space-y-2">
-                  <div className="flex items-center gap-2.5 text-xs font-mono text-slate-400">
-                    <MapPin size={14} className="text-gold-600" />
-                    <span className="uppercase tracking-wider">Secretariat Office</span>
-                  </div>
-                  <p className="text-sm font-sans font-medium text-navy-900">
-                    To be announced by Secretariat
-                  </p>
-                  <p className="text-xs text-[#4A4F5C] leading-relaxed">
-                    Official office communication details will be formally published.
+                    Dedicated support desk for entrant queries and assistance.
                   </p>
                 </div>
               </div>
@@ -121,7 +126,7 @@ export default function ContactPage() {
                     <span>Inquiry Transmitted Successfully</span>
                   </div>
                   <p className="text-xs text-[#4A4F5C] leading-relaxed font-sans">
-                    Thank you for contacting the Kutchmitra Home &amp; Decor Awards 2026 Secretariat. Your message has been recorded.
+                    Thank you for contacting the Kutchmitra Home &amp; Decor Awards 2026 desk. Your message has been recorded.
                   </p>
                   <Button
                     variant="outline-dark"

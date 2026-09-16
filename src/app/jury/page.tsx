@@ -67,7 +67,7 @@ export default function JuryPage() {
 
             <div className="space-y-3">
               <h3 className="font-display text-2xl sm:text-3xl text-navy-900 font-medium leading-tight">
-                Jury profiles will be announced by the organizing committee.
+                Jury profiles will be announced by Kutchmitra.
               </h3>
               <p className="body-editorial text-[#4A4F5C] text-base sm:text-lg leading-relaxed max-w-3xl">
                 The 2026 Grand Jury panel will bring together accomplished practitioners, architectural educators, and design authorities to conduct an impartial and rigorous assessment of all qualifying nominations.
@@ -77,10 +77,10 @@ export default function JuryPage() {
             <div className="grid grid-cols-1 sm:grid-cols-3 gap-6 pt-4 border-t border-navy-900/10 text-xs font-sans">
               <div className="space-y-1">
                 <span className="font-mono text-[11px] uppercase tracking-wider text-navy-900 font-semibold block">
-                  Independence
+                  Evaluation Process
                 </span>
                 <p className="text-[#4A4F5C] leading-relaxed">
-                  Evaluations are conducted independently of event organizers or commercial partners.
+                  Entries will be evaluated through a confidential, criteria-based jury process.
                 </p>
               </div>
 

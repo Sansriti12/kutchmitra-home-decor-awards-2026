@@ -21,7 +21,7 @@ export function JuryPreviewSection() {
             </p>
             <div className="flex items-center gap-2 pt-1 text-xs font-mono text-gold-400">
               <ShieldCheck size={14} />
-              <span>Jury profiles will be announced by the organizing committee.</span>
+              <span>Jury profiles will be announced by Kutchmitra.</span>
             </div>
           </div>
 

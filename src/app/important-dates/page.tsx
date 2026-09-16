@@ -35,7 +35,7 @@ export default function ImportantDatesPage() {
               The 2026 Award Cycle
             </h2>
             <p className="body-editorial text-[#4A4F5C]">
-              All dates are currently provisional and will be confirmed prior to portal opening.
+              Official milestone dates will be published by Kutchmitra.
             </p>
           </div>
 
@@ -66,7 +66,7 @@ export default function ImportantDatesPage() {
 
                 <div className="pt-4 border-t border-navy-900/10 flex items-center justify-between text-xs font-mono text-slate-400">
                   <span>STATUS: TO BE ANNOUNCED</span>
-                  <span className="text-gold-600 font-semibold">TBD</span>
+                  <span className="text-gold-600 font-semibold">TBA</span>
                 </div>
               </div>
             ))}
@@ -76,7 +76,7 @@ export default function ImportantDatesPage() {
           <div className="p-6 bg-[#FBFAF7] border-l-2 border-gold-500 border-y border-r border-navy-900/10 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
             <div className="flex items-center gap-3 text-xs font-mono text-[#4A4F5C]">
               <AlertCircle size={16} className="text-gold-600 flex-shrink-0" />
-              <span>Official milestone dates will be formally announced by the secretariat. All dates remain subject to confirmation.</span>
+              <span>Official milestone dates will be formally announced by Kutchmitra. All dates remain subject to confirmation.</span>
             </div>
             <Button href="/register" variant="primary" size="sm" icon={<ArrowRight size={13} />}>
               Nominate Now
