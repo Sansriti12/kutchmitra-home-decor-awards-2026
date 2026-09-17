@@ -52,7 +52,7 @@ export default function WinnersPage() {
 
           <div className="pt-4 flex flex-wrap items-center justify-center gap-4">
             <Button href="/categories" variant="outline-dark" size="md">
-              Explore 12 Categories
+              Explore 13 Categories
             </Button>
             <Button href="/register" variant="primary" size="md" icon={<ArrowRight size={14} />}>
               Nominate Now

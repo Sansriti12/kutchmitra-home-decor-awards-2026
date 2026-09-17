@@ -117,6 +117,15 @@ export const AWARD_CATEGORIES: AwardCategory[] = [
     recognizes: "Standalone villa projects that combine sophisticated architecture, elegant interiors, premium materials and thoughtfully designed indoor and outdoor living spaces.",
     image: "https://images.unsplash.com/photo-1580587771525-78b9dba3b914?auto=format&fit=crop&w=800&q=80",
   },
+  {
+    id: 13,
+    slug: "best-contractor-of-the-year",
+    number: "13",
+    title: "Best Contractor of the Year",
+    shortDescription: "Recognising contractors who demonstrate excellence in executing residential, commercial or interior projects on a contract basis, with a strong focus on quality, workmanship, timely execution and effective project delivery.",
+    recognizes: "Contractors who demonstrate excellence in executing residential, commercial or interior projects on a contract basis, with a strong focus on quality, workmanship, timely execution and effective project delivery. Applicants may be contractors without being architects or interior designers, provided they can demonstrate relevant project experience and execution capabilities.",
+    image: "https://images.unsplash.com/photo-1504307651254-35680f356dfd?auto=format&fit=crop&w=800&q=80",
+  },
 ];
 
 // The 6 featured categories for homepage preview

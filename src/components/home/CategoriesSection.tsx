@@ -14,15 +14,15 @@ export function CategoriesSection() {
           <div className="space-y-3">
             <SectionMarker number="02" label="Disciplines &amp; Categories" theme="light" />
             <h2 className="heading-editorial text-navy-900">
-              12 Official Award Categories
+              13 Official Award Categories
             </h2>
           </div>
           <p className="body-editorial text-[#4A4F5C] max-w-md text-sm sm:text-base">
-            Structured across architecture, interiors, residential innovation, and sustainable craftsmanship for the 2026 edition.
+            Structured across architecture, interiors, residential innovation, contracting, and sustainable craftsmanship for the 2026 edition.
           </p>
         </div>
 
-        {/* 12 Categories Editorial Grid */}
+        {/* 13 Categories Editorial Grid */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 lg:gap-8">
           {AWARD_CATEGORIES.map((category) => (
             <article
@@ -95,7 +95,7 @@ export function CategoriesSection() {
             size="md"
             icon={<ArrowRight size={14} />}
           >
-            Explore All 12 Categories
+            Explore All 13 Categories
           </Button>
         </div>
       </div>

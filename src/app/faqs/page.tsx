@@ -66,7 +66,7 @@ const FAQ_ITEMS: FaqEntry[] = [
     id: "faq-9",
     question: "When will shortlisted projects and winners be announced?",
     answer:
-      "A shortlist of qualifying finalist entries will be announced following jury evaluation. The final winners across all 12 categories will be celebrated and officially announced at the grand awards ceremony.",
+      "A shortlist of qualifying finalist entries will be announced following jury evaluation. The final winners across all 13 categories will be celebrated and officially announced at the grand awards ceremony.",
   },
   {
     id: "faq-10",

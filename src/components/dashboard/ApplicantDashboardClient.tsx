@@ -122,7 +122,7 @@ const WIZARD_NEXT_ACTIONS: Record<number, { title: string; desc: string }> = {
   },
   2: {
     title: "Confirm Award Category",
-    desc: "Review your selected discipline or switch to another of the 12 official award categories.",
+    desc: "Review your selected discipline or switch to another of the 13 official award categories.",
   },
   3: {
     title: "Enter Project Details & Spatial Data",
@@ -443,7 +443,7 @@ export default function ApplicantDashboardClient({
                 Begin Your First Nomination
               </h3>
               <p className="text-xs sm:text-sm text-[#4A4F5C] leading-relaxed font-sans">
-                Welcome to the Kutchmitra Home &amp; Decor Awards 2026. You can begin a nomination in any of our 12 award disciplines, save your draft at any step, and return to complete it whenever you wish.
+                Welcome to the Kutchmitra Home &amp; Decor Awards 2026. You can begin a nomination in any of our 13 award disciplines, save your draft at any step, and return to complete it whenever you wish.
               </p>
             </div>
             <div className="pt-2">

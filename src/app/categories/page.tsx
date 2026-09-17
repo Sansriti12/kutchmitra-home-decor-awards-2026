@@ -9,7 +9,7 @@ import { AWARD_CATEGORIES } from "@/data/categories";
 
 export const metadata: Metadata = {
   title: "Award Categories | Kutchmitra Home & Decor Awards 2026",
-  description: "Browse the 12 official award categories celebrating architecture, interior design, and residential craftsmanship in the 2026 edition.",
+  description: "Browse the 13 official award categories celebrating architecture, interior design, contracting, and residential craftsmanship in the 2026 edition.",
 };
 
 export default function CategoriesPage() {
@@ -20,7 +20,7 @@ export default function CategoriesPage() {
         <div className="container-editorial space-y-6">
           <SectionMarker number="01" label="Award Directory" theme="light" />
           <h1 className="heading-display text-navy-900 max-w-3xl">
-            12 Official Award Categories
+            13 Official Award Categories
           </h1>
           <p className="body-editorial text-[#4A4F5C] max-w-2xl text-lg">
             Explore the complete spectrum of award disciplines recognizing built residential architecture, interior environments, and spatial innovations.

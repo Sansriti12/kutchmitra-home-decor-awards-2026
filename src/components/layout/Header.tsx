@@ -50,6 +50,10 @@ export function Header() {
     };
   }, [mobileMenuOpen]);
 
+  if (pathname?.startsWith("/admin")) {
+    return null;
+  }
+
   return (
     <header
       className={cn(

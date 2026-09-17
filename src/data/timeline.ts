@@ -11,7 +11,7 @@ export const TIMELINE_MILESTONES: TimelineMilestone[] = [
     number: "01",
     title: "Nomination Opens",
     date: "TBD",
-    description: "Official opening of the digital nomination portal for all 12 award categories.",
+    description: "Official opening of the digital nomination portal for all 13 award categories.",
     status: "TBD",
   },
   {

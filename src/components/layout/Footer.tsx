@@ -1,5 +1,8 @@
+"use client";
+
 import React from "react";
 import Link from "next/link";
+import { usePathname } from "next/navigation";
 import { Award } from "lucide-react";
 
 const NAVIGATION_LINKS = [
@@ -32,9 +35,16 @@ const CATEGORIES_SAMPLE = [
   "Best Smart Home",
   "Best Themed Project",
   "Luxury Villa Project",
+  "Best Contractor of the Year",
 ];
 
 export function Footer() {
+  const pathname = usePathname();
+
+  if (pathname?.startsWith("/admin")) {
+    return null;
+  }
+
   return (
     <footer className="bg-[#060B18] text-slate-300 border-t border-white/15 mt-auto">
       {/* Top Hairline Gold Accent */}
@@ -135,7 +145,7 @@ export function Footer() {
           <div className="lg:col-span-2 space-y-2">
             <div className="flex items-center justify-between">
               <h4 className="font-mono text-[11px] uppercase tracking-wider text-white font-semibold">
-                12 Categories
+                13 Categories
               </h4>
               <Link
                 href="/categories"

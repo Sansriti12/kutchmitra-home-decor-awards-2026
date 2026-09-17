@@ -49,7 +49,16 @@ export async function middleware(request: NextRequest) {
     }
   }
 
-  // 2. Already authenticated users visiting login/register are redirected to /dashboard
+  // 2. Protect /admin routes (except /admin/login): Unauthenticated users are redirected to /admin/login
+  if (pathname.startsWith("/admin") && pathname !== "/admin/login") {
+    if (!user) {
+      const adminLoginUrl = new URL("/admin/login", request.url);
+      adminLoginUrl.searchParams.set("redirect", pathname);
+      return NextResponse.redirect(adminLoginUrl);
+    }
+  }
+
+  // 3. Already authenticated users visiting login/register are redirected to /dashboard
   if ((pathname === "/login" || pathname === "/register") && user) {
     return NextResponse.redirect(new URL("/dashboard", request.url));
   }

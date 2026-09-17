@@ -9,7 +9,7 @@ export const HOMEPAGE_FAQS: FaqItem[] = [
     id: "faq-1",
     question: "Who can submit nominations for the awards?",
     answer:
-      "The awards celebrate excellence across architecture, interior design, and residential development. Detailed applicant eligibility guidelines for each of the 12 categories will be officially confirmed by Kutchmitra prior to portal opening.",
+      "The awards celebrate excellence across architecture, interior design, and residential development. Detailed applicant eligibility guidelines for each of the 13 categories will be officially confirmed by Kutchmitra prior to portal opening.",
   },
   {
     id: "faq-2",

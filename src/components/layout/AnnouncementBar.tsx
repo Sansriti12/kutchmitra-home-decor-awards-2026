@@ -1,8 +1,17 @@
+"use client";
+
 import React from "react";
 import Link from "next/link";
+import { usePathname } from "next/navigation";
 import { ArrowRight, Award } from "lucide-react";
 
 export function AnnouncementBar() {
+  const pathname = usePathname();
+
+  if (pathname?.startsWith("/admin")) {
+    return null;
+  }
+
   return (
     <aside
       aria-label="Edition Announcement"

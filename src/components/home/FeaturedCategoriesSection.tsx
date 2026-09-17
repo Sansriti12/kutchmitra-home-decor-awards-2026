@@ -14,7 +14,7 @@ export function FeaturedCategoriesSection() {
           <div className="space-y-3">
             <SectionMarker number="02" label="Award Disciplines" theme="light" />
             <h2 className="heading-editorial text-navy-900">
-              12 Award Categories
+              13 Award Categories
             </h2>
           </div>
           <div className="flex flex-col sm:flex-row sm:items-center gap-4">
@@ -33,7 +33,7 @@ export function FeaturedCategoriesSection() {
           </div>
         </div>
 
-        {/* 12 Categories Clean Horizontal Presentation */}
+        {/* 13 Categories Clean Horizontal Presentation */}
         {/* Large desktop: 2 rows of 6 compact editorial cards, with smooth horizontal scroll capability if desired */}
         <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-6 gap-3.5 sm:gap-4">
           {AWARD_CATEGORIES.map((category) => (
@@ -81,19 +81,14 @@ export function FeaturedCategoriesSection() {
           ))}
         </div>
 
-        {/* Action: Explore All 12 Categories Footer Bar */}
-        <div className="pt-4 flex flex-col sm:flex-row items-center justify-between gap-4 border-t border-navy-900/10">
-          <span className="text-xs font-mono text-[#4A4F5C]">
-            All 12 categories are open for official 2026 nominations upon registration.
+        {/* Informational Footer Note */}
+        <div className="pt-4 flex items-center justify-between border-t border-navy-900/10 text-xs font-mono text-[#4A4F5C]">
+          <span>
+            All 13 categories are open for official 2026 nominations upon registration.
           </span>
-          <Button
-            href="/categories"
-            variant="outline-dark"
-            size="md"
-            icon={<ArrowRight size={14} />}
-          >
-            View All Categories
-          </Button>
+          <span className="hidden sm:inline-block text-[11px] text-slate-400">
+            13 Disciplines &bull; Edition 2026
+          </span>
         </div>
       </div>
     </section>
