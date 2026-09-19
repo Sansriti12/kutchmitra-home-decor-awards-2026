@@ -41,55 +41,92 @@ export async function createDraftApplication(categoryId: string) {
     .maybeSingle();
 
   // 3. Compute unique human-readable nomination_id: KHA26-{category_code}-{sequence}
-  const { count } = await supabase
+  // Use admin client (service role) to read across all applications globally, bypassing RLS
+  const adminClient = createAdminClient();
+  const prefix = `KHA26-${category.code}-`;
+
+  const { data: existingApps } = await adminClient
     .from("applications")
-    .select("id", { count: "exact", head: true })
+    .select("nomination_id")
     .eq("edition_id", category.edition_id)
     .eq("category_id", category.id);
 
-  let sequence = (count || 0) + 1;
-  let nominationId = "";
-  let isUnique = false;
+  let maxSequence = 0;
+  if (existingApps && existingApps.length > 0) {
+    for (const app of existingApps) {
+      if (app.nomination_id && app.nomination_id.startsWith(prefix)) {
+        const numPart = app.nomination_id.substring(prefix.length);
+        const parsed = parseInt(numPart, 10);
+        if (!isNaN(parsed) && parsed > maxSequence) {
+          maxSequence = parsed;
+        }
+      }
+    }
+  }
 
-  while (!isUnique) {
-    const candidateId = `KHA26-${category.code}-${String(sequence).padStart(4, "0")}`;
-    const { data: existing } = await supabase
+  let sequence = maxSequence + 1;
+  const defaultCity = profile?.city || "Bhuj";
+  const defaultState = profile?.state || "Gujarat";
+
+  // 4. Attempt insertion with candidate sequence (retry loop for concurrent races)
+  const MAX_RETRIES = 5;
+  let newApp = null;
+  let insertErr = null;
+
+  for (let attempt = 0; attempt < MAX_RETRIES; attempt++) {
+    const candidateId = `${prefix}${String(sequence).padStart(4, "0")}`;
+
+    // Verify candidate is not occupied globally
+    const { data: existing } = await adminClient
       .from("applications")
       .select("id")
       .eq("nomination_id", candidateId)
       .maybeSingle();
 
-    if (!existing) {
-      nominationId = candidateId;
-      isUnique = true;
-    } else {
+    if (existing) {
       sequence++;
+      continue;
     }
+
+    const defaultProjectName = `Draft Entry (${candidateId})`;
+
+    // 5. Insert draft application record using applicant's authenticated client (enforces RLS)
+    const { data: appData, error: appErr } = await supabase
+      .from("applications")
+      .insert({
+        nomination_id: candidateId,
+        edition_id: category.edition_id,
+        category_id: category.id,
+        applicant_id: user.id,
+        project_name: defaultProjectName,
+        project_city: defaultCity,
+        project_state: defaultState,
+        status: "draft",
+        current_wizard_step: 1,
+        is_locked: false,
+        declaration_accepted: false,
+      })
+      .select("id, nomination_id")
+      .single();
+
+    if (!appErr && appData) {
+      newApp = appData;
+      insertErr = null;
+      break;
+    }
+
+    // If duplicate nomination_id conflict occurs due to a concurrent race, increment and retry
+    if (
+      appErr &&
+      (appErr.code === "23505" || appErr.message?.includes("applications_nomination_id_key"))
+    ) {
+      sequence++;
+      continue;
+    }
+
+    insertErr = appErr;
+    break;
   }
-
-  // 4. Guaranteed unique default project name to respect uq_applicant_project_category constraint
-  const defaultProjectName = `Draft Entry (${nominationId})`;
-  const defaultCity = profile?.city || "Bhuj";
-  const defaultState = profile?.state || "Gujarat";
-
-  // 5. Insert draft application record
-  const { data: newApp, error: insertErr } = await supabase
-    .from("applications")
-    .insert({
-      nomination_id: nominationId,
-      edition_id: category.edition_id,
-      category_id: category.id,
-      applicant_id: user.id,
-      project_name: defaultProjectName,
-      project_city: defaultCity,
-      project_state: defaultState,
-      status: "draft",
-      current_wizard_step: 1,
-      is_locked: false,
-      declaration_accepted: false,
-    })
-    .select("id, nomination_id")
-    .single();
 
   if (insertErr || !newApp) {
     console.error("Draft application insertion error:", insertErr);
