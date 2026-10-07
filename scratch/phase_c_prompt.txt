@@ -1,0 +1,1327 @@
+<USER_REQUEST>
+PHASE C — ADMIN APPLICATION MANAGEMENT
+KUTCHMITRA HOME & DECOR AWARDS 2026
+
+IMPORTANT:
+Implement this as ONE COMPLETE PHASE.
+DO NOT split this into sub-phases.
+Complete all items in this prompt in one implementation cycle.
+
+==================================================
+1. PROJECT CONTEXT
+==================================================
+
+You are working on the Kutchmitra Home & Decor Awards 2026 Award Management Portal.
+
+This is NOT just a public website.
+
+It is a complete award-management platform containing:
+
+- Public Awards Website
+- Applicant Registration/Login
+- Applicant Dashboard
+- Dynamic Nomination Wizard
+- Category-specific Questions
+- Category-specific Upload Requirements
+- Nomination Submission
+- Admin Management
+- Jury Management
+- Winner Management
+- Reports
+- Notifications
+- Audit Trail
+- Role-based Security
+
+Existing implementation already includes:
+
+PHASE A:
+- Correct 13 official award categories
+- Updated approved evaluation criteria
+- Phone/profile synchronization fix
+- Completion date validation
+- Kutch-specific eligibility guidance
+- Existing authentication/RLS preserved
+
+PHASE B:
+- Dynamic category questions for all 13 categories
+- Dynamic category upload requirements for all 13 categories
+- Dynamic Step 4 questionnaire
+- Dynamic Step 5 uploads
+- Dynamic Step 6 preview
+- Final submission validation
+- Draft/resume functionality
+- Private storage and signed URLs
+- Category-specific configuration
+- 13/13 category testing
+- Existing Kutch-specific project location guidance
+
+PHASE C NOW:
+ADMIN APPLICATION MANAGEMENT
+
+==================================================
+2. PRIMARY REQUIREMENTS SOURCE
+==================================================
+
+Before changing anything:
+
+1. Read the client requirements PDF/BRD already available in the project/files.
+2. Read the existing Phase A audit/report.
+3. Read the existing Phase B implementation/report.
+4. Inspect the current codebase.
+5. Inspect the current Supabase database schema.
+6. Inspect authentication and roles.
+7. Inspect RLS policies.
+8. Inspect existing nomination workflow/status fields.
+9. Inspect existing applicant dashboard.
+10. Inspect existing components before creating new ones.
+
+The CLIENT REQUIREMENTS PDF/BRD is the primary source for business requirements.
+
+Do NOT invent client requirements where the BRD does not specify them.
+
+Where implementation details are not explicitly specified by the client, use the existing architecture and clearly mark the decision as:
+
+"Implementation decision / Client review recommended"
+
+Do not silently convert assumptions into client-approved requirements.
+
+==================================================
+3. PHASE C OBJECTIVE
+==================================================
+
+Build a secure Admin Application Management module that allows authorized Admin users to:
+
+- View submitted nominations
+- Search nominations
+- Filter nominations
+- Sort nominations
+- Open a complete nomination dossier
+- Review applicant information
+- Review category information
+- Review project information
+- Review category-specific questionnaire answers
+- Review uploaded files
+- View nomination status
+- Change verification/review status
+- Request clarification from applicants
+- Record clarification notes
+- Add internal admin notes
+- Track important actions through audit logs
+- Assign applications where the existing schema/workflow supports it
+- Return applicants to the appropriate next step/status
+- Preserve all existing applicant functionality
+
+This must be integrated into the EXISTING application.
+
+Do NOT create a separate unrelated admin application.
+
+==================================================
+4. IMPORTANT SCOPE BOUNDARY
+==================================================
+
+THIS PHASE IS ADMIN APPLICATION MANAGEMENT ONLY.
+
+DO NOT implement the following as part of Phase C:
+
+- Full Jury Portal
+- Jury scoring system
+- Jury evaluation dashboard
+- Winner selection
+- Winner management
+- Winner publishing
+- Reports/analytics module
+- CMS
+- New public website redesign
+- New notification architecture
+- Replacement of EmailJS/Resend
+- Replacement of Supabase
+- Replacement of authentication
+- Replacement of existing nomination wizard
+- Replacement of Phase B questionnaire system
+
+These belong to later phases.
+
+You MAY create small integration points required for Admin Application Management.
+
+==================================================
+5. FIRST: AUDIT EXISTING SYSTEM
+==================================================
+
+Before writing code, inspect:
+
+A. Authentication
+B. User profiles
+C. User roles
+D. Admin roles
+E. Applicant roles
+F. Nomination tables
+G. Nomination status/workflow fields
+H. Category tables
+I. Category questions
+J. Category upload requirements
+K. Nomination answers
+L. Uploaded files/storage
+M. RLS policies
+N. Existing audit tables
+O. Existing notification-related tables
+P. Existing applicant dashboard
+Q. Existing UI components
+R. Existing layout/navigation
+
+Determine what already exists.
+
+DO NOT duplicate an existing table, component, helper, or utility if it can safely be reused.
+
+==================================================
+6. ADMIN ROUTING
+==================================================
+
+Create/use an appropriate protected admin route.
+
+Example:
+
+/admin
+/admin/applications
+/admin/applications/[id]
+
+Use the project's existing routing conventions if they differ.
+
+Admin pages MUST NOT be publicly accessible.
+
+Unauthenticated users must be redirected to the existing login flow.
+
+Applicants must NOT be able to access Admin Application Management.
+
+Do NOT weaken existing authentication.
+
+==================================================
+7. ADMIN ROLE ACCESS
+==================================================
+
+Use the project's existing role/RBAC implementation.
+
+The following roles should be considered based on the existing project requirements:
+
+- Super Admin
+- Manager
+- Admin
+
+Before implementing, inspect the actual existing role names and database structure.
+
+DO NOT invent a second role system.
+
+Reports access is already intended to be restricted to:
+
+- Manager
+- Super Admin
+
+Do not change this requirement.
+
+For Phase C:
+
+Admin Application Management should be accessible only to the roles that the existing client-approved RBAC permits.
+
+If the exact permission matrix is not defined in the BRD/database, do NOT guess silently.
+
+Document the proposed permission behavior in the final report.
+
+==================================================
+8. ADMIN DASHBOARD / APPLICATION LIST
+==================================================
+
+Create a professional Admin Applications page.
+
+The page should allow administrators to see nomination records in a clear table/list.
+
+At minimum show:
+
+- Nomination ID
+- Applicant / Entrant Name
+- Organization / Company if available
+- Category
+- Project Name
+- Submission Date
+- Current Status
+- Last Updated
+- Contact information where appropriate
+- Relevant action button
+
+Use the existing database fields.
+
+DO NOT expose sensitive/private data unnecessarily.
+
+Use pagination.
+
+Do NOT load the entire nomination database into the browser.
+
+Use server-side/database pagination where the existing architecture permits.
+
+==================================================
+9. SUMMARY STATISTICS
+==================================================
+
+If the existing Admin Dashboard architecture supports summary cards, add useful application-management statistics.
+
+Examples:
+
+- Total Applications
+- Drafts
+- Submitted
+- Under Verification
+- Eligible
+- Clarification Required
+- Jury Review
+- Shortlisted
+- Winner
+- Rejected
+- Disqualified
+
+IMPORTANT:
+
+Only show statuses that actually exist in the current workflow/database.
+
+Do not create duplicate or conflicting status values.
+
+If a status does not exist yet, document it rather than inventing a parallel workflow.
+
+==================================================
+10. SEARCH
+==================================================
+
+Implement application search.
+
+Search should support relevant existing fields such as:
+
+- Nomination ID
+- Applicant name
+- Contact email
+- Contact phone
+- Organization
+- Project name
+- Category
+
+Use database-side filtering where possible.
+
+Search must work with pagination.
+
+Avoid fetching all applications and filtering only in the browser.
+
+==================================================
+11. FILTERS
+==================================================
+
+Add useful filters.
+
+At minimum:
+
+CATEGORY
+
+STATUS
+
+SUBMISSION DATE
+
+Additional filters may include:
+
+Applicant/organization
+Edition
+Location
+
+ONLY add filters that are supported by the existing schema.
+
+Filters must work together.
+
+Example:
+
+Category = Architect
+AND
+Status = Submitted
+
+should return only matching applications.
+
+Provide a clear "Reset Filters" option.
+
+==================================================
+12. SORTING
+==================================================
+
+Allow sorting by useful fields such as:
+
+- Submission date
+- Last updated
+- Applicant name
+- Project name
+- Category
+- Status
+
+Use database-side sorting where possible.
+
+Prevent arbitrary unsafe column injection.
+
+Use an allowlist of sortable columns.
+
+==================================================
+13. APPLICATION DETAIL / DOSSIER VIEWER
+==================================================
+
+Create:
+
+/admin/applications/[id]
+
+This page should provide a complete nomination dossier.
+
+Organize information into clear sections.
+
+Suggested structure:
+
+--------------------------------
+APPLICATION HEADER
+--------------------------------
+
+- Nomination ID
+- Applicant
+- Category
+- Project name
+- Submission date
+- Current status
+- Last updated
+
+--------------------------------
+ENTRANT PROFILE
+--------------------------------
+
+Show relevant entrant information from the nomination/profile data.
+
+--------------------------------
+CATEGORY
+--------------------------------
+
+Show:
+
+- Category name
+- Category description if useful
+- Edition
+
+--------------------------------
+PROJECT DETAILS
+--------------------------------
+
+Show all relevant Step 3 information.
+
+Include:
+
+- Project name
+- Project location
+- City
+- State
+- Kutch-related location information
+- Completion date
+- Project description
+- Other existing project fields
+
+Use the actual existing schema.
+
+--------------------------------
+CATEGORY QUESTIONNAIRE
+--------------------------------
+
+Display all submitted Step 4 answers dynamically.
+
+IMPORTANT:
+
+Do NOT hardcode the 13 categories.
+
+Use the existing Phase B dynamic configuration.
+
+The Admin viewer should load:
+
+category_questions
+question options
+nomination answers
+
+and display the correct questions and answers for the selected category.
+
+The Admin must NOT see questions from another category.
+
+--------------------------------
+MEDIA & DOCUMENTS
+--------------------------------
+
+Display uploaded files from Step 5.
+
+Show:
+
+- File name
+- File type
+- Upload requirement
+- Category
+- Upload date if available
+- Preview/download action where appropriate
+
+Use the existing secure private storage system.
+
+DO NOT make private files publicly accessible.
+
+Use signed URLs or the existing secure file access mechanism.
+
+Do not expose Supabase service-role credentials to the browser.
+
+--------------------------------
+DECLARATION
+--------------------------------
+
+Display submitted declaration/consent information if it exists in the current schema.
+
+--------------------------------
+STATUS HISTORY
+--------------------------------
+
+If status history already exists, display it.
+
+If not, create an appropriate audit/status history mechanism only if necessary and consistent with the existing schema.
+
+--------------------------------
+ADMIN NOTES
+--------------------------------
+
+Show internal admin notes separately from applicant-visible information.
+
+==================================================
+14. APPLICATION STATUS WORKFLOW
+==================================================
+
+Use the existing nomination status workflow.
+
+The intended workflow includes:
+
+Draft
+Submitted
+Under Verification
+Eligible
+Clarification Required
+Jury Review
+Shortlisted
+Winner
+Rejected
+Disqualified
+
+DO NOT create a second status field.
+
+Use the existing status field if present.
+
+Admins should be able to perform only valid transitions.
+
+For example:
+
+Submitted
+→ Under Verification
+
+Under Verification
+→ Eligible
+
+Under Verification
+→ Clarification Required
+
+Under Verification
+→ Rejected
+
+Eligible
+→ Jury Review
+
+etc.
+
+IMPORTANT:
+
+Do not allow arbitrary status jumps unless the existing business logic explicitly permits them.
+
+If the current database does not contain a formal status-transition mechanism, implement a clean validation layer rather than allowing any status to be selected.
+
+Document the transition rules used.
+
+==================================================
+15. VERIFICATION ACTIONS
+==================================================
+
+Provide appropriate Admin actions such as:
+
+- Start Verification
+- Mark Eligible
+- Request Clarification
+- Reject
+- Mark Disqualified
+
+Only show actions valid for the current status.
+
+Example:
+
+If status = Submitted
+
+Possible actions:
+
+- Start Verification
+
+If status = Under Verification
+
+Possible actions:
+
+- Mark Eligible
+- Request Clarification
+- Reject
+- Disqualify
+
+Do not blindly use these examples if the existing workflow differs.
+
+Base final transitions on the existing requirements/schema.
+
+==================================================
+16. CLARIFICATION WORKFLOW
+==================================================
+
+Implement the Admin-side clarification mechanism.
+
+Admin should be able to:
+
+- Select "Request Clarification"
+- Enter a clarification message/reason
+- Save the clarification request
+- Change application status to Clarification Required
+- Preserve the clarification record in the system
+
+The clarification reason should NOT be stored only in frontend state.
+
+It must be persisted.
+
+If the existing schema has an appropriate clarification table/fields, reuse them.
+
+If not, create the smallest appropriate database structure.
+
+Do not redesign the entire database.
+
+IMPORTANT:
+
+The applicant should be able to see the clarification requirement through the existing Applicant Dashboard where technically possible.
+
+Do not redesign the complete Applicant Dashboard.
+
+Only add the necessary integration point.
+
+==================================================
+17. ADMIN NOTES
+==================================================
+
+Implement internal Admin Notes.
+
+Admins should be able to add notes such as:
+
+- Verification observations
+- Missing information
+- Internal review comments
+- Follow-up notes
+
+Notes must be clearly separated from applicant-visible clarification messages.
+
+Applicants must NOT be able to see internal admin notes.
+
+Store:
+
+- Note ID
+- Nomination ID
+- Admin/user ID
+- Note content
+- Created timestamp
+- Updated timestamp if applicable
+
+Use the existing user/profile system.
+
+==================================================
+18. APPLICATION ASSIGNMENT
+==================================================
+
+Inspect whether the current database already supports application assignment.
+
+If assignment functionality already exists:
+
+- Integrate it into the Admin Application page.
+
+If it does NOT exist:
+
+Implement only a minimal Admin assignment capability if it is clearly supported by the BRD.
+
+Possible assignment:
+
+- Assign application to Admin/Manager for verification.
+
+DO NOT implement Jury assignment/scoring in Phase C.
+
+That belongs to the Jury Management phase.
+
+If assignment is not sufficiently defined by the client, document it as:
+
+"Client review required."
+
+==================================================
+19. AUDIT TRAIL
+==================================================
+
+Admin actions must be traceable.
+
+Use the existing audit trail if available.
+
+Record important actions such as:
+
+- Application viewed where appropriate
+- Status changed
+- Clarification requested
+- Admin note created
+- Admin note updated
+- Assignment changed
+- Application rejected
+- Application disqualified
+- Application marked eligible
+
+At minimum record:
+
+- User/Admin ID
+- Action
+- Nomination/Application ID
+- Timestamp
+- Relevant metadata if supported
+
+Do not store unnecessary sensitive information.
+
+Do not expose audit logs to applicants.
+
+==================================================
+20. DATABASE DESIGN
+==================================================
+
+Before creating tables:
+
+INSPECT THE EXISTING DATABASE.
+
+Reuse existing structures whenever possible.
+
+Potential structures may already include:
+
+- nominations
+- nomination_answers
+- nomination_uploads
+- category_questions
+- category_question_options
+- category_upload_requirements
+- profiles
+- audit_logs
+- application_status_history
+
+Do NOT create duplicate tables.
+
+If new tables are genuinely necessary, create a safe SQL migration under:
+
+04_Database/migrations/
+
+Use the project's existing migration naming convention.
+
+Migration must be:
+
+- Reproducible
+- Safe
+- Clearly documented
+- Compatible with Supabase
+- Appropriate for the existing schema
+
+Do not destroy existing production data.
+
+Do not use destructive DROP/RESET operations.
+
+==================================================
+21. RLS / SECURITY
+==================================================
+
+Security is extremely important.
+
+Preserve existing RLS.
+
+Admin application data must NOT become publicly readable.
+
+Applicants must only access their own nominations.
+
+Admins must only access applications according to their authorized role.
+
+Internal admin notes must be protected from applicants.
+
+Clarification records must follow intended visibility.
+
+Audit logs must be protected.
+
+Private uploaded files must remain private.
+
+Use signed URLs for private files.
+
+Never expose:
+
+- Supabase service-role key
+- private credentials
+- Resend API keys
+- server secrets
+
+in frontend code.
+
+Do not disable RLS simply to make the Admin UI work.
+
+If RLS changes are required, implement them explicitly and test them.
+
+==================================================
+22. PRIVATE STORAGE
+==================================================
+
+DO NOT change the existing storage architecture unnecessarily.
+
+Existing Phase B already uses private storage and signed URLs.
+
+Continue using that architecture.
+
+Admin users should be able to securely view authorized nomination files.
+
+Applicants must not gain access to another applicant's files.
+
+Public users must not gain access to private nomination files.
+
+Test this.
+
+==================================================
+23. APPLICANT DASHBOARD INTEGRATION
+==================================================
+
+Do not redesign the Applicant Dashboard.
+
+Only integrate what is necessary.
+
+If Admin changes a nomination to:
+
+Clarification Required
+
+the Applicant Dashboard should reflect that state.
+
+The applicant should be able to see the clarification request where the existing architecture supports it.
+
+If the applicant needs to edit/resubmit information after clarification, use the existing draft/resume architecture.
+
+Do not break existing submission logic.
+
+==================================================
+24. DYNAMIC CATEGORY INTEGRATION
+==================================================
+
+Phase B created a dynamic configuration system.
+
+Phase C MUST use it.
+
+For every nomination:
+
+1. Identify selected category.
+2. Load that category's questions.
+3. Load the nomination's answers.
+4. Display the correct questions/answers.
+5. Load that category's upload requirements.
+6. Display the correct uploaded files.
+7. Never hardcode category-specific questions in the Admin UI.
+
+Test all 13 categories.
+
+Especially verify:
+
+Category 13:
+Best Contractor of the Year
+
+==================================================
+25. KUTCH-SPECIFIC REQUIREMENTS
+==================================================
+
+This is the KUTCHMITRA Home & Decor Awards.
+
+Kutch-specific eligibility is a CORE business requirement.
+
+Do NOT treat Kutch eligibility as generic guidance only.
+
+Admin Application Management must make the relevant project-location information easy for Admins to verify.
+
+Inspect the existing project location fields and Phase A/B implementation.
+
+At minimum Admin should be able to clearly review:
+
+- Project location
+- City/Town
+- State
+- Relevant Kutch location information
+- Completion date
+
+Do not silently introduce a new eligibility rule that was not approved.
+
+If the database does not currently contain a structured Kutch district/taluka field, do not invent client-approved rules.
+
+Instead:
+
+- make the existing location information clearly visible
+- identify the limitation
+- document whether a future structured Kutch eligibility validation is recommended
+
+==================================================
+26. UI / UX
+==================================================
+
+Use the existing project design system.
+
+Maintain the Kutchmitra visual language:
+
+- Deep navy
+- Gold
+- Ivory
+- Premium editorial feel
+- Architectural / awards aesthetic
+- Cormorant Garamond for display
+- Plus Jakarta Sans for UI/body
+- Clean spacing
+- Professional tables
+- Clear status badges
+- Responsive layout
+
+Admin UI should feel like a professional award-management system.
+
+Do NOT redesign the public website.
+
+Use existing shadcn/Radix components where available.
+
+==================================================
+27. RESPONSIVE ADMIN UI
+==================================================
+
+The Admin interface must work on:
+
+- Desktop
+- Laptop
+- Tablet
+- Mobile where practical
+
+On small screens:
+
+- tables should scroll or transform appropriately
+- filters should stack
+- application details should remain readable
+- action buttons must remain accessible
+
+Do not create horizontal overflow unnecessarily.
+
+==================================================
+28. ERROR HANDLING
+==================================================
+
+Implement proper states for:
+
+- Loading
+- Empty results
+- No matching filters
+- Application not found
+- Unauthorized access
+- Database error
+- File access error
+- Status update failure
+- Clarification save failure
+- Note save failure
+
+Use clear user-friendly messages.
+
+Do not expose raw database errors or secrets to users.
+
+==================================================
+29. PERFORMANCE
+==================================================
+
+Admin Applications can grow significantly.
+
+Design for scalability.
+
+Do NOT:
+
+- fetch every nomination at once
+- fetch every answer for every nomination on the list page
+- fetch every uploaded file for every application on the list page
+
+Application list:
+
+Load only required list fields.
+
+Application detail:
+
+Load detailed information only when opening a specific application.
+
+Use pagination.
+
+Use appropriate database queries.
+
+==================================================
+30. VALIDATION
+==================================================
+
+Every Admin action must be validated server-side/database-side.
+
+Do not rely only on frontend restrictions.
+
+Examples:
+
+- User cannot change status if unauthorized.
+- User cannot edit another application's internal notes unless permitted.
+- Applicant cannot access admin routes.
+- Applicant cannot access another applicant's nomination.
+- Public user cannot access private nomination files.
+
+==================================================
+31. DO NOT BREAK EXISTING PHASE A
+==================================================
+
+Verify that the following remain unchanged and functional:
+
+1. 13 official categories
+2. Updated five qualitative evaluation criteria
+3. Phone/profile synchronization
+4. Completion date:
+   2023-01-01 through 2025-12-31
+5. Kutch-specific project guidance/eligibility behavior
+6. Existing authentication
+7. Existing applicant dashboard
+8. Existing nomination ID system
+9. Draft/resume functionality
+10. Final submission
+11. Existing RLS
+
+==================================================
+32. DO NOT BREAK EXISTING PHASE B
+==================================================
+
+Verify:
+
+1. 13 categories
+2. Category questions
+3. Question options
+4. Required/optional logic
+5. Category upload requirements
+6. Dynamic Step 4
+7. Dynamic Step 5
+8. Dynamic Step 6 preview
+9. Final submission validation
+10. Private uploads
+11. Signed URLs
+12. Applicant ownership
+13. Category 13 configuration
+
+Do NOT rewrite Phase B unnecessarily.
+
+==================================================
+33. TESTING
+==================================================
+
+Perform real testing.
+
+Do not only inspect source code.
+
+Test:
+
+A. Public user cannot access Admin.
+
+B. Applicant cannot access Admin.
+
+C. Authorized Admin can access Admin Applications.
+
+D. Unauthorized role cannot perform Admin actions.
+
+E. Application list loads.
+
+F. Pagination works.
+
+G. Search works.
+
+H. Category filter works.
+
+I. Status filter works.
+
+J. Combined filters work.
+
+K. Sorting works.
+
+L. Opening an application shows correct information.
+
+M. Category questions/answers are displayed dynamically.
+
+N. Uploaded files are securely accessible.
+
+O. Status transition works.
+
+P. Invalid status transition is blocked.
+
+Q. Clarification request is saved.
+
+R. Clarification status is updated.
+
+S. Applicant can see the clarification where intended.
+
+T. Internal Admin note is saved.
+
+U. Applicant cannot see internal Admin note.
+
+V. Audit trail records important actions.
+
+W. Existing Applicant Dashboard still works.
+
+X. Existing nomination submission still works.
+
+Y. All 13 categories can be opened correctly.
+
+Z. Category 13 displays Best Contractor of the Year configuration correctly.
+
+==================================================
+34. SECURITY TESTING
+==================================================
+
+Specifically test RLS/access behavior for:
+
+1. Public user
+2. Applicant A
+3. Applicant B
+4. Authorized Admin
+5. Unauthorized Admin/role if applicable
+
+Verify:
+
+Applicant A cannot access Applicant B's nomination.
+
+Applicant A cannot access Applicant B's uploads.
+
+Applicant cannot read Admin notes.
+
+Applicant cannot modify Admin notes.
+
+Public user cannot read nominations.
+
+Unauthorized role cannot perform Admin actions.
+
+Do NOT bypass RLS for convenience.
+
+==================================================
+35. DATABASE VALIDATION
+==================================================
+
+Inspect actual Supabase data after implementation.
+
+Verify:
+
+- applications are present
+- statuses are correct
+- notes are stored correctly
+- clarification data is stored correctly
+- audit records are stored
+- category relationships are correct
+- applicant relationships are correct
+
+Do not claim testing passed without actually testing.
+
+==================================================
+36. TYPESCRIPT / BUILD
+==================================================
+
+Run:
+
+npm run typecheck
+
+or the project's equivalent.
+
+Then run:
+
+npm run build
+
+or the project's existing production build command.
+
+Fix all errors introduced by Phase C.
+
+Do not leave TypeScript errors.
+
+Do not ignore build errors.
+
+If the project uses another validation command, inspect package.json and use the correct existing commands.
+
+==================================================
+37. DO NOT DEPLOY
+==================================================
+
+DO NOT:
+
+- deploy to Vercel
+- deploy to Hostinger
+- deploy to production
+- push to GitHub automatically
+- commit automatically
+- change production environment variables
+
+Only implement and test locally/current environment.
+
+==================================================
+38. DO NOT CHANGE THESE SYSTEMS UNNECESSARILY
+==================================================
+
+Do NOT replace:
+
+- Next.js
+- Supabase
+- Tailwind
+- shadcn/Radix
+- existing authentication
+- existing RLS architecture
+- existing storage architecture
+- existing nomination wizard
+- EmailJS
+- Resend
+- Phase A implementation
+- Phase B implementation
+
+==================================================
+39. FINAL ACCEPTANCE CRITERIA
+==================================================
+
+Phase C is considered technically complete only if:
+
+[ ] Admin route exists
+[ ] Admin access is protected
+[ ] Application list works
+[ ] Pagination works
+[ ] Search works
+[ ] Filters work
+[ ] Sorting works
+[ ] Application detail page works
+[ ] Entrant information is displayed
+[ ] Category information is displayed
+[ ] Project details are displayed
+[ ] Dynamic questionnaire answers are displayed
+[ ] Dynamic uploads are displayed
+[ ] Private files remain private
+[ ] Status management works
+[ ] Invalid transitions are prevented
+[ ] Clarification workflow works
+[ ] Internal Admin notes work
+[ ] Applicant cannot see internal Admin notes
+[ ] Audit trail works
+[ ] Applicant dashboard integration works where required
+[ ] All 13 categories work
+[ ] Category 13 works
+[ ] Existing Phase A functionality passes regression testing
+[ ] Existing Phase B functionality passes regression testing
+[ ] RLS/security tests pass
+[ ] TypeScript passes
+[ ] Production build passes
+[ ] No destructive database changes
+[ ] No unnecessary architectural redesign
+[ ] No deployment performed
+
+==================================================
+40. FINAL REPORT
+==================================================
+
+After completing the implementation, create a detailed Phase C report.
+
+The report MUST contain:
+
+1. Phase C objective
+2. What was implemented
+3. Admin routes created/updated
+4. Components created/updated
+5. Database tables created/modified
+6. SQL migrations created
+7. RLS policies created/modified
+8. Storage/security changes
+9. Status workflow implemented
+10. Clarification workflow
+11. Admin notes
+12. Audit trail
+13. Applicant Dashboard integration
+14. Search/filter/pagination implementation
+15. Testing performed
+16. Security testing performed
+17. TypeScript result
+18. Build result
+19. Files changed
+20. Files intentionally NOT changed
+21. Any client-review items
+22. Any assumptions/implementation decisions
+23. Known limitations
+24. Recommended next phase
+
+IMPORTANT:
+
+Do not claim "100% complete" unless every acceptance criterion was actually tested.
+
+Clearly separate:
+
+IMPLEMENTED
+
+from
+
+CLIENT REVIEW REQUIRED
+
+from
+
+NOT IMPLEMENTED / FUTURE PHASE
+
+==================================================
+41. NEXT PHASE BOUNDARY
+==================================================
+
+At the end of the report, state that the next major module after Phase C is:
+
+PHASE D — JURY MANAGEMENT & JURY PORTAL
+
+Expected future scope:
+
+- Jury accounts
+- Jury role/RBAC
+- Jury assignment
+- Jury dashboard
+- Assigned nominations
+- Secure nomination viewing
+- Jury evaluation
+- Configurable scoring/evaluation
+- Jury comments
+- Conflict-of-interest handling
+- Jury submission
+- Admin visibility of jury progress
+
+DO NOT implement Phase D now.
+
+==================================================
+FINAL INSTRUCTION
+==================================================
+
+Implement PHASE C as ONE COMPLETE PHASE.
+
+First inspect the existing system.
+
+Then implement the Admin Application Management functionality using the existing architecture.
+
+Do not unnecessarily rewrite existing code.
+
+Do not break Phase A or Phase B.
+
+Do not change the public website unnecessarily.
+
+Do not deploy.
+
+Do not commit/push.
+
+Do not invent client-approved requirements.
+
+Use the client BRD as the primary business source.
+
+Use the existing database/schema wherever possible.
+
+Preserve security, RLS, private storage, authentication, nomination IDs, draft/resume, and dynamic category configuration.
+
+At the end, run all relevant tests and provide the detailed Phase C implementation report described above.
+</USER_REQUEST>
+<ADDITIONAL_METADATA>
+The current local time is: 2026-10-05T14:38:53+05:30.
+</ADDITIONAL_METADATA>

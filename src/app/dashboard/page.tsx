@@ -51,13 +51,18 @@ export default async function DashboardPage() {
       .order("display_order"),
     supabase
       .from("notifications")
-      .select("id, subject, body, channel, notification_type, status, created_at")
+      .select("id, subject, body, channel, notification_type, nomination_id, status, is_read, created_at")
       .eq("recipient_user_id", user.id)
       .order("created_at", { ascending: false })
       .limit(10),
   ]);
 
-  const dbUser = userRes.data;
+  const dbUser = userRes.data
+    ? {
+        ...userRes.data,
+        phone: userRes.data.phone || (user.user_metadata?.phone as string) || null,
+      }
+    : null;
   const profile = profileRes.data;
   const userRoles = rolesRes.data;
   const rawApplications = appsRes.data || [];
@@ -70,7 +75,25 @@ export default async function DashboardPage() {
     categoriesMap.set(cat.id, cat);
   });
 
-  // Attach category data to each application
+  // Fetch any active clarification requests for user's applications
+  const appIds = rawApplications.map((a) => a.id);
+  const pendingClarificationsMap = new Map<string, string>();
+  if (appIds.length > 0) {
+    const { data: clarifs } = await supabase
+      .from("clarification_requests")
+      .select("application_id, applicant_message")
+      .in("application_id", appIds)
+      .eq("status", "pending")
+      .order("created_at", { ascending: false });
+
+    (clarifs || []).forEach((c) => {
+      if (!pendingClarificationsMap.has(c.application_id)) {
+        pendingClarificationsMap.set(c.application_id, c.applicant_message);
+      }
+    });
+  }
+
+  // Attach category data and clarification message to each application
   const applications: ApplicationItem[] = rawApplications.map((app) => {
     const matchedCategory = categoriesMap.get(app.category_id);
     return {
@@ -91,6 +114,7 @@ export default async function DashboardPage() {
       is_locked: app.is_locked,
       created_at: app.created_at,
       updated_at: app.updated_at,
+      clarificationMessage: pendingClarificationsMap.get(app.id) || null,
       category: matchedCategory
         ? {
             code: matchedCategory.code,

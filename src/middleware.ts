@@ -58,7 +58,22 @@ export async function middleware(request: NextRequest) {
     }
   }
 
-  // 3. Already authenticated users visiting login/register are redirected to /dashboard
+  // 3. Protect /jury/portal and /jury/applications: Unauthenticated users are redirected to /jury/login
+  if (
+    (pathname.startsWith("/jury/portal") ||
+      pathname.startsWith("/jury/applications") ||
+      pathname.startsWith("/jury/dashboard") ||
+      pathname.startsWith("/jury/evaluations")) &&
+    pathname !== "/jury/login"
+  ) {
+    if (!user) {
+      const juryLoginUrl = new URL("/jury/login", request.url);
+      juryLoginUrl.searchParams.set("redirect", pathname);
+      return NextResponse.redirect(juryLoginUrl);
+    }
+  }
+
+  // 4. Already authenticated users visiting login/register are redirected to /dashboard
   if ((pathname === "/login" || pathname === "/register") && user) {
     return NextResponse.redirect(new URL("/dashboard", request.url));
   }

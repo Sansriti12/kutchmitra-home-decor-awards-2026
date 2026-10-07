@@ -1,6 +1,7 @@
 import React from "react";
 import type { Metadata } from "next";
-import { ShieldCheck, UserCheck, Scale, Award, EyeOff } from "lucide-react";
+import Link from "next/link";
+import { ShieldCheck, UserCheck, Scale, Award, EyeOff, ArrowRight } from "lucide-react";
 import { SectionMarker } from "@/components/ui/SectionMarker";
 import { Button } from "@/components/ui/Button";
 
@@ -12,24 +13,24 @@ export const metadata: Metadata = {
 export default function JuryPage() {
   const PILLARS = [
     {
-      title: "Design Excellence",
-      desc: "Aesthetic distinction, spatial clarity, design thinking, and structural coherence.",
+      title: "Design Excellence & Innovation",
+      desc: "Aesthetic distinction, spatial clarity, design thinking, and novel conceptual or material approaches.",
     },
     {
-      title: "Creativity & Innovation",
-      desc: "Novel concepts, creative problem-solving, innovative materials, and expressive detailing.",
-    },
-    {
-      title: "Functionality & User Experience",
+      title: "Functionality & Usability",
       desc: "Liveability, intelligent circulation, human comfort, and responsiveness to occupants' lifestyle.",
     },
     {
-      title: "Sustainability & Responsibility",
-      desc: "Resource efficiency, passive climate response, natural daylighting, and responsible building practices.",
+      title: "Quality of Craftsmanship & Execution",
+      desc: "Structural coherence, precision detailing, finishing craftsmanship, and superior execution quality.",
     },
     {
-      title: "Overall Impact & Execution Quality",
-      desc: "Distinctiveness, finishing craftsmanship, lasting spatial contribution, and flawless execution.",
+      title: "Sustainability & Material Sensitivity",
+      desc: "Resource efficiency, passive climate response, natural daylighting, and environmentally responsible practices.",
+    },
+    {
+      title: "Contextual Relevance & Cultural Harmony",
+      desc: "Distinctiveness, cultural heritage integration, lasting spatial contribution, and regional architectural resonance.",
     },
   ];
 
@@ -45,6 +46,15 @@ export default function JuryPage() {
           <p className="body-editorial text-[#4A4F5C] max-w-2xl text-lg">
             Every qualifying entry is reviewed through a confidential, criteria-based evaluation conducted by an independent panel of distinguished design professionals.
           </p>
+          <div className="pt-2">
+            <Link
+              href="/jury/portal"
+              className="inline-flex items-center gap-2 px-5 py-2.5 bg-navy-900 hover:bg-navy-800 text-white text-xs font-mono font-semibold uppercase tracking-wider transition-colors shadow-sm"
+            >
+              <span>Appointed Jury Member Portal</span>
+              <ArrowRight size={13} className="text-gold-400" />
+            </Link>
+          </div>
         </div>
       </section>
 
@@ -115,7 +125,7 @@ export default function JuryPage() {
               Criteria Framework
             </h2>
             <p className="body-editorial text-[#4A4F5C]">
-              The initial suggested evaluation structure covers five comprehensive dimensions of architectural and interior merit.
+              The official evaluation structure covers five comprehensive dimensions of architectural and interior merit.
             </p>
           </div>
 

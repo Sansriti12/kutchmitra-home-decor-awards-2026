@@ -63,6 +63,16 @@ export default function Step3ProjectDetails({
       errs.builtUpAreaSqft = "Built-up area cannot be negative.";
     }
 
+    if (!formData.projectCompletionDate || formData.projectCompletionDate.trim() === "") {
+      errs.projectCompletionDate = "Project completion date is required.";
+    } else {
+      const compDate = formData.projectCompletionDate.trim();
+      if (compDate < "2023-01-01" || compDate > "2025-12-31") {
+        errs.projectCompletionDate =
+          "Projects must have been completed between January 1, 2023 and December 31, 2025.";
+      }
+    }
+
     setErrors(errs);
     return Object.keys(errs).length === 0;
   };
@@ -158,6 +168,7 @@ export default function Step3ProjectDetails({
               <input
                 type="text"
                 required
+                list="kutch-towns"
                 value={formData.projectCity}
                 onChange={(e) => {
                   setFormData({ ...formData, projectCity: e.target.value });
@@ -168,11 +179,31 @@ export default function Step3ProjectDetails({
                     ? "border-rose-500 focus:border-rose-600 focus:ring-1 focus:ring-rose-500/20"
                     : "border-navy-900/15 focus:border-gold-500 focus:ring-1 focus:ring-gold-500/20"
                 }`}
-                placeholder="e.g. Bhuj, Gandhidham, Mandvi, Anjar"
+                placeholder="Select or enter Kutch town / taluka (e.g. Bhuj, Gandhidham, Anjar)"
               />
+              <datalist id="kutch-towns">
+                <option value="Bhuj" />
+                <option value="Gandhidham" />
+                <option value="Anjar" />
+                <option value="Mandvi" />
+                <option value="Mundra" />
+                <option value="Nakhatrana" />
+                <option value="Rapar" />
+                <option value="Bhachau" />
+                <option value="Abdasa" />
+                <option value="Lakhpat" />
+                <option value="Madhapar" />
+                <option value="Mirzapar" />
+                <option value="Sukhpar" />
+                <option value="Kera" />
+              </datalist>
             </div>
-            {errors.projectCity && (
+            {errors.projectCity ? (
               <p className="text-xs text-rose-600 font-mono mt-1">{errors.projectCity}</p>
+            ) : (
+              <p className="text-[11px] text-slate-500">
+                Only projects located within Kutch district are eligible for participation.
+              </p>
             )}
           </div>
 
@@ -201,22 +232,34 @@ export default function Step3ProjectDetails({
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-6 pt-5 border-t border-navy-900/10">
           <div className="space-y-1.5">
             <label className="block font-mono text-xs uppercase tracking-wider text-navy-900 font-semibold">
-              Project Completion Date <span className="text-slate-400 text-[10px] font-normal tracking-normal">(Optional)</span>
+              Project Completion Date <span className="text-gold-700 font-bold">*</span>
             </label>
             <div className="relative">
               <Calendar size={16} className="absolute left-3.5 top-3.5 text-slate-400" />
               <input
                 type="date"
+                required
+                min="2023-01-01"
+                max="2025-12-31"
                 value={formData.projectCompletionDate || ""}
-                onChange={(e) =>
-                  setFormData({ ...formData, projectCompletionDate: e.target.value || null })
-                }
-                className="w-full pl-10 pr-4 py-2.5 border border-navy-900/15 bg-white text-navy-900 focus:outline-none focus:border-gold-500 focus:ring-1 focus:ring-gold-500/20 transition-colors text-sm shadow-2xs"
+                onChange={(e) => {
+                  setFormData({ ...formData, projectCompletionDate: e.target.value || null });
+                  if (errors.projectCompletionDate) setErrors({ ...errors, projectCompletionDate: "" });
+                }}
+                className={`w-full pl-10 pr-4 py-2.5 border bg-white text-navy-900 focus:outline-none transition-colors text-sm shadow-2xs ${
+                  errors.projectCompletionDate
+                    ? "border-rose-500 focus:border-rose-600 focus:ring-1 focus:ring-rose-500/20"
+                    : "border-navy-900/15 focus:border-gold-500 focus:ring-1 focus:ring-gold-500/20"
+                }`}
               />
             </div>
-            <p className="text-[11px] text-slate-500">
-              Date the project reached handover, occupancy, or practical completion.
-            </p>
+            {errors.projectCompletionDate ? (
+              <p className="text-xs text-rose-600 font-mono mt-1">{errors.projectCompletionDate}</p>
+            ) : (
+              <p className="text-[11px] text-slate-500">
+                Eligible projects must have been completed between January 1, 2023 and December 31, 2025.
+              </p>
+            )}
           </div>
 
           <div className="space-y-1.5">

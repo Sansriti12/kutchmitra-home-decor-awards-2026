@@ -32,7 +32,9 @@ import {
   Trash2,
 } from "lucide-react";
 import { Button } from "@/components/ui/Button";
+import { cn, formatDeterministicDate } from "@/lib/utils";
 import { updateApplicantProfile } from "@/lib/auth/profile-actions";
+import { markNotificationAsRead, markAllNotificationsAsRead } from "@/lib/notifications/actions";
 
 export interface ApplicationItem {
   id: string;
@@ -52,6 +54,7 @@ export interface ApplicationItem {
   is_locked: boolean;
   created_at: string;
   updated_at: string;
+  clarificationMessage?: string | null;
   category?: {
     code: string;
     name: string;
@@ -66,6 +69,8 @@ export interface NotificationItem {
   channel: string;
   notification_type: string;
   status: string;
+  is_read?: boolean;
+  nomination_id?: string | null;
   created_at: string;
 }
 
@@ -714,6 +719,33 @@ export default function ApplicantDashboardClient({
                           </div>
                         </div>
 
+                        {/* Clarification Notice if required */}
+                        {sub.status === "clarification_required" && (
+                          <div className="p-4 bg-orange-50 border border-orange-200 text-xs space-y-2">
+                            <div className="flex items-center gap-1.5 text-orange-900 font-semibold uppercase tracking-wider text-[11px] font-mono">
+                              <AlertCircle size={14} className="text-orange-600 flex-shrink-0" />
+                              <span>Clarification Requested by Organizing Committee</span>
+                            </div>
+                            {sub.clarificationMessage && (
+                              <blockquote className="p-2.5 bg-white border border-orange-200 text-slate-800 text-xs italic">
+                                &ldquo;{sub.clarificationMessage}&rdquo;
+                              </blockquote>
+                            )}
+                            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 pt-1">
+                              <span className="text-[11px] text-orange-800">
+                                You can update your answers, attach required files, and resubmit your nomination.
+                              </span>
+                              <Link
+                                href={`/dashboard/nominations/${sub.id}`}
+                                className="inline-flex items-center gap-1 px-3 py-1.5 bg-orange-600 hover:bg-orange-700 text-white text-xs font-mono uppercase tracking-wider transition-colors self-start sm:self-auto"
+                              >
+                                <span>Respond &amp; Update</span>
+                                <ArrowRight size={12} />
+                              </Link>
+                            </div>
+                          </div>
+                        )}
+
                         {/* Status Description Box */}
                         <div className="p-3 bg-white border border-navy-900/10 text-xs text-[#4A4F5C] flex items-start gap-2">
                           <Info size={14} className="text-gold-600 flex-shrink-0 mt-0.5" />
@@ -830,11 +862,25 @@ export default function ApplicantDashboardClient({
                     Notifications &amp; Alerts
                   </h3>
                 </div>
-                {notifications.length > 0 && (
-                  <span className="px-1.5 py-0.5 text-[10px] font-mono bg-gold-500/20 text-gold-800 rounded">
-                    {notifications.length}
-                  </span>
-                )}
+                <div className="flex items-center gap-2">
+                  {notifications.filter((n) => !n.is_read).length > 0 && (
+                    <button
+                      type="button"
+                      onClick={async () => {
+                        await markAllNotificationsAsRead();
+                        router.refresh();
+                      }}
+                      className="text-[10px] font-mono text-gold-700 hover:text-gold-900 underline"
+                    >
+                      Mark all read
+                    </button>
+                  )}
+                  {notifications.length > 0 && (
+                    <span className="px-1.5 py-0.5 text-[10px] font-mono bg-gold-500/20 text-gold-800 rounded">
+                      {notifications.length}
+                    </span>
+                  )}
+                </div>
               </div>
 
               {notifications.length === 0 ? (
@@ -847,20 +893,49 @@ export default function ApplicantDashboardClient({
                 </div>
               ) : (
                 <div className="space-y-3">
-                  {notifications.map((notif) => (
-                    <div
-                      key={notif.id}
-                      className="p-3 bg-white border border-navy-900/10 text-xs space-y-1"
-                    >
-                      <div className="flex items-center justify-between">
-                        <span className="font-semibold text-navy-900">{notif.subject || "System Notice"}</span>
-                        <span className="text-[10px] font-mono text-slate-400">
-                          {new Date(notif.created_at).toLocaleDateString("en-IN")}
-                        </span>
+                  {notifications.map((notif) => {
+                    const isUnread = !notif.is_read;
+                    return (
+                      <div
+                        key={notif.id}
+                        className={cn(
+                          "p-3 border text-xs space-y-1 transition-colors",
+                          isUnread
+                            ? "bg-gold-500/[0.04] border-gold-500/30"
+                            : "bg-white border-navy-900/10"
+                        )}
+                      >
+                        <div className="flex items-center justify-between">
+                          <div className="flex items-center gap-1.5">
+                            {isUnread && (
+                              <span className="w-1.5 h-1.5 rounded-full bg-gold-600 inline-block" title="Unread" />
+                            )}
+                            <span className="font-semibold text-navy-900">
+                              {notif.subject || "System Notice"}
+                            </span>
+                          </div>
+                          <span className="text-[10px] font-mono text-slate-400">
+                            {new Date(notif.created_at).toLocaleDateString("en-IN")}
+                          </span>
+                        </div>
+                        <p className="text-slate-600 leading-relaxed text-[11px]">{notif.body}</p>
+                        {isUnread && (
+                          <div className="pt-1 flex justify-end">
+                            <button
+                              type="button"
+                              onClick={async () => {
+                                await markNotificationAsRead(notif.id);
+                                router.refresh();
+                              }}
+                              className="text-[10px] font-mono text-slate-400 hover:text-navy-900"
+                            >
+                              Dismiss
+                            </button>
+                          </div>
+                        )}
                       </div>
-                      <p className="text-slate-600 leading-relaxed">{notif.body}</p>
-                    </div>
-                  ))}
+                    );
+                  })}
                 </div>
               )}
             </div>
@@ -1175,7 +1250,7 @@ export default function ApplicantDashboardClient({
                     Completion Date
                   </span>
                   <p className="font-semibold text-navy-900">
-                    {new Date(selectedSubmission.project_completion_date).toLocaleDateString("en-IN")}
+                    {formatDeterministicDate(selectedSubmission.project_completion_date)}
                   </p>
                 </div>
               )}

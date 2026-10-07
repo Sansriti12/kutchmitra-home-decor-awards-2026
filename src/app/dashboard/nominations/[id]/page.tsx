@@ -89,7 +89,7 @@ export default async function NominationPage({ params }: NominationPageProps) {
       .eq("application_id", application.id),
     supabase
       .from("application_files")
-      .select("id, application_id, upload_type, original_filename, storage_path, mime_type, file_size_bytes, caption, is_cover, created_at")
+      .select("id, application_id, upload_requirement_id, upload_type, original_filename, storage_path, mime_type, file_size_bytes, caption, is_cover, created_at")
       .eq("application_id", application.id)
       .order("display_order")
       .order("created_at", { ascending: false }),
@@ -147,7 +147,7 @@ export default async function NominationPage({ params }: NominationPageProps) {
   const entrant: EntrantDetailsData = {
     fullName: dbUser?.full_name || user.email?.split("@")[0] || "Entrant",
     email: dbUser?.email || user.email || "",
-    phone: dbUser?.phone || null,
+    phone: dbUser?.phone || (user.user_metadata?.phone as string) || null,
     organizationName: profile?.organization_name || null,
     designation: profile?.designation || null,
     city: profile?.city || application.project_city || "Bhuj",
@@ -158,9 +158,10 @@ export default async function NominationPage({ params }: NominationPageProps) {
     portfolioUrl: profile?.portfolio_url || null,
   };
 
-  const files: FileItem[] = rawFiles.map((f) => ({
+  const files: FileItem[] = rawFiles.map((f: any) => ({
     id: f.id,
     application_id: f.application_id,
+    upload_requirement_id: f.upload_requirement_id || null,
     upload_type: f.upload_type as any,
     original_filename: f.original_filename,
     storage_path: f.storage_path,
@@ -182,8 +183,10 @@ export default async function NominationPage({ params }: NominationPageProps) {
     max_file_size_mb: r.max_file_size_mb,
   }));
 
-  // If locked or submitted, render read-only Dossier Viewer
-  if (application.is_locked || application.status !== "draft") {
+  const isClarification = application.status === "clarification_required";
+
+  // If locked or submitted (and not in clarification mode), render read-only Dossier Viewer
+  if ((application.is_locked || application.status !== "draft") && !isClarification) {
     return (
       <NominationDossierViewer
         application={{
@@ -207,7 +210,22 @@ export default async function NominationPage({ params }: NominationPageProps) {
     );
   }
 
-  // Otherwise, render editable 7-step Nomination Wizard
+  // Fetch pending clarification message if applicable
+  let clarificationMessage: string | null = null;
+  if (isClarification) {
+    const { data: clarif } = await supabase
+      .from("clarification_requests")
+      .select("applicant_message")
+      .eq("application_id", application.id)
+      .eq("status", "pending")
+      .order("created_at", { ascending: false })
+      .limit(1)
+      .maybeSingle();
+
+    clarificationMessage = clarif?.applicant_message || null;
+  }
+
+  // Otherwise (draft or clarification_required), render editable 7-step Nomination Wizard
   return (
     <NominationWizard
       application={{
@@ -221,7 +239,7 @@ export default async function NominationPage({ params }: NominationPageProps) {
         built_up_area_sqft: application.built_up_area_sqft ? Number(application.built_up_area_sqft) : null,
         current_wizard_step: application.current_wizard_step || 1,
         status: application.status,
-        is_locked: application.is_locked,
+        is_locked: false,
       }}
       entrant={entrant}
       category={activeCategory}
@@ -230,6 +248,7 @@ export default async function NominationPage({ params }: NominationPageProps) {
       answers={rawAnswers}
       files={files}
       requirements={requirements}
+      clarificationMessage={clarificationMessage}
     />
   );
 }

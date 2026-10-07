@@ -16,6 +16,7 @@ import {
   Sparkles,
 } from "lucide-react";
 import { Button } from "@/components/ui/Button";
+import { formatDeterministicDate } from "@/lib/utils";
 import type { EntrantDetailsData } from "./Step1EntrantDetails";
 import type { CategoryOption } from "./Step2Category";
 import type { ProjectDetailsData } from "./Step3ProjectDetails";
@@ -253,11 +254,7 @@ export default function Step6Preview({
             <span className="font-mono text-[10px] text-slate-400 uppercase tracking-wider block">Completion Date</span>
             <span className="font-medium text-navy-900 text-sm">
               {project.projectCompletionDate
-                ? new Date(project.projectCompletionDate).toLocaleDateString("en-IN", {
-                    day: "numeric",
-                    month: "short",
-                    year: "numeric",
-                  })
+                ? formatDeterministicDate(project.projectCompletionDate)
                 : "Not specified"}
             </span>
           </div>

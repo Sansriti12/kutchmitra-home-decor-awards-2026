@@ -9,7 +9,7 @@ import Step4DynamicQuestions, { DynamicQuestionItem, AnswerPayload } from "./Ste
 import Step5MediaDocuments, { FileItem, UploadRequirementItem } from "./Step5MediaDocuments";
 import Step6Preview from "./Step6Preview";
 import Step7Declaration from "./Step7Declaration";
-import { saveWizardProgress } from "@/lib/nominations/actions";
+import { saveWizardProgress, getCategoryConfiguration } from "@/lib/nominations/actions";
 
 const WIZARD_STEP_LABELS: Record<number, string> = {
   1: "Entrant Profile",
@@ -47,6 +47,7 @@ export interface NominationWizardProps {
   }>;
   files: FileItem[];
   requirements: UploadRequirementItem[];
+  clarificationMessage?: string | null;
 }
 
 export default function NominationWizard({
@@ -58,6 +59,7 @@ export default function NominationWizard({
   answers: initialAnswers,
   files: initialFiles,
   requirements: initialRequirements,
+  clarificationMessage,
 }: NominationWizardProps) {
   // Current Step initialized from application draft
   const [currentStep, setCurrentStep] = useState<number>(
@@ -87,7 +89,8 @@ export default function NominationWizard({
   const [questions, setQuestions] = useState<DynamicQuestionItem[]>(initialQuestions);
   const [answers, setAnswers] = useState(initialAnswers);
 
-  // Files state
+  // Requirements and Files state
+  const [requirements, setRequirements] = useState<UploadRequirementItem[]>(initialRequirements);
   const [files, setFiles] = useState<FileItem[]>(initialFiles);
 
   // Save feedback state
@@ -145,20 +148,27 @@ export default function NominationWizard({
     });
   };
 
-  // Step 2: Category switch
+  // Step 2: Category switch with dynamic questionnaire and upload requirement loading
   const handleCategoryChange = async (newCatId: string) => {
     setIsSaving(true);
     try {
-      const res = await saveWizardProgress({
-        applicationId: application.id,
-        step: 2,
-        patch: { categoryId: newCatId },
-      });
+      const [res, configRes] = await Promise.all([
+        saveWizardProgress({
+          applicationId: application.id,
+          step: 2,
+          patch: { categoryId: newCatId },
+        }),
+        getCategoryConfiguration(newCatId),
+      ]);
 
       if (res.success) {
         setSelectedCategoryId(newCatId);
+        if (configRes.success) {
+          setQuestions(configRes.questions);
+          setRequirements(configRes.requirements);
+        }
         setLastSavedAt(new Date());
-        showToast("Category updated.");
+        showToast("Category updated with fresh questions & requirements.");
       }
     } finally {
       setIsSaving(false);
@@ -287,6 +297,26 @@ export default function NominationWizard({
         onStepClick={(step) => setCurrentStep(step)}
       />
 
+      {/* Clarification Alert Banner if application was flagged for revisions */}
+      {clarificationMessage && (
+        <div className="bg-orange-50 border-b border-orange-200 px-4 py-3 sm:px-6">
+          <div className="max-w-7xl mx-auto flex items-start gap-3">
+            <div className="w-2 h-2 rounded-full bg-orange-500 mt-1.5 flex-shrink-0" />
+            <div className="space-y-1">
+              <h4 className="text-xs font-mono font-bold uppercase tracking-wider text-orange-950">
+                Action Required: Clarification Requested by Organizing Committee
+              </h4>
+              <p className="text-xs text-orange-900 font-sans italic bg-white/70 p-2.5 border border-orange-200">
+                &ldquo;{clarificationMessage}&rdquo;
+              </p>
+              <p className="text-[11px] text-orange-800">
+                You can review or update any of your answers, upload new media/documents, and proceed to Step 7 to resubmit.
+              </p>
+            </div>
+          </div>
+        </div>
+      )}
+
       {/* Floating Save Toast */}
       {saveToast && (
         <div className="fixed bottom-6 right-6 z-50 px-4 py-2.5 bg-navy-900 text-gold-400 text-xs font-mono border border-gold-500/40 shadow-xl animate-in slide-in-from-bottom duration-200">
@@ -341,8 +371,9 @@ export default function NominationWizard({
         {currentStep === 5 && (
           <Step5MediaDocuments
             applicationId={application.id}
-            requirements={initialRequirements}
+            requirements={requirements}
             initialFiles={files}
+            onFilesChange={(updatedFiles) => setFiles(updatedFiles)}
             onNext={handleStep5Next}
             onPrev={() => setCurrentStep(4)}
             isSaving={isSaving}
@@ -358,7 +389,7 @@ export default function NominationWizard({
             questions={questions}
             answers={answers}
             files={files}
-            isConfigurationPending={questions.length === 0 || initialRequirements.length === 0}
+            isConfigurationPending={questions.length === 0 || requirements.length === 0}
             onJumpToStep={handleJumpToStep}
             onNext={handleStep6Next}
             onPrev={() => setCurrentStep(5)}
@@ -372,7 +403,7 @@ export default function NominationWizard({
             nominationId={application.nomination_id}
             projectName={projectData.projectName}
             categoryName={activeCategory.name}
-            isConfigurationPending={questions.length === 0 || initialRequirements.length === 0}
+            isConfigurationPending={questions.length === 0 || requirements.length === 0}
             onPrev={() => setCurrentStep(6)}
           />
         )}

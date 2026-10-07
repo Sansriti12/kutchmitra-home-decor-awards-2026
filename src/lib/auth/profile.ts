@@ -1,5 +1,6 @@
 import type { SupabaseClient, User } from "@supabase/supabase-js";
 import type { Database } from "@/types/database.types";
+import { sendNotification } from "@/lib/notifications/notification-service";
 
 export interface ApplicantProfileInput {
   organization_name?: string | null;
@@ -58,6 +59,19 @@ export async function ensureApplicantProfile(
   const termsAcceptedAt = explicitData?.terms_accepted_at ?? metadata.terms_accepted_at ?? now;
   const privacyAcceptedAt = explicitData?.privacy_accepted_at ?? metadata.privacy_accepted_at ?? now;
 
+  // Lazy sync phone to public.users if missing
+  if (metadata.phone) {
+    try {
+      await supabase
+        .from("users")
+        .update({ phone: metadata.phone })
+        .eq("id", user.id)
+        .is("phone", null);
+    } catch {
+      // Non-blocking sync attempt
+    }
+  }
+
   // 3. Insert into public.applicant_profiles
   const { data: newProfile, error: insertError } = await supabase
     .from("applicant_profiles")
@@ -87,6 +101,16 @@ export async function ensureApplicantProfile(
     console.error("Error creating applicant profile:", insertError.message);
     return { data: null, error: insertError };
   }
+
+  // Trigger Welcome Notification asynchronously (idempotent, non-blocking)
+  sendNotification({
+    eventType: "applicant_registered",
+    recipientUserId: user.id,
+    recipientEmail: user.email,
+    recipientName: (user.user_metadata?.full_name as string) || undefined,
+    idempotencyKey: `welcome:${user.id}`,
+    channels: ["email", "in_app"],
+  }).catch((err) => console.error("Welcome notification notice:", err));
 
   return { data: newProfile, error: null };
 }

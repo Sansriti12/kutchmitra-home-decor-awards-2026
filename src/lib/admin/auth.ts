@@ -11,10 +11,11 @@ export interface AdminUserSession {
   roles: RoleId[];
   isSuperAdmin: boolean;
   isAdmin: boolean;
+  isVerificationTeam: boolean;
 }
 
 /**
- * Server-side helper to verify that the current user has 'admin' or 'super_admin' role.
+ * Server-side helper to verify that the current user has 'admin', 'super_admin', or 'verification_team' role.
  * Validates the authenticated session and queries `user_roles` securely using the service role client.
  */
 export async function getAdminSession(): Promise<AdminUserSession | null> {
@@ -51,8 +52,9 @@ export async function getAdminSession(): Promise<AdminUserSession | null> {
     const roles = (userRolesRes.data || []).map((r) => r.role_id as RoleId);
     const isSuperAdmin = roles.includes("super_admin");
     const isAdmin = roles.includes("admin") || isSuperAdmin;
+    const isVerificationTeam = roles.includes("verification_team");
 
-    if (!isAdmin) {
+    if (!isAdmin && !isVerificationTeam) {
       return null;
     }
 
@@ -68,6 +70,7 @@ export async function getAdminSession(): Promise<AdminUserSession | null> {
       roles,
       isSuperAdmin,
       isAdmin,
+      isVerificationTeam,
     };
   } catch (error) {
     console.error("Error in getAdminSession:", error);

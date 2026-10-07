@@ -82,7 +82,7 @@ export function HeroSection() {
           {/* 6. Subtle Edition Coordinate Indicator */}
           <div className="pt-5 sm:pt-6 flex items-center justify-center gap-2 text-xs font-mono text-[#4A4F5C]">
             <span className="w-1.5 h-1.5 rounded-full bg-gold-600" />
-            <span>12 Official Award Categories &bull; 2026 Edition Platform</span>
+            <span>13 Official Award Categories &bull; 2026 Edition Platform</span>
           </div>
         </div>
       </div>

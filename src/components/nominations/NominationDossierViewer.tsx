@@ -19,6 +19,7 @@ import {
   ExternalLink,
 } from "lucide-react";
 import { Button } from "@/components/ui/Button";
+import { formatDeterministicDate } from "@/lib/utils";
 import { getSignedFileUrl } from "@/lib/nominations/actions";
 import type { EntrantDetailsData } from "./Step1EntrantDetails";
 import type { CategoryOption } from "./Step2Category";
@@ -278,11 +279,7 @@ export default function NominationDossierViewer({
               <span className="font-mono text-[10px] text-slate-400 uppercase block">Completion Date</span>
               <span className="font-semibold text-navy-900">
                 {application.project_completion_date
-                  ? new Date(application.project_completion_date).toLocaleDateString("en-IN", {
-                      day: "numeric",
-                      month: "short",
-                      year: "numeric",
-                    })
+                  ? formatDeterministicDate(application.project_completion_date)
                   : "Not specified"}
               </span>
             </div>

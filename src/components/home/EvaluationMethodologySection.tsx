@@ -4,17 +4,17 @@ import {
   ArrowRight,
   Compass,
   Lightbulb,
-  TrendingUp,
   Building2,
   Leaf,
   Scale,
+  Sparkles,
 } from "lucide-react";
 import { SectionMarker } from "@/components/ui/SectionMarker";
 import { Button } from "@/components/ui/Button";
 
 interface EvaluationCriterion {
   number: string;
-  weight: string;
+  pillar: string;
   title: string;
   description: string;
   icon: React.ElementType;
@@ -23,38 +23,38 @@ interface EvaluationCriterion {
 const CRITERIA: EvaluationCriterion[] = [
   {
     number: "01",
-    weight: "25%",
-    title: "Design/Product Impact",
-    description: "Aesthetic value and functional excellence.",
-    icon: Compass,
-  },
-  {
-    number: "02",
-    weight: "20%",
-    title: "Innovation",
-    description: "Novelty in materials, technology, or approach.",
+    pillar: "Pillar 01",
+    title: "Design Excellence & Innovation",
+    description: "Aesthetic distinction, design thinking, spatial innovation, and novel material or conceptual approaches.",
     icon: Lightbulb,
   },
   {
-    number: "03",
-    weight: "20%",
-    title: "Scalability/Market Presence",
-    description: "Impact across the Indian consumer landscape.",
-    icon: TrendingUp,
+    number: "02",
+    pillar: "Pillar 02",
+    title: "Functionality & Usability",
+    description: "Practicality, intelligent spatial planning, circulation efficiency, and responsiveness to occupants' lifestyle.",
+    icon: Compass,
   },
   {
-    number: "04",
-    weight: "20%",
-    title: "Business Excellence",
-    description: "Brand strength, growth trajectory, and reliability.",
+    number: "03",
+    pillar: "Pillar 03",
+    title: "Quality of Craftsmanship & Execution",
+    description: "Structural coherence, finishing precision, superior workmanship, and meticulous detail resolution.",
     icon: Building2,
   },
   {
-    number: "05",
-    weight: "15%",
-    title: "Sustainability & Inclusivity",
-    description: "Commitment to eco-friendly practices and social benefit.",
+    number: "04",
+    pillar: "Pillar 04",
+    title: "Sustainability & Material Sensitivity",
+    description: "Environmental responsibility, passive climate responsiveness, resource efficiency, and local material usage.",
     icon: Leaf,
+  },
+  {
+    number: "05",
+    pillar: "Pillar 05",
+    title: "Contextual Relevance & Cultural Harmony",
+    description: "Integration with regional architectural heritage, cultural resonance, and contextual harmony within Kutch.",
+    icon: Sparkles,
   },
 ];
 
@@ -70,13 +70,13 @@ export function EvaluationMethodologySection() {
               How Winners Are Chosen
             </h2>
             <p className="text-sm sm:text-base text-[#4A4F5C] font-sans leading-relaxed">
-              Every nomination undergoes rigorous evaluation by an expert jury. Each entry is scored on a 1–10 scale across five critical criteria, ensuring a comprehensive assessment.
+              Every qualifying nomination undergoes rigorous and confidential evaluation by an independent expert jury across five approved evaluation criteria to ensure an impartial and holistic assessment.
             </p>
           </div>
 
           <div className="flex items-center gap-2 px-3 py-1.5 bg-white border border-gold-500/30 text-xs font-mono text-gold-700 shadow-sm self-start md:self-end">
             <Scale size={14} className="text-gold-600" />
-            <span>Scale: 1–10 Scoring Framework</span>
+            <span>Official Evaluation Framework</span>
           </div>
         </div>
 
@@ -90,13 +90,13 @@ export function EvaluationMethodologySection() {
                 className="p-5 sm:p-6 bg-white border border-navy-900/10 shadow-sm space-y-3.5 hover:border-gold-500/40 hover:shadow-card-hover transition-all duration-200 flex flex-col justify-between"
               >
                 <div className="space-y-3">
-                  {/* Top: Criterion Number + Gold Percentage Weight */}
+                  {/* Top: Criterion Number + Pillar Badge */}
                   <div className="flex items-center justify-between border-b border-navy-900/10 pb-2.5">
                     <span className="font-mono text-xs text-slate-400 font-medium">
                       CRITERION {criterion.number}
                     </span>
-                    <span className="font-display text-xl font-bold text-gold-700">
-                      {criterion.weight}
+                    <span className="font-mono text-[10px] uppercase tracking-wider text-gold-700 font-semibold px-2 py-0.5 bg-sand-100 border border-gold-500/20">
+                      {criterion.pillar}
                     </span>
                   </div>
 
@@ -117,8 +117,8 @@ export function EvaluationMethodologySection() {
                 </div>
 
                 <div className="pt-2 border-t border-navy-900/5 flex items-center justify-between text-[10px] font-mono text-slate-400 uppercase tracking-wider">
-                  <span>Jury Weight</span>
-                  <span className="text-gold-700 font-semibold">{criterion.weight}</span>
+                  <span>Assessment Focus</span>
+                  <span className="text-gold-700 font-semibold">Qualitative Merit</span>
                 </div>
               </article>
             );
@@ -130,14 +130,14 @@ export function EvaluationMethodologySection() {
           <div className="space-y-1">
             <div className="flex items-baseline gap-2">
               <span className="font-display text-2xl text-navy-900 font-semibold tracking-tight">
-                Total Score
+                Holistic Assessment
               </span>
               <span className="font-mono text-xs uppercase tracking-wider text-gold-700 font-bold bg-gold-500/10 px-2 py-0.5 border border-gold-500/20">
-                100% Cumulative
+                5 Core Criteria
               </span>
             </div>
             <p className="text-xs sm:text-sm text-[#4A4F5C] font-sans">
-              A holistic view of overall excellence across design, innovation, market presence, business integrity, and environmental stewardship.
+              A comprehensive assessment celebrating visionary design thinking, execution quality, functionality, cultural harmony, and environmental sensitivity.
             </p>
           </div>
 

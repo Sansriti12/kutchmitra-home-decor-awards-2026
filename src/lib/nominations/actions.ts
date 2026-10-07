@@ -4,6 +4,7 @@ import { createClient } from "@/lib/supabase/server";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { revalidatePath } from "next/cache";
 import type { Database, UploadType } from "@/types/database.types";
+import { sendNotification, notifyAdmins } from "@/lib/notifications/notification-service";
 
 type ApplicationUpdate = Database["public"]["Tables"]["applications"]["Update"];
 
@@ -142,6 +143,77 @@ export async function createDraftApplication(categoryId: string) {
     applicationId: newApp.id,
     nominationId: newApp.nomination_id,
   };
+}
+
+/**
+ * Dynamically fetches category questions, options, and upload requirements.
+ * Used by NominationWizard to load or switch category configuration in real-time.
+ */
+export async function getCategoryConfiguration(categoryId: string) {
+  const supabase = createClient();
+
+  const [questionsRes, optionsRes, reqsRes] = await Promise.all([
+    supabase
+      .from("category_questions")
+      .select("id, category_id, question_key, question_text, help_text, placeholder, field_type, is_required, validation_rules, display_order")
+      .eq("category_id", categoryId)
+      .eq("is_active", true)
+      .order("display_order"),
+    supabase
+      .from("question_options")
+      .select("id, question_id, label, value, display_order")
+      .eq("is_active", true)
+      .order("display_order"),
+    supabase
+      .from("category_upload_requirements")
+      .select("id, upload_type, title, description, is_required, min_count, max_count, max_file_size_mb, display_order")
+      .eq("category_id", categoryId)
+      .eq("is_active", true)
+      .order("display_order"),
+  ]);
+
+  if (questionsRes.error) {
+    console.error("Failed to load category questions:", questionsRes.error);
+    return { success: false, error: questionsRes.error.message, questions: [], requirements: [] };
+  }
+
+  const rawQuestions = questionsRes.data || [];
+  const rawOptions = optionsRes.data || [];
+  const rawReqs = reqsRes.data || [];
+
+  const optionsMap = new Map<string, any[]>();
+  rawOptions.forEach((opt) => {
+    const list = optionsMap.get(opt.question_id) || [];
+    list.push(opt);
+    optionsMap.set(opt.question_id, list);
+  });
+
+  const questions = rawQuestions.map((q) => ({
+    id: q.id,
+    category_id: q.category_id,
+    question_key: q.question_key,
+    question_text: q.question_text,
+    help_text: q.help_text,
+    placeholder: q.placeholder,
+    field_type: q.field_type as any,
+    is_required: q.is_required,
+    validation_rules: q.validation_rules,
+    display_order: q.display_order,
+    options: optionsMap.get(q.id) || [],
+  }));
+
+  const requirements = rawReqs.map((r) => ({
+    id: r.id,
+    upload_type: r.upload_type as any,
+    title: r.title,
+    description: r.description,
+    is_required: r.is_required,
+    min_count: r.min_count,
+    max_count: r.max_count,
+    max_file_size_mb: r.max_file_size_mb,
+  }));
+
+  return { success: true, questions, requirements };
 }
 
 /**
@@ -361,7 +433,7 @@ export async function uploadNominationFile(formData: FormData) {
       caption: caption,
       is_cover: isCover,
     })
-    .select("id, storage_path, original_filename, upload_type, is_cover")
+    .select("id, storage_path, original_filename, upload_type, is_cover, upload_requirement_id")
     .single();
 
   if (fileErr || !fileRecord) {
@@ -520,7 +592,8 @@ export async function submitFinalNomination(
     return { success: false, error: "You are not authorized to submit this nomination." };
   }
 
-  if (app.is_locked || app.status !== "draft") {
+  const isClarificationResubmit = app.status === "clarification_required";
+  if (!isClarificationResubmit && (app.is_locked || app.status !== "draft")) {
     return { success: false, error: "This nomination has already been submitted and locked." };
   }
 
@@ -543,6 +616,21 @@ export async function submitFinalNomination(
     return {
       success: false,
       error: "Project State is required for nomination submission.",
+    };
+  }
+
+  if (!app.project_completion_date) {
+    return {
+      success: false,
+      error: "Project completion date is required for nomination submission.",
+    };
+  }
+
+  const compDate = app.project_completion_date;
+  if (compDate < "2023-01-01" || compDate > "2025-12-31") {
+    return {
+      success: false,
+      error: "Projects must have been completed between January 1, 2023 and December 31, 2025.",
     };
   }
 
@@ -640,40 +728,119 @@ export async function submitFinalNomination(
   }
 
   const now = new Date().toISOString();
+  const nextStatus = isClarificationResubmit ? "under_verification" : "submitted";
 
   // 5. Update applications row: lock and transition status using trusted server-side operation
   const adminClient = createAdminClient();
   const { error: updateErr } = await adminClient
     .from("applications")
     .update({
-      status: "submitted",
+      status: nextStatus,
       is_locked: true,
       declaration_accepted: true,
       declaration_accepted_at: now,
-      submitted_at: now,
+      submitted_at: app.submitted_at || now,
       current_wizard_step: 7,
       updated_at: now,
     })
     .eq("id", applicationId)
-    .eq("applicant_id", user.id)
-    .eq("is_locked", false);
+    .eq("applicant_id", user.id);
 
   if (updateErr) {
     console.error("Submission update error:", updateErr);
     return { success: false, error: updateErr.message || "Failed to submit nomination." };
   }
 
+  // If resubmitting following a clarification request, resolve pending records
+  if (isClarificationResubmit) {
+    await adminClient
+      .from("clarification_requests")
+      .update({
+        status: "resolved",
+        responded_at: now,
+        response_text: "Applicant reviewed and resubmitted nomination.",
+        updated_at: now,
+      })
+      .eq("application_id", applicationId)
+      .eq("status", "pending");
+  }
+
   // 6. Record audit log in application_status_history
   const { error: histErr } = await adminClient.from("application_status_history").insert({
     application_id: applicationId,
-    from_status: "draft",
-    to_status: "submitted",
+    from_status: app.status,
+    to_status: nextStatus,
     changed_by: user.id,
-    comments: "Nomination officially submitted by applicant with all declarations accepted.",
+    comments: isClarificationResubmit
+      ? "Nomination revised and resubmitted by applicant following clarification request."
+      : "Nomination officially submitted by applicant with all declarations accepted.",
   });
 
   if (histErr) {
     console.warn("Status history logging notice:", histErr.message);
+  }
+
+  // 7. Record immutable entry in audit_logs
+  await adminClient.from("audit_logs").insert({
+    actor_id: user.id,
+    action: isClarificationResubmit
+      ? "nomination_clarification_resubmitted"
+      : "nomination_submitted",
+    entity_type: "application",
+    entity_id: applicationId,
+    old_values: { status: app.status },
+    new_values: { status: nextStatus },
+    created_at: now,
+  });
+
+  // 8. Phase F: Event-Driven Transactional Notifications (Idempotent, non-blocking)
+  if (!isClarificationResubmit) {
+    sendNotification({
+      eventType: "nomination_submitted",
+      recipientUserId: user.id,
+      recipientEmail: user.email,
+      recipientName: (user.user_metadata?.full_name as string) || undefined,
+      applicationId,
+      nominationId: app.nomination_id,
+      data: {
+        projectName: app.project_name,
+        categoryName: (app.categories as any)?.name,
+        categoryCode: (app.categories as any)?.code,
+      },
+      idempotencyKey: `nomination_submitted:${applicationId}`,
+      channels: ["email", "in_app"],
+    }).catch((err) => console.error("Applicant nomination_submitted notice:", err));
+
+    notifyAdmins("admin_new_submission", {
+      nominationId: app.nomination_id,
+      applicationId,
+      data: {
+        projectName: app.project_name,
+        applicantName: (user.user_metadata?.full_name as string) || user.email,
+        categoryName: (app.categories as any)?.name,
+      },
+    }).catch((err) => console.error("Admin new submission alert notice:", err));
+  } else {
+    notifyAdmins("admin_clarification_responded", {
+      nominationId: app.nomination_id,
+      applicationId,
+      data: {
+        projectName: app.project_name,
+        actorName: (user.user_metadata?.full_name as string) || user.email,
+      },
+    }).catch((err) => console.error("Admin clarification alert notice:", err));
+
+    sendNotification({
+      eventType: "clarification_responded",
+      recipientUserId: user.id,
+      applicationId,
+      nominationId: app.nomination_id,
+      data: {
+        projectName: app.project_name,
+      },
+      idempotencyKey: `clarification_responded:${applicationId}:${now}`,
+      channels: ["in_app"],
+    }).catch((err) => console.error("Applicant clarification in-app notice:", err));
   }
 
   revalidatePath("/dashboard");

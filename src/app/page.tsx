@@ -26,7 +26,7 @@ export default function Home() {
       {/* 5. Journey to Recognition (Timeline Roadmap) */}
       <JourneyToRecognition />
 
-      {/* 6. Evaluation Methodology (5 Criteria & 1–10 Scale) */}
+      {/* 6. Evaluation Methodology (5 Core Criteria) */}
       <EvaluationMethodologySection />
 
       {/* 7. Jury Preview */}

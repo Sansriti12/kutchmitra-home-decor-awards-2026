@@ -19,6 +19,7 @@ import {
   ExternalLink,
   ChevronRight,
   Sparkles,
+  Bell,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 
@@ -48,8 +49,7 @@ const NAV_ITEMS: NavItem[] = [
     label: "Applications",
     href: "/admin/applications",
     icon: FileText,
-    isImplemented: false,
-    badge: "Phase 2B",
+    isImplemented: true,
   },
   {
     label: "Verification",
@@ -69,8 +69,7 @@ const NAV_ITEMS: NavItem[] = [
     label: "Jury Management",
     href: "/admin/jury",
     icon: Users,
-    isImplemented: false,
-    badge: "Phase 2E",
+    isImplemented: true,
   },
   {
     label: "Scoring & Rubrics",
@@ -83,15 +82,19 @@ const NAV_ITEMS: NavItem[] = [
     label: "Shortlisting",
     href: "/admin/shortlisting",
     icon: Award,
-    isImplemented: false,
-    badge: "Phase 2F",
+    isImplemented: true,
   },
   {
     label: "Winners Showcase",
     href: "/admin/winners",
     icon: Trophy,
-    isImplemented: false,
-    badge: "Phase 2F",
+    isImplemented: true,
+  },
+  {
+    label: "Notifications",
+    href: "/admin/notifications",
+    icon: Bell,
+    isImplemented: true,
   },
   {
     label: "Content / CMS",
@@ -237,22 +240,30 @@ export function AdminSidebar({
           </p>
         </div>
 
-        <div className="pt-2 border-t border-white/10 flex items-center justify-between text-[11px] font-mono text-slate-400">
+        <div className="pt-2 border-t border-white/10 flex items-center justify-between text-[10px] font-mono text-slate-400">
           <Link
             href="/"
             target="_blank"
-            className="inline-flex items-center gap-1 text-slate-300 hover:text-gold-400 transition-colors"
+            className="inline-flex items-center gap-0.5 text-slate-300 hover:text-gold-400 transition-colors"
           >
-            <span>Public Site</span>
-            <ExternalLink size={10} />
+            <span>Public</span>
+            <ExternalLink size={9} />
           </Link>
           <Link
             href="/dashboard"
             target="_blank"
-            className="inline-flex items-center gap-1 text-slate-300 hover:text-gold-400 transition-colors"
+            className="inline-flex items-center gap-0.5 text-slate-300 hover:text-gold-400 transition-colors"
           >
-            <span>Applicant UI</span>
-            <ExternalLink size={10} />
+            <span>Applicant</span>
+            <ExternalLink size={9} />
+          </Link>
+          <Link
+            href="/jury/portal"
+            target="_blank"
+            className="inline-flex items-center gap-0.5 text-gold-400 hover:text-gold-300 transition-colors font-semibold"
+          >
+            <span>Jury UI</span>
+            <ExternalLink size={9} />
           </Link>
         </div>
       </div>

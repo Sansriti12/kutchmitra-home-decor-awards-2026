@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useRef } from "react";
+import React, { useState, useRef, useEffect } from "react";
 import {
   ArrowLeft,
   ArrowRight,
@@ -16,6 +16,7 @@ import {
   Star,
   X,
   AlertTriangle,
+  FolderCheck,
 } from "lucide-react";
 import { Button } from "@/components/ui/Button";
 import { uploadNominationFile, deleteNominationFile, getSignedFileUrl } from "@/lib/nominations/actions";
@@ -24,6 +25,7 @@ import type { UploadType } from "@/types/database.types";
 export interface FileItem {
   id: string;
   application_id: string;
+  upload_requirement_id?: string | null;
   upload_type: UploadType;
   original_filename: string;
   storage_path: string;
@@ -49,6 +51,7 @@ interface Step5MediaDocumentsProps {
   applicationId: string;
   requirements: UploadRequirementItem[];
   initialFiles: FileItem[];
+  onFilesChange?: (files: FileItem[]) => void;
   onNext: () => void;
   onPrev: () => void;
   isSaving: boolean;
@@ -69,6 +72,7 @@ export default function Step5MediaDocuments({
   applicationId,
   requirements,
   initialFiles,
+  onFilesChange,
   onNext,
   onPrev,
   isSaving,
@@ -80,13 +84,35 @@ export default function Step5MediaDocuments({
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
   const [isDragging, setIsDragging] = useState(false);
 
+  // Active selected requirement
+  const [selectedRequirementId, setSelectedRequirementId] = useState<string>(
+    requirements.length > 0 ? requirements[0].id : ""
+  );
+
   // Upload Form Inputs
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
-  const [uploadType, setUploadType] = useState<UploadType>("project_photo");
+  const [uploadType, setUploadType] = useState<UploadType>(
+    requirements.length > 0 ? requirements[0].upload_type : "project_photo"
+  );
   const [caption, setCaption] = useState("");
-  const [isCover, setIsCover] = useState(false);
+  const [isCover, setIsCover] = useState(
+    requirements.length > 0 ? requirements[0].upload_type === "cover_image" : false
+  );
 
   const fileInputRef = useRef<HTMLInputElement | null>(null);
+  const uploadBoxRef = useRef<HTMLFormElement | null>(null);
+
+  // Keep selected requirement synchronized with requirements prop if category changes
+  useEffect(() => {
+    if (requirements.length > 0) {
+      const match = requirements.find((r) => r.id === selectedRequirementId);
+      if (!match) {
+        setSelectedRequirementId(requirements[0].id);
+        setUploadType(requirements[0].upload_type);
+        setIsCover(requirements[0].upload_type === "cover_image");
+      }
+    }
+  }, [requirements, selectedRequirementId]);
 
   const formatFileSize = (bytes: number): string => {
     if (bytes < 1024 * 1024) {
@@ -95,12 +121,29 @@ export default function Step5MediaDocuments({
     return `${(bytes / (1024 * 1024)).toFixed(2)} MB`;
   };
 
+  const activeRequirement = requirements.find((r) => r.id === selectedRequirementId);
+
+  const handleRequirementSelect = (reqId: string) => {
+    setSelectedRequirementId(reqId);
+    const targetReq = requirements.find((r) => r.id === reqId);
+    if (targetReq) {
+      setUploadType(targetReq.upload_type);
+      setIsCover(targetReq.upload_type === "cover_image");
+    }
+    setErrorMsg(null);
+    if (uploadBoxRef.current) {
+      uploadBoxRef.current.scrollIntoView({ behavior: "smooth", block: "center" });
+    }
+  };
+
   const validateAndSetFile = (f: File) => {
-    if (f.size > 15 * 1024 * 1024) {
-      setErrorMsg("Selected file exceeds the 15MB limit.");
+    const maxSizeMb = activeRequirement?.max_file_size_mb || 15;
+    if (f.size > maxSizeMb * 1024 * 1024) {
+      setErrorMsg(`Selected file exceeds the ${maxSizeMb}MB size limit.`);
       setSelectedFile(null);
       return;
     }
+
     const validMimes = ["image/jpeg", "image/png", "image/webp", "application/pdf"];
     const isNamedValid = /\.(jpe?g|png|webp|pdf)$/i.test(f.name);
     if (!validMimes.includes(f.type) && !isNamedValid) {
@@ -108,12 +151,7 @@ export default function Step5MediaDocuments({
       setSelectedFile(null);
       return;
     }
-    // Auto-adjust default category for PDFs
-    if (f.type === "application/pdf" || f.name.toLowerCase().endsWith(".pdf")) {
-      if (uploadType === "project_photo" || uploadType === "interior_photo" || uploadType === "exterior_photo" || uploadType === "cover_image") {
-        setUploadType("floor_plan");
-      }
-    }
+
     setSelectedFile(f);
     setErrorMsg(null);
   };
@@ -157,6 +195,9 @@ export default function Step5MediaDocuments({
       formData.append("applicationId", applicationId);
       formData.append("file", selectedFile);
       formData.append("uploadType", uploadType);
+      if (selectedRequirementId) {
+        formData.append("requirementId", selectedRequirementId);
+      }
       if (caption.trim()) formData.append("caption", caption.trim());
       formData.append("isCover", isCover ? "true" : "false");
 
@@ -164,31 +205,30 @@ export default function Step5MediaDocuments({
 
       if (res.success && res.file) {
         const newFile = res.file as any;
-        setFiles((prev) => {
-          let updated = isCover
-            ? prev.map((item) => ({ ...item, is_cover: false }))
-            : [...prev];
-          return [
-            ...updated,
-            {
-              id: newFile.id,
-              application_id: applicationId,
-              upload_type: uploadType,
-              original_filename: selectedFile.name,
-              storage_path: newFile.storage_path,
-              mime_type: selectedFile.type || "application/octet-stream",
-              file_size_bytes: selectedFile.size,
-              caption: caption.trim() || null,
-              is_cover: isCover,
-              created_at: new Date().toISOString(),
-            },
-          ];
-        });
+        const newFileItem: FileItem = {
+          id: newFile.id,
+          application_id: applicationId,
+          upload_requirement_id: newFile.upload_requirement_id || selectedRequirementId || null,
+          upload_type: uploadType,
+          original_filename: selectedFile.name,
+          storage_path: newFile.storage_path,
+          mime_type: selectedFile.type || "application/octet-stream",
+          file_size_bytes: selectedFile.size,
+          caption: caption.trim() || null,
+          is_cover: isCover,
+          created_at: new Date().toISOString(),
+        };
+
+        const updatedFiles = isCover
+          ? [...files.map((item) => ({ ...item, is_cover: false })), newFileItem]
+          : [...files, newFileItem];
+
+        setFiles(updatedFiles);
+        onFilesChange?.(updatedFiles);
 
         // Reset form
         setSelectedFile(null);
         setCaption("");
-        setIsCover(false);
         if (fileInputRef.current) fileInputRef.current.value = "";
       } else {
         setErrorMsg(res.error || "Upload failed. Please try again.");
@@ -210,7 +250,9 @@ export default function Step5MediaDocuments({
     try {
       const res = await deleteNominationFile(applicationId, fileId);
       if (res.success) {
-        setFiles((prev) => prev.filter((f) => f.id !== fileId));
+        const updatedFiles = files.filter((f) => f.id !== fileId);
+        setFiles(updatedFiles);
+        onFilesChange?.(updatedFiles);
         setFileToDelete(null);
       } else {
         setErrorMsg(res.error || "Failed to delete file.");
@@ -235,8 +277,37 @@ export default function Step5MediaDocuments({
     }
   };
 
+  const handleProceed = () => {
+    // Validate required upload requirements
+    const missing: string[] = [];
+    for (const req of requirements) {
+      if (req.is_required) {
+        const count = files.filter(
+          (f) => f.upload_requirement_id === req.id || f.upload_type === req.upload_type
+        ).length;
+        const minExpected = req.min_count > 0 ? req.min_count : 1;
+        if (count < minExpected) {
+          missing.push(`"${req.title}" (Minimum ${minExpected} required, currently ${count})`);
+        }
+      }
+    }
+
+    if (missing.length > 0) {
+      setErrorMsg(
+        `Please complete all mandatory category uploads before proceeding to review. Missing:\n• ${missing.join(
+          "\n• "
+        )}`
+      );
+      window.scrollTo({ top: 120, behavior: "smooth" });
+      return;
+    }
+
+    setErrorMsg(null);
+    onNext();
+  };
+
   return (
-    <div className="space-y-6 max-w-4xl mx-auto">
+    <div className="space-y-8 max-w-4xl mx-auto">
       {/* Title & Guidance Header */}
       <div className="space-y-2">
         <div className="flex items-center gap-2">
@@ -249,10 +320,10 @@ export default function Step5MediaDocuments({
           </span>
         </div>
         <h2 className="font-display text-2xl sm:text-3xl lg:text-4xl text-navy-900 font-medium tracking-tight">
-          Media & Architectural Documentation
+          Media & Category Uploads
         </h2>
         <p className="text-sm text-[#4A4F5C] leading-relaxed max-w-2xl">
-          Upload project photography, architectural drawings, floor plans, and presentation dossiers for jury assessment.
+          Upload verified project photography, architectural drawings, floor plans, and presentation dossiers for jury assessment.
         </p>
       </div>
 
@@ -266,35 +337,166 @@ export default function Step5MediaDocuments({
             Confidential Jury Dossier & Isolated Private Storage
           </p>
           <p>
-            All submitted files are stored in an encrypted private bucket accessible only by authorized verifiers and the category jury panel.
+            All submitted files are securely stored in an encrypted private bucket accessible only by authorized verifiers and the category jury panel.
             Supported formats: <span className="font-mono font-semibold text-navy-900">JPG, PNG, WEBP, PDF</span> (Maximum 15MB per file).
           </p>
-          {requirements.length === 0 && (
-            <p className="text-[11px] font-mono text-amber-900 pt-1">
-              Notice: Category-specific quota limits and mandatory sheets will be enforced upon formal committee ratification. Files uploaded today remain securely attached to your draft.
-            </p>
-          )}
         </div>
       </div>
 
       {errorMsg && (
-        <div className="p-3.5 bg-rose-50 border border-rose-200 text-rose-800 text-xs font-mono flex items-center gap-2 shadow-2xs">
-          <AlertCircle size={14} className="text-rose-600 flex-shrink-0" />
-          <span>{errorMsg}</span>
+        <div className="p-4 bg-rose-50 border border-rose-200 text-rose-800 text-xs font-mono space-y-1 shadow-2xs whitespace-pre-line">
+          <div className="flex items-center gap-2 font-bold">
+            <AlertCircle size={15} className="text-rose-600 flex-shrink-0" />
+            <span>Upload Requirements Checklist Warning</span>
+          </div>
+          <div className="pl-6 leading-relaxed">{errorMsg}</div>
+        </div>
+      )}
+
+      {/* CATEGORY UPLOAD REQUIREMENTS CHECKLIST */}
+      {requirements.length > 0 && (
+        <div className="bg-[#FBFAF7] border border-navy-900/15 p-6 sm:p-8 shadow-card space-y-4">
+          <div className="flex items-center justify-between border-b border-navy-900/10 pb-3 flex-wrap gap-2">
+            <h3 className="font-display text-lg text-navy-900 font-semibold flex items-center gap-2">
+              <FolderCheck size={18} className="text-gold-600" />
+              <span>Category Upload Requirements ({requirements.length})</span>
+            </h3>
+            <span className="text-[11px] font-mono text-slate-500 bg-white border border-navy-900/10 px-2 py-0.5">
+              {requirements.filter((r) => r.is_required).length} Mandatory · {requirements.filter((r) => !r.is_required).length} Optional
+            </span>
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-3.5">
+            {requirements.map((req) => {
+              const count = files.filter(
+                (f) => f.upload_requirement_id === req.id || f.upload_type === req.upload_type
+              ).length;
+              const minExpected = req.min_count > 0 ? req.min_count : req.is_required ? 1 : 0;
+              const isFulfilled = req.is_required ? count >= minExpected : count > 0;
+              const isSelected = selectedRequirementId === req.id;
+
+              return (
+                <div
+                  key={req.id}
+                  onClick={() => handleRequirementSelect(req.id)}
+                  className={`p-4 border transition-all cursor-pointer text-left space-y-2 relative ${
+                    isSelected
+                      ? "border-gold-500 bg-gold-500/5 ring-1 ring-gold-500/30"
+                      : isFulfilled
+                      ? "border-emerald-200/90 bg-emerald-50/20 hover:border-emerald-300"
+                      : req.is_required
+                      ? "border-amber-300 bg-amber-50/20 hover:border-amber-400"
+                      : "border-navy-900/10 bg-white hover:border-navy-900/20"
+                  }`}
+                >
+                  <div className="flex items-start justify-between gap-2">
+                    <div className="flex items-center gap-1.5 font-display text-sm font-semibold text-navy-900">
+                      {isFulfilled ? (
+                        <CheckCircle2 size={15} className="text-emerald-600 flex-shrink-0" />
+                      ) : req.is_required ? (
+                        <AlertCircle size={15} className="text-amber-600 flex-shrink-0" />
+                      ) : (
+                        <FileText size={15} className="text-slate-400 flex-shrink-0" />
+                      )}
+                      <span className="line-clamp-1">{req.title}</span>
+                    </div>
+                    <span
+                      className={`text-[10px] font-mono px-2 py-0.5 uppercase tracking-wider font-semibold flex-shrink-0 ${
+                        req.is_required
+                          ? isFulfilled
+                            ? "bg-emerald-100 text-emerald-800 border border-emerald-300"
+                            : "bg-amber-100 text-amber-900 border border-amber-300"
+                          : "bg-slate-100 text-slate-600 border border-slate-200"
+                      }`}
+                    >
+                      {req.is_required ? `Required (Min ${minExpected})` : "Optional"}
+                    </span>
+                  </div>
+
+                  {req.description && (
+                    <p className="text-xs text-[#4A4F5C] line-clamp-2 leading-relaxed">
+                      {req.description}
+                    </p>
+                  )}
+
+                  <div className="flex items-center justify-between pt-1 border-t border-navy-900/5 text-[11px] font-mono">
+                    <span
+                      className={
+                        isFulfilled
+                          ? "text-emerald-700 font-semibold"
+                          : req.is_required
+                          ? "text-amber-800 font-semibold"
+                          : "text-slate-500"
+                      }
+                    >
+                      {count} uploaded{" "}
+                      {req.min_count > 0
+                        ? `(Min ${req.min_count}, Max ${req.max_count})`
+                        : `(Max ${req.max_count})`}
+                    </span>
+                    <span className="text-[10px] text-gold-700 font-semibold uppercase tracking-wider">
+                      {isSelected ? "● Selected Slot" : "Click to select"}
+                    </span>
+                  </div>
+                </div>
+              );
+            })}
+          </div>
         </div>
       )}
 
       {/* UPLOAD BOX */}
-      <form onSubmit={handleUpload} className="bg-[#FBFAF7] border border-navy-900/15 p-6 sm:p-8 shadow-card space-y-5">
+      <form
+        ref={uploadBoxRef}
+        onSubmit={handleUpload}
+        className="bg-[#FBFAF7] border border-navy-900/15 p-6 sm:p-8 shadow-card space-y-5"
+      >
         <div className="border-b border-navy-900/10 pb-3 flex items-center justify-between">
           <h3 className="font-display text-lg text-navy-900 font-semibold flex items-center gap-2">
             <Upload size={16} className="text-gold-600" />
-            <span>Upload New Project Asset</span>
+            <span>Upload Project Asset</span>
           </h3>
           <span className="text-[11px] font-mono text-slate-400">Max 15MB / file</span>
         </div>
 
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-5 text-xs">
+          {/* Upload Classification Dropdown */}
+          <div className="sm:col-span-2">
+            <label className="block font-mono text-[11px] uppercase tracking-wider text-slate-700 font-semibold mb-1.5">
+              Upload Category Slot / Requirement *
+            </label>
+            {requirements.length > 0 ? (
+              <select
+                value={selectedRequirementId}
+                onChange={(e) => handleRequirementSelect(e.target.value)}
+                className="w-full px-3.5 py-2.5 border border-navy-900/15 bg-white text-navy-900 focus:outline-none focus:border-gold-500 focus:ring-1 focus:ring-gold-500/20 text-xs transition-colors shadow-2xs font-medium"
+              >
+                {requirements.map((req) => (
+                  <option key={req.id} value={req.id}>
+                    {req.title} {req.is_required ? `(Required - Min ${req.min_count > 0 ? req.min_count : 1})` : "(Optional)"}
+                  </option>
+                ))}
+              </select>
+            ) : (
+              <select
+                value={uploadType}
+                onChange={(e) => setUploadType(e.target.value as UploadType)}
+                className="w-full px-3.5 py-2.5 border border-navy-900/15 bg-white text-navy-900 focus:outline-none focus:border-gold-500 focus:ring-1 focus:ring-gold-500/20 text-xs transition-colors shadow-2xs"
+              >
+                {Object.entries(UPLOAD_TYPE_LABELS).map(([key, label]) => (
+                  <option key={key} value={key}>
+                    {label}
+                  </option>
+                ))}
+              </select>
+            )}
+            {activeRequirement?.description && (
+              <p className="text-[11px] text-[#4A4F5C] mt-1.5 italic">
+                {activeRequirement.description}
+              </p>
+            )}
+          </div>
+
           {/* File Picker Styled Container */}
           <div className="sm:col-span-2">
             <label className="block font-mono text-[11px] uppercase tracking-wider text-slate-700 font-semibold mb-2">
@@ -320,14 +522,20 @@ export default function Step5MediaDocuments({
               />
               <div className="space-y-2">
                 <div className="w-10 h-10 mx-auto rounded-full bg-navy-900/5 text-navy-900 flex items-center justify-center">
-                  <Upload size={18} className={isDragging ? "text-gold-700 animate-bounce" : "text-slate-500"} />
+                  <Upload
+                    size={18}
+                    className={isDragging ? "text-gold-700 animate-bounce" : "text-slate-500"}
+                  />
                 </div>
                 <div>
                   <p className="text-xs font-medium text-navy-900">
-                    <span className="text-gold-700 underline underline-offset-2 font-semibold">Click to select file</span> or drag and drop here
+                    <span className="text-gold-700 underline underline-offset-2 font-semibold">
+                      Click to select file
+                    </span>{" "}
+                    or drag and drop here
                   </p>
                   <p className="text-[11px] text-slate-400 font-mono mt-1">
-                    High-Res JPG · PNG · WEBP · PDF Architectural Drawings (Max 15MB)
+                    High-Res JPG · PNG · WEBP · PDF Architectural Drawings (Max {activeRequirement?.max_file_size_mb || 15}MB)
                   </p>
                 </div>
               </div>
@@ -339,7 +547,9 @@ export default function Step5MediaDocuments({
                 >
                   <div className="flex items-center gap-2 overflow-hidden">
                     <CheckCircle2 size={14} className="text-emerald-700 flex-shrink-0" />
-                    <span className="truncate">{selectedFile.name} ({formatFileSize(selectedFile.size)})</span>
+                    <span className="truncate">
+                      {selectedFile.name} ({formatFileSize(selectedFile.size)})
+                    </span>
                   </div>
                   <button
                     type="button"
@@ -356,34 +566,17 @@ export default function Step5MediaDocuments({
             </div>
           </div>
 
-          {/* Upload Classification */}
-          <div>
-            <label className="block font-mono text-[11px] uppercase tracking-wider text-slate-700 font-semibold mb-1.5">
-              Asset Category / Classification *
-            </label>
-            <select
-              value={uploadType}
-              onChange={(e) => setUploadType(e.target.value as UploadType)}
-              className="w-full px-3.5 py-2.5 border border-navy-900/15 bg-white text-navy-900 focus:outline-none focus:border-gold-500 focus:ring-1 focus:ring-gold-500/20 text-xs transition-colors shadow-2xs"
-            >
-              {Object.entries(UPLOAD_TYPE_LABELS).map(([key, label]) => (
-                <option key={key} value={key}>
-                  {label}
-                </option>
-              ))}
-            </select>
-          </div>
-
           {/* Caption Input */}
-          <div>
+          <div className="sm:col-span-2">
             <label className="block font-mono text-[11px] uppercase tracking-wider text-slate-700 font-semibold mb-1.5">
-              Asset Caption or Drawing Reference <span className="text-slate-400 font-normal tracking-normal">(Optional)</span>
+              Asset Caption or Drawing Reference{" "}
+              <span className="text-slate-400 font-normal tracking-normal">(Optional)</span>
             </label>
             <input
               type="text"
               value={caption}
               onChange={(e) => setCaption(e.target.value)}
-              placeholder="e.g. Ground Floor Plan, South Elevation"
+              placeholder="e.g. Ground Floor Plan, Living Room Perspective, East Elevation"
               className="w-full px-3.5 py-2.5 border border-navy-900/15 bg-white text-navy-900 focus:outline-none focus:border-gold-500 focus:ring-1 focus:ring-gold-500/20 text-xs transition-colors shadow-2xs"
             />
           </div>
@@ -398,7 +591,10 @@ export default function Step5MediaDocuments({
                 onChange={(e) => setIsCover(e.target.checked)}
                 className="accent-navy-900 rounded cursor-pointer"
               />
-              <label htmlFor="isCoverCheckbox" className="text-xs text-navy-900 font-medium cursor-pointer">
+              <label
+                htmlFor="isCoverCheckbox"
+                className="text-xs text-navy-900 font-medium cursor-pointer"
+              >
                 Designate as Primary Hero / Cover Photograph for this nomination dossier
               </label>
             </div>
@@ -446,6 +642,8 @@ export default function Step5MediaDocuments({
             {files.map((file) => {
               const isPdf = file.mime_type.includes("pdf") || file.original_filename.endsWith(".pdf");
               const isDeleting = deletingId === file.id;
+              const matchingReq = requirements.find((r) => r.id === file.upload_requirement_id);
+              const displayLabel = matchingReq?.title || UPLOAD_TYPE_LABELS[file.upload_type] || file.upload_type;
 
               return (
                 <div
@@ -454,11 +652,11 @@ export default function Step5MediaDocuments({
                 >
                   <div className="space-y-1.5">
                     <div className="flex items-center justify-between gap-2">
-                      <span className="text-[10px] font-mono uppercase tracking-wider text-gold-700 bg-gold-500/10 px-2 py-0.5 border border-gold-500/20 font-semibold">
-                        {UPLOAD_TYPE_LABELS[file.upload_type] || file.upload_type}
+                      <span className="text-[10px] font-mono uppercase tracking-wider text-gold-700 bg-gold-500/10 px-2 py-0.5 border border-gold-500/20 font-semibold truncate max-w-[70%]">
+                        {displayLabel}
                       </span>
                       {file.is_cover && (
-                        <span className="inline-flex items-center gap-1 text-[10px] font-mono text-amber-800 bg-amber-100 px-2 py-0.5 border border-amber-300 font-bold">
+                        <span className="inline-flex items-center gap-1 text-[10px] font-mono text-amber-800 bg-amber-100 px-2 py-0.5 border border-amber-300 font-bold flex-shrink-0">
                           <Star size={10} className="fill-amber-600 text-amber-600" /> Cover
                         </span>
                       )}
@@ -531,7 +729,7 @@ export default function Step5MediaDocuments({
         </Button>
         <Button
           type="button"
-          onClick={onNext}
+          onClick={handleProceed}
           variant="primary"
           size="md"
           icon={<ArrowRight size={14} />}
@@ -565,10 +763,13 @@ export default function Step5MediaDocuments({
 
             <div className="space-y-2 text-xs text-[#4A4F5C]">
               <p>
-                Are you sure you want to remove <strong className="text-navy-900 font-semibold">{fileToDelete.original_filename}</strong> from your nomination dossier?
+                Are you sure you want to remove{" "}
+                <strong className="text-navy-900 font-semibold">{fileToDelete.original_filename}</strong>{" "}
+                from your nomination dossier?
               </p>
               <p className="text-[11px] font-mono text-slate-500">
-                Classification: {UPLOAD_TYPE_LABELS[fileToDelete.upload_type] || fileToDelete.upload_type} ({formatFileSize(fileToDelete.file_size_bytes)})
+                Classification: {UPLOAD_TYPE_LABELS[fileToDelete.upload_type] || fileToDelete.upload_type} (
+                {formatFileSize(fileToDelete.file_size_bytes)})
               </p>
             </div>
 

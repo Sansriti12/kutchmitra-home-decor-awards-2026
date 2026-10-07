@@ -39,6 +39,6 @@ export const HOMEPAGE_FAQS: FaqItem[] = [
     id: "faq-6",
     question: "How will the submissions be evaluated?",
     answer:
-      "Submissions will undergo initial verification before advancing to the independent jury panel for confidential, criterion-based scoring. Final evaluation criteria and weightages will be announced by the organizers.",
+      "Submissions will undergo initial verification before advancing to the independent jury panel for confidential, criteria-based evaluation across the five approved evaluation criteria: Design Excellence & Innovation, Functionality & Usability, Quality of Craftsmanship & Execution, Sustainability & Material Sensitivity, and Contextual Relevance & Cultural Harmony.",
   },
 ];

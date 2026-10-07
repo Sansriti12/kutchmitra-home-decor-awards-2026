@@ -42,7 +42,7 @@ const FAQ_ITEMS: FaqEntry[] = [
     id: "faq-5",
     question: "How will entries be evaluated?",
     answer:
-      "Every qualifying entry undergoes a confidential, criteria-based evaluation. The jury assesses submissions on a 1–10 scale across five core dimensions: Design/Product Impact (25%), Innovation (20%), Scalability/Market Presence (20%), Business Excellence (20%), and Sustainability & Inclusivity (15%).",
+      "Every qualifying entry undergoes a confidential, criteria-based evaluation by the independent jury across five core parameters: Design Excellence & Innovation, Functionality & Usability, Quality of Craftsmanship & Execution, Sustainability & Material Sensitivity, and Contextual Relevance & Cultural Harmony.",
   },
   {
     id: "faq-6",

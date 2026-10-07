@@ -58,7 +58,13 @@ export type JuryEvaluationStatus = "draft" | "submitted";
 
 export type NotificationChannel = "email" | "sms" | "in_app" | "whatsapp";
 
-export type NotificationStatus = "pending" | "sent" | "failed";
+export type NotificationStatus =
+  | "pending"
+  | "queued"
+  | "sending"
+  | "sent"
+  | "delivered"
+  | "failed";
 
 export interface Database {
   public: {
@@ -892,6 +898,10 @@ export interface Database {
           status: JuryEvaluationStatus;
           total_weighted_score: number | null;
           general_comment: string | null;
+          strengths: string | null;
+          areas_of_concern: string | null;
+          recommendation: string | null;
+          qualitative_assessment: string | null;
           is_locked: boolean;
           submitted_at: string | null;
           created_at: string;
@@ -903,6 +913,10 @@ export interface Database {
           status?: JuryEvaluationStatus;
           total_weighted_score?: number | null;
           general_comment?: string | null;
+          strengths?: string | null;
+          areas_of_concern?: string | null;
+          recommendation?: string | null;
+          qualitative_assessment?: string | null;
           is_locked?: boolean;
           submitted_at?: string | null;
           created_at?: string;
@@ -914,6 +928,10 @@ export interface Database {
           status?: JuryEvaluationStatus;
           total_weighted_score?: number | null;
           general_comment?: string | null;
+          strengths?: string | null;
+          areas_of_concern?: string | null;
+          recommendation?: string | null;
+          qualitative_assessment?: string | null;
           is_locked?: boolean;
           submitted_at?: string | null;
           created_at?: string;
@@ -927,6 +945,7 @@ export interface Database {
           evaluation_id: string;
           criterion_id: string;
           score: number;
+          qualitative_rating: string | null;
           confidential_comment: string | null;
           created_at: string;
           updated_at: string;
@@ -935,7 +954,8 @@ export interface Database {
           id?: string;
           evaluation_id: string;
           criterion_id: string;
-          score: number;
+          score?: number;
+          qualitative_rating?: string | null;
           confidential_comment?: string | null;
           created_at?: string;
           updated_at?: string;
@@ -945,6 +965,7 @@ export interface Database {
           evaluation_id?: string;
           criterion_id?: string;
           score?: number;
+          qualitative_rating?: string | null;
           confidential_comment?: string | null;
           created_at?: string;
           updated_at?: string;
@@ -959,7 +980,11 @@ export interface Database {
           category_id: string;
           shortlisted_by: string;
           decision_notes: string | null;
+          deliberation_notes: string | null;
           is_locked: boolean;
+          locked_at: string | null;
+          locked_by: string | null;
+          shortlist_rank: number | null;
           created_at: string;
           updated_at: string;
         };
@@ -970,7 +995,11 @@ export interface Database {
           category_id: string;
           shortlisted_by: string;
           decision_notes?: string | null;
+          deliberation_notes?: string | null;
           is_locked?: boolean;
+          locked_at?: string | null;
+          locked_by?: string | null;
+          shortlist_rank?: number | null;
           created_at?: string;
           updated_at?: string;
         };
@@ -981,7 +1010,11 @@ export interface Database {
           category_id?: string;
           shortlisted_by?: string;
           decision_notes?: string | null;
+          deliberation_notes?: string | null;
           is_locked?: boolean;
+          locked_at?: string | null;
+          locked_by?: string | null;
+          shortlist_rank?: number | null;
           created_at?: string;
           updated_at?: string;
         };
@@ -994,11 +1027,22 @@ export interface Database {
           edition_id: string;
           category_id: string;
           award_title: string;
+          winner_title: string | null;
+          winner_type: string;
+          publication_status: string;
+          project_name: string | null;
+          entrant_name: string | null;
+          organization_name: string | null;
+          project_location: string | null;
+          summary_description: string | null;
           citation: string | null;
+          editorial_statement: string | null;
           project_story: string | null;
           hero_image_url: string | null;
           gallery_urls: string[] | null;
           is_published: boolean;
+          is_featured: boolean;
+          display_order: number;
           published_at: string | null;
           published_by: string | null;
           created_at: string;
@@ -1010,11 +1054,22 @@ export interface Database {
           edition_id: string;
           category_id: string;
           award_title: string;
+          winner_title?: string | null;
+          winner_type?: string;
+          publication_status?: string;
+          project_name?: string | null;
+          entrant_name?: string | null;
+          organization_name?: string | null;
+          project_location?: string | null;
+          summary_description?: string | null;
           citation?: string | null;
+          editorial_statement?: string | null;
           project_story?: string | null;
           hero_image_url?: string | null;
           gallery_urls?: string[] | null;
           is_published?: boolean;
+          is_featured?: boolean;
+          display_order?: number;
           published_at?: string | null;
           published_by?: string | null;
           created_at?: string;
@@ -1026,11 +1081,22 @@ export interface Database {
           edition_id?: string;
           category_id?: string;
           award_title?: string;
+          winner_title?: string | null;
+          winner_type?: string;
+          publication_status?: string;
+          project_name?: string | null;
+          entrant_name?: string | null;
+          organization_name?: string | null;
+          project_location?: string | null;
+          summary_description?: string | null;
           citation?: string | null;
+          editorial_statement?: string | null;
           project_story?: string | null;
           hero_image_url?: string | null;
           gallery_urls?: string[] | null;
           is_published?: boolean;
+          is_featured?: boolean;
+          display_order?: number;
           published_at?: string | null;
           published_by?: string | null;
           created_at?: string;
@@ -1053,6 +1119,18 @@ export interface Database {
           sent_at: string | null;
           error_message: string | null;
           created_at: string;
+          idempotency_key: string | null;
+          event_type: string | null;
+          entity_type: string | null;
+          entity_id: string | null;
+          nomination_id: string | null;
+          provider: string | null;
+          provider_message_id: string | null;
+          metadata: Json | null;
+          delivered_at: string | null;
+          failed_at: string | null;
+          is_read: boolean;
+          read_at: string | null;
         };
         Insert: {
           id?: string;
@@ -1068,6 +1146,18 @@ export interface Database {
           sent_at?: string | null;
           error_message?: string | null;
           created_at?: string;
+          idempotency_key?: string | null;
+          event_type?: string | null;
+          entity_type?: string | null;
+          entity_id?: string | null;
+          nomination_id?: string | null;
+          provider?: string | null;
+          provider_message_id?: string | null;
+          metadata?: Json | null;
+          delivered_at?: string | null;
+          failed_at?: string | null;
+          is_read?: boolean;
+          read_at?: string | null;
         };
         Update: {
           id?: string;
@@ -1083,6 +1173,18 @@ export interface Database {
           sent_at?: string | null;
           error_message?: string | null;
           created_at?: string;
+          idempotency_key?: string | null;
+          event_type?: string | null;
+          entity_type?: string | null;
+          entity_id?: string | null;
+          nomination_id?: string | null;
+          provider?: string | null;
+          provider_message_id?: string | null;
+          metadata?: Json | null;
+          delivered_at?: string | null;
+          failed_at?: string | null;
+          is_read?: boolean;
+          read_at?: string | null;
         };
         Relationships: [];
       };
