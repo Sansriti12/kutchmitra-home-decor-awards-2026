@@ -47,7 +47,6 @@ export default async function DashboardPage() {
     supabase
       .from("categories")
       .select("id, code, name, slug, short_description")
-      .eq("is_active", true)
       .order("display_order"),
     supabase
       .from("notifications")

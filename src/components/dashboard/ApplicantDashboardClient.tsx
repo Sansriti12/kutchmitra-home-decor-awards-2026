@@ -32,7 +32,7 @@ import {
   Trash2,
 } from "lucide-react";
 import { Button } from "@/components/ui/Button";
-import { cn, formatDeterministicDate } from "@/lib/utils";
+import { cn, formatDeterministicDate, getCategoryDisplayNumber } from "@/lib/utils";
 import { updateApplicantProfile } from "@/lib/auth/profile-actions";
 import { markNotificationAsRead, markAllNotificationsAsRead } from "@/lib/notifications/actions";
 
@@ -116,7 +116,7 @@ const WIZARD_STEP_LABELS: Record<number, string> = {
   3: "Enter Project Details & Spatial Data",
   4: "Review Category Questionnaire (Official config pending)",
   5: "Upload Architectural Drawings & Media",
-  6: "Inspect Full Dossier Preview",
+  6: "Review Complete Application Preview",
   7: "Review Declaration & Submit when officially unlocked",
 };
 
@@ -127,7 +127,7 @@ const WIZARD_NEXT_ACTIONS: Record<number, { title: string; desc: string }> = {
   },
   2: {
     title: "Confirm Award Category",
-    desc: "Review your selected discipline or switch to another of the 13 official award categories.",
+    desc: "Review your selected discipline or switch to another of the 12 official award categories.",
   },
   3: {
     title: "Enter Project Details & Spatial Data",
@@ -142,7 +142,7 @@ const WIZARD_NEXT_ACTIONS: Record<number, { title: string; desc: string }> = {
     desc: "Attach project photography, floor plans, 3D renderings, and studio portfolio files.",
   },
   6: {
-    title: "Inspect Complete Dossier Preview",
+    title: "Review Application Preview",
     desc: "Inspect a comprehensive, formatted preview of your application before proceeding to declaration.",
   },
   7: {
@@ -448,7 +448,7 @@ export default function ApplicantDashboardClient({
                 Begin Your First Nomination
               </h3>
               <p className="text-xs sm:text-sm text-[#4A4F5C] leading-relaxed font-sans">
-                Welcome to the Kutchmitra Home &amp; Decor Awards 2026. You can begin a nomination in any of our 13 award disciplines, save your draft at any step, and return to complete it whenever you wish.
+                Welcome to the Kutchmitra Home &amp; Decor Awards 2026. You can begin a nomination in any of our 12 award disciplines, save your draft at any step, and return to complete it whenever you wish.
               </p>
             </div>
             <div className="pt-2">
@@ -522,7 +522,7 @@ export default function ApplicantDashboardClient({
                           <div className="space-y-1">
                             <div className="flex items-center gap-2 flex-wrap">
                               <span className="text-[10px] font-mono uppercase tracking-wider text-gold-700 bg-gold-500/10 px-2 py-0.5 border border-gold-500/20 font-semibold">
-                                #{draft.category?.code || "CAT"} • {draft.category?.name || "Category Pending"}
+                                #{draft.category?.code ? getCategoryDisplayNumber(draft.category.code) : "CAT"} • {draft.category?.name || "Category Pending"}
                               </span>
                               <span className="text-[11px] font-mono text-slate-400">
                                 Draft ID: {draft.nomination_id || "Unassigned"}
@@ -702,7 +702,7 @@ export default function ApplicantDashboardClient({
                               className="inline-flex items-center gap-1.5 px-3 py-1.5 border border-navy-900/15 bg-white hover:bg-slate-50 text-xs font-mono uppercase tracking-wider text-navy-900 transition-colors"
                             >
                               <FileText size={12} className="text-gold-600" />
-                              <span>View Dossier</span>
+                              <span>View Application</span>
                             </button>
 
                             <button
@@ -1178,7 +1178,7 @@ export default function ApplicantDashboardClient({
       )}
 
       {/* ========================================================================= */}
-      {/* MODAL 2: SUBMISSION READ-ONLY VIEW (View Dossier) */}
+      {/* MODAL 2: SUBMISSION READ-ONLY VIEW (View Application) */}
       {/* ========================================================================= */}
       {isSubmissionViewOpen && selectedSubmission && (
         <div
@@ -1194,7 +1194,7 @@ export default function ApplicantDashboardClient({
             <div className="flex items-start justify-between border-b border-navy-900/10 pb-4">
               <div>
                 <span className="text-[10px] font-mono uppercase tracking-wider text-gold-700 font-semibold block">
-                  Official Award Dossier • Read-Only
+                  Official Application • Read-Only
                 </span>
                 <h2 id="dossier-modal-title" className="font-display text-2xl text-navy-900 font-medium pt-1">
                   {selectedSubmission.project_name}
@@ -1206,7 +1206,7 @@ export default function ApplicantDashboardClient({
               <button
                 type="button"
                 onClick={() => setIsSubmissionViewOpen(false)}
-                aria-label="Close dossier dialog"
+                aria-label="Close application dialog"
                 className="p-1 text-slate-400 hover:text-navy-900 transition-colors"
               >
                 <X size={18} />
@@ -1412,7 +1412,7 @@ export default function ApplicantDashboardClient({
             {/* Official Terms Verification Note */}
             <div className="text-[11px] text-slate-500 leading-relaxed space-y-1">
               <p>
-                This electronic acknowledgement confirms that the project dossier for{" "}
+                This electronic acknowledgement confirms that the application for{" "}
                 <strong className="text-navy-900">{selectedSubmission.project_name}</strong> has been
                 registered under the 2026 competition cycle with all required applicant declarations.
               </p>

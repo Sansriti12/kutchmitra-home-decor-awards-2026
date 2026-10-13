@@ -16,6 +16,7 @@ import {
 } from "lucide-react";
 import { Button } from "@/components/ui/Button";
 import { createDraftApplication } from "@/lib/nominations/actions";
+import { getCategoryDisplayNumber } from "@/lib/utils";
 import type { CategoryOption } from "./Step2Category";
 
 interface CategorySelectorClientProps {
@@ -31,12 +32,16 @@ export default function CategorySelectorClient({
   const [loadingCategoryId, setLoadingCategoryId] = useState<string | null>(null);
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
 
-  const filteredCategories = categories.filter(
-    (c) =>
-      c.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      c.code.includes(searchQuery) ||
-      c.short_description.toLowerCase().includes(searchQuery.toLowerCase())
-  );
+  const filteredCategories = categories.filter((c) => {
+    const q = searchQuery.toLowerCase().trim();
+    const displayNum = getCategoryDisplayNumber(c.code);
+    return (
+      c.name.toLowerCase().includes(q) ||
+      c.code.includes(q) ||
+      displayNum.includes(q) ||
+      c.short_description.toLowerCase().includes(q)
+    );
+  });
 
   const handleStartNomination = async (categoryId: string) => {
     setLoadingCategoryId(categoryId);
@@ -110,7 +115,7 @@ export default function CategorySelectorClient({
           />
         </div>
 
-        {/* Categories Grid (13 Approved Categories) */}
+        {/* Categories Grid (12 Approved Categories) */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
           {filteredCategories.map((cat) => {
             const isLoading = loadingCategoryId === cat.id;
@@ -123,7 +128,7 @@ export default function CategorySelectorClient({
                 <div className="space-y-3">
                   <div className="flex items-center justify-between">
                     <span className="font-mono text-xs font-bold text-gold-800 bg-gold-500/15 border border-gold-500/30 px-2.5 py-0.5 uppercase tracking-widest">
-                      #{cat.code}
+                      #{getCategoryDisplayNumber(cat.code)}
                     </span>
                     <span className="text-[10px] font-mono text-emerald-700 bg-emerald-50 px-2 py-0.5 border border-emerald-200">
                       Open for Nominations

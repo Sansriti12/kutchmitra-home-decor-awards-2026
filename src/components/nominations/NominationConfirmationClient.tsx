@@ -14,6 +14,7 @@ import {
   FileCheck,
 } from "lucide-react";
 import { Button } from "@/components/ui/Button";
+import { getCategoryDisplayNumber } from "@/lib/utils";
 
 interface NominationConfirmationClientProps {
   applicationId: string;
@@ -124,7 +125,7 @@ export default function NominationConfirmationClient({
             <div className="p-3 bg-white border border-navy-900/10">
               <span className="font-mono text-[10px] text-slate-400 uppercase block">Award Category</span>
               <span className="font-semibold text-navy-900 truncate block">
-                #{categoryCode} — {categoryName}
+                #{getCategoryDisplayNumber(categoryCode)} — {categoryName}
               </span>
               <span className="text-[11px] text-slate-500">2026 Edition</span>
             </div>
@@ -154,7 +155,7 @@ export default function NominationConfirmationClient({
               variant="outline-dark"
               size="sm"
             >
-              View Nomination Dossier
+              View Nomination Details
             </Button>
 
             <Button

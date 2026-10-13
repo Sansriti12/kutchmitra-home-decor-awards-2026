@@ -157,9 +157,14 @@ export interface JuryApplicationDossier {
     questionText: string;
     helpText: string | null;
     fieldType: string;
+    isRequired: boolean;
+    options: Array<{ label: string; value: string }>;
     displayOrder: number;
   }>;
+  /** Legacy map keyed by question_key. Prefer `answerValues`. */
   answers: Record<string, any>;
+  /** Raw stored applicant answers keyed by question id (read-only for jurors). */
+  answerValues: Record<string, { text: string | null; number: number | null; json: unknown }>;
   files: Array<{
     id: string;
     uploadType: string;

@@ -3,14 +3,17 @@ import type { Metadata } from "next";
 import { Calendar, Clock, AlertCircle, ArrowRight } from "lucide-react";
 import { SectionMarker } from "@/components/ui/SectionMarker";
 import { Button } from "@/components/ui/Button";
-import { TIMELINE_MILESTONES } from "@/data/timeline";
+import { getPublicImportantDates } from "@/lib/cms/public";
 
 export const metadata: Metadata = {
   title: "Important Dates | Kutchmitra Home & Decor Awards 2026",
   description: "Official schedule and milestone timeline for the Kutchmitra Home & Decor Awards 2026 edition.",
 };
 
-export default function ImportantDatesPage() {
+export const revalidate = 60; // ISR cache revalidation
+
+export default async function ImportantDatesPage() {
+  const milestones = await getPublicImportantDates();
   return (
     <main className="flex-1 bg-ivory text-navy-900">
       {/* Banner */}
@@ -40,18 +43,18 @@ export default function ImportantDatesPage() {
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {TIMELINE_MILESTONES.map((milestone) => (
+            {milestones.map((milestone) => (
               <div
-                key={milestone.number}
+                key={milestone.milestoneNumber}
                 className="p-7 bg-[#FBFAF7] border border-navy-900/10 space-y-5 group hover:border-gold-500/40 transition-colors"
               >
                 <div className="flex items-center justify-between">
                   <span className="font-mono text-xs font-semibold px-2 py-0.5 bg-sand-100 text-gold-600 border border-gold-500/30">
-                    STAGE {milestone.number}
+                    STAGE {milestone.milestoneNumber}
                   </span>
                   <span className="inline-flex items-center gap-1 text-[11px] font-mono uppercase tracking-wider text-slate-400 bg-sand-100 px-2.5 py-1">
                     <Calendar size={11} className="text-gold-600" />
-                    {milestone.date}
+                    {milestone.dateText}
                   </span>
                 </div>
 

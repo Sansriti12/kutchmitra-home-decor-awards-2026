@@ -19,8 +19,9 @@ import {
   ExternalLink,
 } from "lucide-react";
 import { Button } from "@/components/ui/Button";
-import { formatDeterministicDate } from "@/lib/utils";
+import { formatDeterministicDate, getCategoryDisplayNumber } from "@/lib/utils";
 import { getSignedFileUrl } from "@/lib/nominations/actions";
+import { formatAnswer, NOT_PROVIDED_LABEL } from "@/lib/nominations/answer-format";
 import type { EntrantDetailsData } from "./Step1EntrantDetails";
 import type { CategoryOption } from "./Step2Category";
 import type { ProjectDetailsData } from "./Step3ProjectDetails";
@@ -64,7 +65,7 @@ const STATUS_CONFIG: Record<
     text: "text-purple-800",
     bg: "bg-purple-50",
     border: "border-purple-200",
-    desc: "Under confidential evaluation and criteria scoring by the jury panel.",
+    desc: "Under evaluation and criteria scoring by the jury panel.",
   },
   shortlisted: {
     label: "Shortlisted",
@@ -74,7 +75,7 @@ const STATUS_CONFIG: Record<
     desc: "Advanced to official award finalist stage by organizing committee.",
   },
   winner: {
-    label: "Winner / Honoree",
+    label: "Winner",
     text: "text-amber-900",
     bg: "bg-amber-100",
     border: "border-amber-400",
@@ -184,7 +185,7 @@ export default function NominationDossierViewer({
               className="inline-flex items-center gap-1.5 px-3 py-1.5 border border-gold-500/30 bg-gold-500/10 hover:bg-gold-500/20 text-xs font-mono uppercase tracking-wider text-gold-800 transition-colors"
             >
               <Printer size={13} />
-              <span>Print Dossier</span>
+              <span>Print Application</span>
             </button>
           </div>
         </div>
@@ -193,7 +194,7 @@ export default function NominationDossierViewer({
       <main className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 pt-8 space-y-6">
         {/* Printable Official Dossier Header */}
         <div className="hidden print:block text-center border-b-2 border-navy-900 pb-4 mb-6">
-          <p className="font-mono text-xs uppercase tracking-widest text-slate-500">Official Nomination Dossier</p>
+          <p className="font-mono text-xs uppercase tracking-widest text-slate-500">Official Nomination Application</p>
           <h1 className="font-display text-2xl font-bold text-navy-900 mt-1">Kutchmitra Home & Decor Awards 2026</h1>
           <p className="font-mono text-[11px] text-slate-600 mt-0.5">Nomination ID: {application.nomination_id} • Status: {statusCfg.label}</p>
         </div>
@@ -260,7 +261,7 @@ export default function NominationDossierViewer({
         <div className="bg-[#FBFAF7] border border-navy-900/10 p-6 sm:p-8 shadow-card space-y-6">
           <div className="border-b border-navy-900/10 pb-4">
             <span className="text-[10px] font-mono uppercase tracking-widest text-gold-700 bg-gold-500/10 px-2.5 py-0.5 border border-gold-500/20 font-semibold inline-block mb-2">
-              #{category.code} — {category.name}
+              #{getCategoryDisplayNumber(category.code)} — {category.name}
             </span>
             <h1 className="font-display text-2xl sm:text-3xl text-navy-900 font-bold">
               {application.project_name}
@@ -336,16 +337,17 @@ export default function NominationDossierViewer({
             <div className="space-y-4 text-xs">
               {questions.map((q) => {
                 const ans = answersMap.get(q.id);
-                const val =
-                  ans?.text ||
-                  (ans?.number !== undefined && ans.number !== null ? String(ans.number) : null) ||
-                  (Array.isArray(ans?.json) ? ans.json.join(", ") : null);
+                const formatted = formatAnswer(q.field_type, q.options || [], ans);
 
                 return (
                   <div key={q.id} className="space-y-1">
                     <span className="font-medium text-navy-900 block">{q.question_text}</span>
-                    <div className="p-3 bg-white border border-navy-900/10 text-navy-900">
-                      {val || <span className="text-slate-400 italic">No answer provided</span>}
+                    <div className="p-3 bg-white border border-navy-900/10 text-navy-900 whitespace-pre-wrap">
+                      {formatted.kind === "text" && formatted.text}
+                      {formatted.kind === "list" && formatted.items.join(", ")}
+                      {formatted.kind === "empty" && (
+                        <span className="text-slate-500 italic">{NOT_PROVIDED_LABEL}</span>
+                      )}
                     </div>
                   </div>
                 );

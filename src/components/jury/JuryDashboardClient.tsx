@@ -22,7 +22,7 @@ import {
   Eye,
   Check,
 } from "lucide-react";
-import { cn } from "@/lib/utils";
+import { cn, getCategoryDisplayNumber, isRetiredCategory } from "@/lib/utils";
 import { createClient } from "@/lib/supabase/client";
 import { declareJuryConflict } from "@/lib/jury/actions";
 import type { JuryAssignmentItem } from "@/types/jury.types";
@@ -105,14 +105,18 @@ export default function JuryDashboardClient({
     });
   };
 
-  // Distinct categories in assignments
+  // Distinct categories in assignments (sorted sequentially by display number 01–14, excluding retired)
   const categoriesInAssignments = Array.from(
     new Map(
       assignments
-        .filter((a) => a.category)
+        .filter((a) => a.category && !isRetiredCategory(a.category))
         .map((a) => [a.category!.id, a.category!])
     ).values()
-  );
+  ).sort((a, b) => {
+    const numA = parseInt(getCategoryDisplayNumber(a), 10) || 99;
+    const numB = parseInt(getCategoryDisplayNumber(b), 10) || 99;
+    return numA - numB;
+  });
 
   // Filtered assignments
   const filteredAssignments = assignments.filter((a) => {
@@ -186,7 +190,7 @@ export default function JuryDashboardClient({
           <div className="space-y-1">
             <div className="flex items-center gap-2 text-xs font-mono text-gold-400 uppercase tracking-wider">
               <Scale size={14} />
-              <span>Independent Assessment Workspace // 2026 Edition</span>
+              <span>Jury Evaluation Portal // 2026 Edition</span>
             </div>
             <h1 className="font-display text-2xl sm:text-3xl lg:text-4xl text-white font-medium">
               Welcome, {juror.honorific ? `${juror.honorific} ` : ""}
@@ -297,11 +301,11 @@ export default function JuryDashboardClient({
 
           <div className="p-4 bg-navy-900/80 border border-white/10 space-y-1">
             <div className="text-[10px] font-mono text-slate-400 uppercase tracking-wider flex items-center justify-between">
-              <span>Recused / Conflicts</span>
+              <span>Conflicts of Interest</span>
               <AlertTriangle size={14} className="text-red-400" />
             </div>
             <div className="text-3xl font-mono font-bold text-red-300">{stats.conflictCount}</div>
-            <div className="text-[10px] font-mono text-red-400/80">Conflict Declared</div>
+            <div className="text-[10px] font-mono text-red-400/80">Conflicts of Interest Recorded</div>
           </div>
         </div>
 
@@ -327,7 +331,7 @@ export default function JuryDashboardClient({
               <option value="all">All Categories ({categoriesInAssignments.length})</option>
               {categoriesInAssignments.map((cat) => (
                 <option key={cat.id} value={cat.id}>
-                  Cat {cat.code}: {cat.name}
+                  Cat {getCategoryDisplayNumber(cat)}: {cat.name}
                 </option>
               ))}
             </select>
@@ -410,7 +414,7 @@ export default function JuryDashboardClient({
 
                       <div>
                         <div className="text-[10px] font-mono uppercase tracking-wider text-slate-400">
-                          Cat {a.category?.code} // {a.category?.name}
+                          Cat {getCategoryDisplayNumber(a.category)} // {a.category?.name}
                         </div>
                         <h3 className="font-display text-lg text-white font-medium line-clamp-1 mt-0.5">
                           {a.projectName}
@@ -480,7 +484,7 @@ export default function JuryDashboardClient({
                           {isLocked ? (
                             <>
                               <Eye size={12} />
-                              <span>View Dossier</span>
+                              <span>Application Details</span>
                             </>
                           ) : isDraft ? (
                             <>
@@ -607,7 +611,7 @@ export default function JuryDashboardClient({
                       : "bg-emerald-600 hover:bg-emerald-500 text-white"
                   )}
                 >
-                  {isPending ? "Recording..." : isDeclaringConflict ? "Record Recusal" : "Confirm Independence"}
+                  {isPending ? "Recording..." : isDeclaringConflict ? "Record Conflict of Interest" : "Confirm Independence"}
                 </button>
               </div>
             </form>

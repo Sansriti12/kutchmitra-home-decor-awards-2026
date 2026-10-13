@@ -14,7 +14,7 @@ export function FeaturedCategoriesSection() {
           <div className="space-y-3">
             <SectionMarker number="02" label="Award Disciplines" theme="light" />
             <h2 className="heading-editorial text-navy-900">
-              13 Award Categories
+              14 Award Categories
             </h2>
           </div>
           <div className="flex flex-col sm:flex-row sm:items-center gap-4">
@@ -33,9 +33,9 @@ export function FeaturedCategoriesSection() {
           </div>
         </div>
 
-        {/* 13 Categories Clean Horizontal Presentation */}
-        {/* Large desktop: 2 rows of 6 compact editorial cards, with smooth horizontal scroll capability if desired */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-6 gap-3.5 sm:gap-4">
+        {/* 14 Categories Clean Horizontal Presentation */}
+        {/* Large desktop: 2 rows of 7 compact editorial cards, with smooth horizontal scroll capability if desired */}
+        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-7 gap-3.5 sm:gap-4">
           {AWARD_CATEGORIES.map((category) => (
             <article
               key={category.id}
@@ -84,10 +84,10 @@ export function FeaturedCategoriesSection() {
         {/* Informational Footer Note */}
         <div className="pt-4 flex items-center justify-between border-t border-navy-900/10 text-xs font-mono text-[#4A4F5C]">
           <span>
-            All 13 categories are open for official 2026 nominations upon registration.
+            All 14 categories are open for official 2026 nominations upon registration.
           </span>
           <span className="hidden sm:inline-block text-[11px] text-slate-400">
-            13 Disciplines &bull; Edition 2026
+            14 Disciplines &bull; Edition 2026
           </span>
         </div>
       </div>

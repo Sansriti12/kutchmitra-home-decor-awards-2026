@@ -16,7 +16,11 @@ export default async function AdminPortalLayout({
     redirect("/admin/login");
   }
 
-  const userRole = session.isSuperAdmin ? "Super Admin" : "Admin";
+  const userRole = session.isSuperAdmin
+    ? "Super Admin"
+    : session.isAdmin
+    ? "Admin"
+    : "Verification Team";
 
   return (
     <AdminShell

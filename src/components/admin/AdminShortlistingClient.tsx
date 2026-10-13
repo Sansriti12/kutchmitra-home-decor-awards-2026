@@ -26,7 +26,7 @@ import {
   ThumbsUp,
   AlertCircle,
 } from "lucide-react";
-import { cn } from "@/lib/utils";
+import { cn, getCategoryDisplayNumber } from "@/lib/utils";
 import {
   addToShortlist,
   removeFromShortlist,
@@ -134,7 +134,7 @@ export default function AdminShortlistingClient({
       if (res.success) {
         setFeedback({
           type: "success",
-          text: "2026 Shortlist has been officially LOCKED. Final deliberation is now authorized.",
+          text: "2026 Shortlist has been officially finalized. Final review is now authorized.",
         });
         setShowLockModal(false);
         setLockNotesInput("");
@@ -171,25 +171,25 @@ export default function AdminShortlistingClient({
   return (
     <div className="space-y-6">
       {/* Page Header */}
-      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 pb-4 border-b border-white/10">
+      <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4 pb-4 border-b border-white/10">
         <div>
           <div className="flex items-center gap-2 text-xs font-mono text-gold-400 uppercase tracking-wider mb-1">
             <Award size={14} />
-            <span>Phase E // Committee Governance</span>
+            <span>Committee Review</span>
           </div>
           <h1 className="font-display text-2xl sm:text-3xl text-white font-medium">
-            Shortlisting &amp; Deliberation Workspace
+            Shortlisting &amp; Review Workspace
           </h1>
           <p className="text-xs font-mono text-slate-400 mt-1">
-            Synthesize qualitative jury assessments, curate the official 2026 shortlist, and freeze finalist selections.
+            Review qualitative jury evaluations, curate the official 2026 shortlist, and finalize finalist selections.
           </p>
         </div>
 
         {/* Global Shortlist Lock Status / Action */}
-        <div className="flex items-center gap-3">
+        <div className="flex flex-wrap sm:flex-nowrap items-center gap-3 shrink-0">
           {stats.isShortlistLocked ? (
             <div className="flex items-center gap-2">
-              <div className="flex items-center gap-1.5 px-3 py-1.5 bg-emerald-950/90 border border-emerald-500/50 text-emerald-300 text-xs font-mono font-bold uppercase tracking-wider">
+              <div className="flex items-center gap-1.5 px-3 py-2 bg-emerald-950/90 border border-emerald-500/50 text-emerald-300 text-xs font-mono font-bold uppercase tracking-wider whitespace-nowrap">
                 <Lock size={13} />
                 <span>Shortlist Locked</span>
               </div>
@@ -198,7 +198,7 @@ export default function AdminShortlistingClient({
                   type="button"
                   onClick={() => setShowUnlockModal(true)}
                   disabled={isPending}
-                  className="px-3 py-1.5 bg-navy-800 hover:bg-navy-700 text-slate-300 border border-white/15 text-xs font-mono uppercase tracking-wider transition-colors"
+                  className="px-3 py-2 bg-navy-800 hover:bg-navy-700 text-slate-300 border border-white/15 text-xs font-mono uppercase tracking-wider transition-colors whitespace-nowrap"
                 >
                   <Unlock size={12} className="inline mr-1" />
                   <span>Reopen</span>
@@ -210,19 +210,19 @@ export default function AdminShortlistingClient({
               type="button"
               onClick={() => setShowLockModal(true)}
               disabled={isPending || stats.totalShortlisted === 0}
-              className="inline-flex items-center gap-2 px-4 py-2 bg-gold-500 hover:bg-gold-400 text-navy-950 text-xs font-mono font-bold uppercase tracking-wider transition-colors shadow-sm disabled:opacity-50"
+              className="inline-flex items-center justify-center gap-2 px-5 py-2.5 bg-gold-500 hover:bg-gold-400 text-navy-950 text-xs font-mono font-bold uppercase tracking-wider transition-colors shadow-sm disabled:opacity-50 whitespace-nowrap shrink-0"
             >
-              <Lock size={14} />
-              <span>Lock Official Shortlist ({stats.totalShortlisted})</span>
+              <Lock size={14} className="shrink-0" />
+              <span className="whitespace-nowrap">Finalize Shortlist ({stats.totalShortlisted})</span>
             </button>
           )}
 
           <Link
             href="/admin/winners"
-            className="inline-flex items-center gap-1.5 px-4 py-2 bg-navy-800 hover:bg-navy-700 text-white text-xs font-mono font-semibold uppercase tracking-wider border border-white/15 transition-colors"
+            className="inline-flex items-center justify-center gap-1.5 px-4 py-2.5 bg-navy-800 hover:bg-navy-700 text-white text-xs font-mono font-semibold uppercase tracking-wider border border-white/15 transition-colors whitespace-nowrap shrink-0"
           >
             <span>Winners Workspace</span>
-            <ArrowRight size={13} className="text-gold-400" />
+            <ArrowRight size={13} className="text-gold-400 shrink-0" />
           </Link>
         </div>
       </div>
@@ -233,9 +233,9 @@ export default function AdminShortlistingClient({
           <div className="flex items-center gap-2">
             <CheckCircle2 size={16} className="text-emerald-400 shrink-0" />
             <div>
-              <strong className="text-white">SHORTLIST OFFICIALLY LOCKED: </strong>
+              <strong className="text-white">SHORTLIST OFFICIALLY FINALIZED: </strong>
               <span>
-                Finalist entries are frozen. Final deliberation and Winner / Runner-Up designation are authorized.
+                Finalist entries are frozen. Final review and Winner / Runner-Up selection are authorized.
                 {stats.lockedByName ? ` Locked by ${stats.lockedByName}.` : ""}
               </span>
             </div>
@@ -286,7 +286,7 @@ export default function AdminShortlistingClient({
             Shortlisted Finalists
           </span>
           <div className="text-2xl font-mono font-bold text-gold-300">{stats.totalShortlisted}</div>
-          <span className="text-[10px] font-mono text-slate-500">Across 13 Categories</span>
+          <span className="text-[10px] font-mono text-slate-500">Across {categories.length} Categories</span>
         </div>
 
         <div className="bg-navy-900/80 border border-white/10 p-4 space-y-1">
@@ -330,10 +330,10 @@ export default function AdminShortlistingClient({
               onChange={(e) => setCategoryFilter(e.target.value)}
               className="w-full px-3 py-2 bg-navy-950 border border-white/10 text-xs text-white focus:outline-none focus:border-gold-500 font-sans"
             >
-              <option value="all">All 13 Categories ({categories.length})</option>
+              <option value="all">All Categories ({categories.length})</option>
               {categories.map((c) => (
                 <option key={c.id} value={c.id}>
-                  Cat {c.code}: {c.name}
+                  Cat {getCategoryDisplayNumber(c.code)}: {c.name}
                 </option>
               ))}
             </select>
@@ -395,7 +395,7 @@ export default function AdminShortlistingClient({
                   <th className="py-3 px-4">Nomination / Category</th>
                   <th className="py-3 px-4">Project &amp; Location</th>
                   <th className="py-3 px-4">Applicant / Studio</th>
-                  <th className="py-3 px-4">Jury Assessment</th>
+                  <th className="py-3 px-4">Jury Review</th>
                   <th className="py-3 px-4">Status</th>
                   <th className="py-3 px-4 text-right">Committee Actions</th>
                 </tr>
@@ -419,7 +419,7 @@ export default function AdminShortlistingClient({
                           {item.nominationId}
                         </span>
                         <span className="inline-block px-1.5 py-0.5 bg-navy-950 border border-white/10 text-[10px] font-mono text-slate-300">
-                          Cat {item.categoryCode} // {item.categoryName}
+                          Cat {getCategoryDisplayNumber(item.categoryCode)} // {item.categoryName}
                         </span>
                       </td>
 
@@ -533,7 +533,7 @@ export default function AdminShortlistingClient({
                           href={`/admin/shortlisting/${item.id}`}
                           className="px-2.5 py-1 bg-navy-800 hover:bg-navy-700 text-white border border-white/15 text-[11px] font-mono uppercase font-semibold transition-colors inline-block"
                         >
-                          <span>Deliberate</span>
+                          <span>Review</span>
                         </Link>
 
                         {/* Shortlist Toggle */}
@@ -600,7 +600,7 @@ export default function AdminShortlistingClient({
             <form onSubmit={handleAddToShortlist} className="space-y-4">
               <div className="space-y-1.5">
                 <label className="block text-[11px] font-mono text-slate-300 uppercase tracking-wider">
-                  Committee Deliberation Note / Shortlist Justification
+                  Committee Review Note / Shortlist Justification
                 </label>
                 <textarea
                   rows={3}
@@ -646,7 +646,7 @@ export default function AdminShortlistingClient({
             <div className="flex items-center justify-between pb-3 border-b border-white/10">
               <h3 className="font-display text-lg text-white font-medium flex items-center gap-2">
                 <Lock size={18} className="text-gold-400" />
-                <span>Lock Official 2026 Shortlist</span>
+                <span>Finalize Official 2026 Shortlist</span>
               </h3>
               <button
                 type="button"
@@ -658,24 +658,24 @@ export default function AdminShortlistingClient({
             </div>
 
             <p className="text-xs text-slate-300 font-sans leading-relaxed">
-              You are about to lock the official shortlist containing{" "}
+              You are about to finalize the official shortlist containing{" "}
               <strong className="text-gold-400 font-mono">{stats.totalShortlisted} finalist entries</strong>.
             </p>
 
             <div className="p-3 bg-amber-950/70 border border-amber-500/40 text-amber-300 text-xs font-mono space-y-1">
               <div className="font-bold flex items-center gap-1.5">
                 <AlertTriangle size={13} />
-                <span>Governance Lock Policy</span>
+                <span>Shortlist Finalization Policy</span>
               </div>
               <p className="text-[11px] text-amber-200/90 font-sans">
-                Once locked, shortlist selections cannot be casually modified. All finalist positions are frozen for final committee deliberation and Winner / Runner-Up designation. This action is permanently audited.
+                Once finalized, shortlist selections are locked. All finalist positions are frozen for final committee review and Winner / Runner-Up selection. This action is permanently recorded.
               </p>
             </div>
 
             <form onSubmit={handleLockShortlist} className="space-y-4">
               <div className="space-y-1.5">
                 <label className="block text-[11px] font-mono text-slate-300 uppercase tracking-wider">
-                  Committee Lock Remarks (Optional)
+                  Committee Review Remarks (Optional)
                 </label>
                 <textarea
                   rows={2}
@@ -699,7 +699,7 @@ export default function AdminShortlistingClient({
                   disabled={isPending}
                   className="px-5 py-2 bg-gold-500 hover:bg-gold-400 text-navy-950 text-xs font-mono font-bold uppercase disabled:opacity-50"
                 >
-                  {isPending ? "Locking..." : "Confirm & Lock Shortlist"}
+                  {isPending ? "Finalizing..." : "Confirm & Finalize Shortlist"}
                 </button>
               </div>
             </form>
@@ -790,7 +790,7 @@ export default function AdminShortlistingClient({
             {/* Individual Juror Submissions */}
             <div className="space-y-4">
               <h4 className="text-xs font-mono uppercase tracking-wider text-slate-400">
-                Assigned Juror Assessments ({selectedEvaluation.juryCompleteness.jurors.length})
+                Assigned Juror Reviews ({selectedEvaluation.juryCompleteness.jurors.length})
               </h4>
 
               {selectedEvaluation.juryCompleteness.jurors.length === 0 ? (
@@ -873,7 +873,7 @@ export default function AdminShortlistingClient({
                 href={`/admin/shortlisting/${selectedEvaluation.id}`}
                 className="inline-flex items-center gap-1.5 px-4 py-2 bg-gold-500 hover:bg-gold-400 text-navy-950 text-xs font-mono font-bold uppercase tracking-wider"
               >
-                <span>Full Deliberation Dossier</span>
+                <span>Full Application Review</span>
                 <ChevronRight size={13} />
               </Link>
               <button

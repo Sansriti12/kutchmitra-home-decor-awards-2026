@@ -19,6 +19,7 @@ import {
 import { createAdminClient } from "@/lib/supabase/admin";
 import { getAdminSession } from "@/lib/admin/auth";
 import { redirect } from "next/navigation";
+import { TOTAL_ACTIVE_CATEGORIES } from "@/lib/utils";
 
 export const dynamic = "force-dynamic";
 
@@ -30,8 +31,8 @@ export default async function AdminDashboardPage() {
 
   const adminClient = createAdminClient();
 
-  // Fetch current edition, users count, categories count, and application status breakdown in parallel
-  const [editionRes, usersCountRes, categoriesCountRes, appsRes, recentAppsRes] =
+  // Fetch current edition, users count, and application status breakdown in parallel
+  const [editionRes, usersCountRes, appsRes, recentAppsRes] =
     await Promise.all([
       adminClient
         .from("award_editions")
@@ -41,10 +42,6 @@ export default async function AdminDashboardPage() {
       adminClient
         .from("users")
         .select("*", { count: "exact", head: true }),
-      adminClient
-        .from("categories")
-        .select("*", { count: "exact", head: true })
-        .eq("is_active", true),
       adminClient
         .from("applications")
         .select("status"),
@@ -57,7 +54,7 @@ export default async function AdminDashboardPage() {
 
   const currentEdition = editionRes.data;
   const totalUsers = usersCountRes.count ?? 0;
-  const totalCategories = categoriesCountRes.count ?? 0;
+  const totalCategories = TOTAL_ACTIVE_CATEGORIES;
 
   const appRows = appsRes.data || [];
   const totalApplications = appRows.length;
@@ -92,10 +89,10 @@ export default async function AdminDashboardPage() {
         <div>
           <div className="flex items-center gap-2 mb-1">
             <span className="text-[10px] font-mono uppercase tracking-[0.2em] text-gold-400 font-semibold">
-              Kutchmitra Awards Governance
+              Kutchmitra Awards Administration
             </span>
-            <span className="text-[9px] font-mono px-1.5 py-0.5 bg-emerald-950/80 text-emerald-400 border border-emerald-500/30 uppercase">
-              Phase 2A Live
+            <span className="text-[10px] font-mono px-1.5 py-0.5 bg-emerald-950/80 text-emerald-400 border border-emerald-500/30 uppercase">
+              {currentEdition?.name || "2026 Edition"}
             </span>
           </div>
           <h1 className="font-display text-2xl sm:text-3xl text-white font-medium tracking-tight">
@@ -189,7 +186,7 @@ export default async function AdminDashboardPage() {
             </div>
             <div className="text-[11px] font-mono text-slate-400 pt-2 border-t border-white/5 flex items-center justify-between">
               <span>Shortlisted: {statusCounts.shortlisted}</span>
-              <span className="text-purple-300">Phase 2F</span>
+              <span className="text-purple-300">Winners: {statusCounts.winner}</span>
             </div>
           </div>
         </div>
@@ -297,12 +294,12 @@ export default async function AdminDashboardPage() {
             <div className="text-xl font-mono font-semibold text-gold-300">
               {statusCounts.winner}
             </div>
-            <div className="text-[10px] text-slate-500 font-sans">Final Laureate</div>
+            <div className="text-[10px] text-slate-500 font-sans">Selected Winners</div>
           </div>
         </div>
       </section>
 
-      {/* Two Column Layout: Recent Nominations & Phase Implementation Matrix */}
+      {/* Two Column Layout: Recent Nominations & Quick Access */}
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
         {/* Left: Recent Nominations (7 cols) */}
         <section
@@ -312,7 +309,7 @@ export default async function AdminDashboardPage() {
           <div className="flex items-center justify-between pb-3 border-b border-white/10">
             <div>
               <h2 className="font-mono text-xs uppercase tracking-wider text-white font-semibold">
-                Recent Nominations Ingested
+                Recent Nominations
               </h2>
               <p className="text-[11px] text-slate-400 font-sans mt-0.5">
                 Latest live entries submitted to the platform.
@@ -372,119 +369,87 @@ export default async function AdminDashboardPage() {
             </div>
           )}
 
-          <div className="pt-2 flex items-center justify-between text-[11px] font-mono text-slate-400">
+          <div className="pt-2 flex items-center justify-between text-xs font-mono text-slate-400">
             <span>Showing up to 5 most recent records</span>
-            <span className="text-slate-500">Applications Manager opens in Phase 2B</span>
+            <Link
+              href="/admin/applications"
+              className="inline-flex items-center gap-1 text-gold-400 hover:text-gold-300 focus-visible:outline focus-visible:outline-2 focus-visible:outline-gold-400"
+            >
+              View all applications <ArrowUpRight size={12} />
+            </Link>
           </div>
         </section>
 
-        {/* Right: Architectural Phase Roadmap (5 cols) */}
+        {/* Right: Quick Access (role-aware, implemented modules only) */}
         <section
-          aria-label="Implementation Roadmap"
+          aria-label="Quick Access"
           className="lg:col-span-5 bg-navy-900/80 border border-white/10 p-6 space-y-4"
         >
           <div className="flex items-center justify-between pb-3 border-b border-white/10">
             <div>
               <h2 className="font-mono text-xs uppercase tracking-wider text-white font-semibold">
-                Admin Architecture Roadmap
+                Quick Access
               </h2>
-              <p className="text-[11px] text-slate-400 font-sans mt-0.5">
-                Staged multi-phase implementation plan.
+              <p className="text-xs text-slate-400 font-sans mt-0.5">
+                Jump to the modules available to your role.
               </p>
             </div>
             <ShieldCheck size={16} className="text-emerald-400" />
           </div>
 
           <div className="space-y-2.5 text-xs font-sans">
-            {/* Phase 2A */}
-            <div className="p-3 bg-gold-500/10 border border-gold-500/30 flex items-start justify-between gap-3">
-              <div className="space-y-0.5">
-                <div className="flex items-center gap-2">
-                  <span className="font-mono text-[10px] font-bold uppercase text-gold-400">
-                    Phase 2A
-                  </span>
-                  <span className="text-white font-semibold">Foundation &amp; Shell</span>
-                </div>
-                <p className="text-[11px] text-slate-300">
-                  Role guarding, admin auth, dashboard telemetry, sidebar &amp; header.
-                </p>
-              </div>
-              <span className="text-[9px] font-mono uppercase px-1.5 py-0.5 bg-emerald-950 text-emerald-400 border border-emerald-500/30">
-                Complete
-              </span>
-            </div>
-
-            {/* Phase 2B */}
-            <div className="p-3 bg-white/[0.02] border border-white/10 flex items-start justify-between gap-3">
-              <div className="space-y-0.5">
-                <div className="flex items-center gap-2">
-                  <span className="font-mono text-[10px] uppercase text-slate-400">
-                    Phase 2B
-                  </span>
-                  <span className="text-slate-200 font-medium">Applications Module</span>
-                </div>
-                <p className="text-[11px] text-slate-400">
-                  Search, filter, status management, full nomination inspect drawer.
-                </p>
-              </div>
-              <span className="text-[9px] font-mono uppercase px-1.5 py-0.5 bg-white/5 text-slate-400 border border-white/10">
-                Next
-              </span>
-            </div>
-
-            {/* Phase 2C */}
-            <div className="p-3 bg-white/[0.02] border border-white/10 flex items-start justify-between gap-3">
-              <div className="space-y-0.5">
-                <div className="flex items-center gap-2">
-                  <span className="font-mono text-[10px] uppercase text-slate-400">
-                    Phase 2C
-                  </span>
-                  <span className="text-slate-200 font-medium">Verification Desk</span>
-                </div>
-                <p className="text-[11px] text-slate-400">
-                  Eligibility checks, clarification request notes, qualification locks.
-                </p>
-              </div>
-              <span className="text-[9px] font-mono uppercase px-1.5 py-0.5 bg-white/5 text-slate-500 border border-white/10">
-                Queued
-              </span>
-            </div>
-
-            {/* Phase 2D */}
-            <div className="p-3 bg-white/[0.02] border border-white/10 flex items-start justify-between gap-3">
-              <div className="space-y-0.5">
-                <div className="flex items-center gap-2">
-                  <span className="font-mono text-[10px] uppercase text-slate-400">
-                    Phase 2D
-                  </span>
-                  <span className="text-slate-200 font-medium">Categories &amp; Edition</span>
-                </div>
-                <p className="text-[11px] text-slate-400">
-                  Category rules, description edits, display ordering, cycle transitions.
-                </p>
-              </div>
-              <span className="text-[9px] font-mono uppercase px-1.5 py-0.5 bg-white/5 text-slate-500 border border-white/10">
-                Queued
-              </span>
-            </div>
-
-            {/* Phase 2E & 2F */}
-            <div className="p-3 bg-white/[0.02] border border-white/10 flex items-start justify-between gap-3">
-              <div className="space-y-0.5">
-                <div className="flex items-center gap-2">
-                  <span className="font-mono text-[10px] uppercase text-slate-400">
-                    Phase 2E-2F
-                  </span>
-                  <span className="text-slate-200 font-medium">Jury, Scoring &amp; Winners</span>
-                </div>
-                <p className="text-[11px] text-slate-400">
-                  Jury assignments, blind scoring rubrics, shortlisting, exports.
-                </p>
-              </div>
-              <span className="text-[9px] font-mono uppercase px-1.5 py-0.5 bg-white/5 text-slate-500 border border-white/10">
-                Queued
-              </span>
-            </div>
+            {[
+              {
+                href: "/admin/applications",
+                title: "Applications",
+                desc: "Search, verify, request clarifications and review nominations.",
+                managementOnly: false,
+              },
+              {
+                href: "/admin/jury",
+                title: "Jury Management",
+                desc: "Appoint jurors, assign nominations and monitor evaluations.",
+                managementOnly: true,
+              },
+              {
+                href: "/admin/shortlisting",
+                title: "Shortlisting",
+                desc: "Review jury recommendations and curate the official shortlist.",
+                managementOnly: true,
+              },
+              {
+                href: "/admin/winners",
+                title: "Winners Showcase",
+                desc: "Select, approve and publish category winners.",
+                managementOnly: true,
+              },
+              {
+                href: "/admin/reports",
+                title: "Reports & Exports",
+                desc: "Executive metrics and data exports.",
+                managementOnly: true,
+              },
+              {
+                href: "/admin/cms",
+                title: "Content / CMS",
+                desc: "Manage public dates, FAQs, announcements and contact details.",
+                managementOnly: true,
+              },
+            ]
+              .filter((m) => !m.managementOnly || session.isAdmin)
+              .map((m) => (
+                <Link
+                  key={m.href}
+                  href={m.href}
+                  className="p-3 bg-white/[0.02] border border-white/10 hover:border-gold-500/40 flex items-start justify-between gap-3 transition-colors focus-visible:outline focus-visible:outline-2 focus-visible:outline-gold-400"
+                >
+                  <div className="space-y-0.5">
+                    <div className="text-slate-100 font-medium">{m.title}</div>
+                    <p className="text-xs text-slate-400">{m.desc}</p>
+                  </div>
+                  <ArrowUpRight size={14} className="text-gold-400 flex-shrink-0 mt-0.5" />
+                </Link>
+              ))}
           </div>
         </section>
       </div>

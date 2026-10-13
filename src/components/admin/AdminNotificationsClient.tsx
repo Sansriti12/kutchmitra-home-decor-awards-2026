@@ -85,7 +85,7 @@ const EVENT_TYPE_LABELS: Record<string, { label: string; badgeClass: string }> =
     badgeClass: "bg-slate-500/10 text-slate-300 border-slate-500/20",
   },
   jury_assigned: {
-    label: "Jury Dossier Assigned",
+    label: "Jury Assignment",
     badgeClass: "bg-purple-500/10 text-purple-300 border-purple-500/20",
   },
   jury_evaluation_reopened: {
@@ -200,7 +200,7 @@ export default function AdminNotificationsClient({
         <div>
           <div className="flex items-center gap-2 text-xs font-mono text-gold-400 uppercase tracking-wider mb-1">
             <Bell size={14} />
-            <span>Phase F // Communications &amp; Delivery Diagnostics</span>
+            <span>Communications &amp; Delivery Diagnostics</span>
           </div>
           <h1 className="font-display text-2xl sm:text-3xl text-white font-medium">
             Notifications &amp; Email Communications

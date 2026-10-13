@@ -4,13 +4,17 @@ import Link from "next/link";
 import { ShieldCheck, UserCheck, Scale, Award, EyeOff, ArrowRight } from "lucide-react";
 import { SectionMarker } from "@/components/ui/SectionMarker";
 import { Button } from "@/components/ui/Button";
+import { getPublicJuryProfiles } from "@/lib/cms/public";
 
 export const metadata: Metadata = {
   title: "Jury & Evaluation | Kutchmitra Home & Decor Awards 2026",
   description: "Learn about the independent evaluation process, scoring framework, and jury guidelines for the Kutchmitra Home & Decor Awards 2026.",
 };
 
-export default function JuryPage() {
+export const revalidate = 60; // ISR cache revalidation
+
+export default async function JuryPage() {
+  const publicJurors = await getPublicJuryProfiles();
   const PILLARS = [
     {
       title: "Design Excellence & Innovation",
@@ -68,51 +72,89 @@ export default function JuryPage() {
             </h2>
           </div>
 
-          {/* Neutral Panel Announcement Card */}
-          <div className="p-8 sm:p-12 bg-[#FBFAF7] border border-navy-900/10 space-y-6 max-w-4xl">
-            <div className="inline-flex items-center gap-2 px-3 py-1 bg-sand-100 border border-gold-500/30 text-xs font-mono text-gold-600 font-semibold">
-              <UserCheck size={14} />
-              <span>PANEL ANNOUNCEMENT // EDITION 2026</span>
-            </div>
+          {publicJurors.length > 0 ? (
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+              {publicJurors.map((juror) => (
+                <div
+                  key={juror.id}
+                  className="p-7 bg-[#FBFAF7] border border-navy-900/10 space-y-4 hover:border-gold-500/40 transition-colors"
+                >
+                  <div className="flex items-center gap-3">
+                    <div className="w-12 h-12 rounded-full bg-navy-900 text-gold-400 font-display font-bold flex items-center justify-center text-lg border border-gold-500/30">
+                      {juror.jurorName.slice(0, 1)}
+                    </div>
+                    <div>
+                      <h3 className="font-display text-lg font-bold text-navy-900 leading-snug">
+                        {juror.honorific ? `${juror.honorific} ` : ""}
+                        {juror.jurorName}
+                      </h3>
+                      <p className="text-xs text-gold-600 font-mono">
+                        {juror.designation || "Jury Member"}
+                      </p>
+                    </div>
+                  </div>
 
-            <div className="space-y-3">
-              <h3 className="font-display text-2xl sm:text-3xl text-navy-900 font-medium leading-tight">
-                Jury profiles will be announced by Kutchmitra.
-              </h3>
-              <p className="body-editorial text-[#4A4F5C] text-base sm:text-lg leading-relaxed max-w-3xl">
-                The 2026 Grand Jury panel will bring together accomplished practitioners, architectural educators, and design authorities to conduct an impartial and rigorous assessment of all qualifying nominations.
-              </p>
-            </div>
+                  {juror.organization && (
+                    <div className="text-xs font-mono text-slate-500 uppercase tracking-wider">
+                      {juror.organization}
+                    </div>
+                  )}
 
-            <div className="grid grid-cols-1 sm:grid-cols-3 gap-6 pt-4 border-t border-navy-900/10 text-xs font-sans">
-              <div className="space-y-1">
-                <span className="font-mono text-[11px] uppercase tracking-wider text-navy-900 font-semibold block">
-                  Evaluation Process
-                </span>
-                <p className="text-[#4A4F5C] leading-relaxed">
-                  Entries will be evaluated through a confidential, criteria-based jury process.
+                  {juror.bio && (
+                    <p className="text-xs text-[#4A4F5C] font-sans leading-relaxed line-clamp-4">
+                      {juror.bio}
+                    </p>
+                  )}
+                </div>
+              ))}
+            </div>
+          ) : (
+            /* Neutral Panel Announcement Card Fallback */
+            <div className="p-8 sm:p-12 bg-[#FBFAF7] border border-navy-900/10 space-y-6 max-w-4xl">
+              <div className="inline-flex items-center gap-2 px-3 py-1 bg-sand-100 border border-gold-500/30 text-xs font-mono text-gold-600 font-semibold">
+                <UserCheck size={14} />
+                <span>PANEL ANNOUNCEMENT // EDITION 2026</span>
+              </div>
+
+              <div className="space-y-3">
+                <h3 className="font-display text-2xl sm:text-3xl text-navy-900 font-medium leading-tight">
+                  Jury profiles will be announced by Kutchmitra.
+                </h3>
+                <p className="body-editorial text-[#4A4F5C] text-base sm:text-lg leading-relaxed max-w-3xl">
+                  The 2026 Grand Jury panel will bring together accomplished practitioners, architectural educators, and design authorities to conduct an impartial and rigorous assessment of all qualifying nominations.
                 </p>
               </div>
 
-              <div className="space-y-1">
-                <span className="font-mono text-[11px] uppercase tracking-wider text-navy-900 font-semibold block">
-                  Confidentiality
-                </span>
-                <p className="text-[#4A4F5C] leading-relaxed">
-                  Individual scoring and internal commentary remain confidential to protect candidate integrity.
-                </p>
-              </div>
+              <div className="grid grid-cols-1 sm:grid-cols-3 gap-6 pt-4 border-t border-navy-900/10 text-xs font-sans">
+                <div className="space-y-1">
+                  <span className="font-mono text-[11px] uppercase tracking-wider text-navy-900 font-semibold block">
+                    Evaluation Process
+                  </span>
+                  <p className="text-[#4A4F5C] leading-relaxed">
+                    Entries will be evaluated through a confidential, criteria-based jury process.
+                  </p>
+                </div>
 
-              <div className="space-y-1">
-                <span className="font-mono text-[11px] uppercase tracking-wider text-navy-900 font-semibold block">
-                  Meritocracy
-                </span>
-                <p className="text-[#4A4F5C] leading-relaxed">
-                  Entries are judged solely against standardized design criteria and submission evidence.
-                </p>
+                <div className="space-y-1">
+                  <span className="font-mono text-[11px] uppercase tracking-wider text-navy-900 font-semibold block">
+                    Confidentiality
+                  </span>
+                  <p className="text-[#4A4F5C] leading-relaxed">
+                    Individual scoring and internal commentary remain confidential to protect candidate integrity.
+                  </p>
+                </div>
+
+                <div className="space-y-1">
+                  <span className="font-mono text-[11px] uppercase tracking-wider text-navy-900 font-semibold block">
+                    Meritocracy
+                  </span>
+                  <p className="text-[#4A4F5C] leading-relaxed">
+                    Entries are judged solely against standardized design criteria and submission evidence.
+                  </p>
+                </div>
               </div>
             </div>
-          </div>
+          )}
         </div>
       </section>
 

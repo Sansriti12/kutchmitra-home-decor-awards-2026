@@ -13,6 +13,7 @@ import {
   Loader2,
 } from "lucide-react";
 import { Button } from "@/components/ui/Button";
+import { getCategoryDisplayNumber } from "@/lib/utils";
 
 export interface CategoryOption {
   id: string;
@@ -105,7 +106,7 @@ export default function Step2Category({
             <div className="space-y-2.5">
               <div className="flex items-center gap-2.5 flex-wrap">
                 <span className="font-mono text-xs font-bold text-gold-800 bg-gold-500/15 border border-gold-500/30 px-3 py-1 uppercase tracking-widest shadow-2xs">
-                  Category #{currentCategory?.code}
+                  Category #{getCategoryDisplayNumber(currentCategory?.code)}
                 </span>
                 <span className="inline-flex items-center gap-1.5 text-xs font-mono text-emerald-800 bg-emerald-50 px-2.5 py-0.5 border border-emerald-200/80 shadow-2xs">
                   <CheckCircle2 size={13} className="text-emerald-700" /> Active 2026 Category
@@ -153,7 +154,7 @@ export default function Step2Category({
                 Select an Award Category
               </h3>
               <p className="text-xs text-[#4A4F5C] mt-0.5">
-                Choose from the 13 approved categories for the 2026 inaugural edition.
+                Choose from the 14 approved categories for the 2026 inaugural edition.
               </p>
             </div>
             <button
@@ -188,7 +189,7 @@ export default function Step2Category({
                 >
                   <div className="flex items-center justify-between gap-2 mb-1.5">
                     <span className="font-mono text-[10px] font-bold uppercase tracking-wider text-navy-900 bg-navy-900/5 px-2 py-0.5 border border-navy-900/10">
-                      #{cat.code}
+                      #{getCategoryDisplayNumber(cat.code)}
                     </span>
                     {isSelected && (
                       <span className="inline-flex items-center gap-1 text-[10px] font-mono text-gold-800 font-bold uppercase tracking-wider bg-gold-500/20 px-2 py-0.5 border border-gold-500/30">
@@ -283,13 +284,13 @@ export default function Step2Category({
               <div className="flex items-center justify-between gap-2 pb-2 border-b border-navy-900/5">
                 <span className="font-mono text-[10px] uppercase text-slate-400">Current Category</span>
                 <span className="font-mono font-bold text-navy-900 text-right truncate">
-                  #{currentCategory?.code} · {currentCategory?.name}
+                  #{getCategoryDisplayNumber(currentCategory?.code)} · {currentCategory?.name}
                 </span>
               </div>
               <div className="flex items-center justify-between gap-2">
                 <span className="font-mono text-[10px] uppercase text-gold-700 font-semibold">New Category</span>
                 <span className="font-mono font-bold text-gold-800 text-right truncate">
-                  #{targetCategory?.code} · {targetCategory?.name}
+                  #{getCategoryDisplayNumber(targetCategory?.code)} · {targetCategory?.name}
                 </span>
               </div>
             </div>

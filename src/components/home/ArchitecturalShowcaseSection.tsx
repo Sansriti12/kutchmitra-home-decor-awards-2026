@@ -22,7 +22,7 @@ export function ArchitecturalShowcaseSection() {
             <div className="relative aspect-[16/10] bg-navy-950 text-white overflow-hidden border border-navy-900/10 shadow-card">
               {/* Architectural Grid Details */}
               <div className="absolute inset-4 border border-white/10 pointer-events-none" />
-              <div className="absolute top-4 right-4 flex items-center gap-2 font-mono text-[9px] uppercase tracking-widest text-gold-400">
+              <div className="absolute top-4 right-4 flex items-center gap-2 font-mono text-[11px] uppercase tracking-widest text-gold-400">
                 <Maximize2 size={12} />
                 <span>SPATIAL ELEVATION</span>
               </div>
@@ -52,7 +52,7 @@ export function ArchitecturalShowcaseSection() {
             {/* Corner Coordinate Detail */}
             <div className="mt-3 flex items-center justify-between text-xs font-mono text-[#4A4F5C]">
               <span>SPEC: FULL-APERTURE FRAMING</span>
-              <span className="text-gold-600 font-semibold">HONORS DOSSIER</span>
+              <span className="text-gold-600 font-semibold">AWARDS SHOWCASE</span>
             </div>
           </div>
 

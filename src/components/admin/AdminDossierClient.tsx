@@ -36,7 +36,8 @@ import {
   Tag,
   Share2,
 } from "lucide-react";
-import { cn } from "@/lib/utils";
+import { cn, getCategoryDisplayNumber } from "@/lib/utils";
+import { formatAnswer, NOT_PROVIDED_LABEL } from "@/lib/nominations/answer-format";
 import {
   updateApplicationStatus,
   requestApplicationClarification,
@@ -114,7 +115,7 @@ const STATUS_CONFIG: Record<
     desc: "Advanced to final shortlist of candidates.",
   },
   winner: {
-    label: "Winner / Laureate",
+    label: "Winner",
     text: "text-gold-200",
     bg: "bg-gold-900/80",
     border: "border-gold-400/60",
@@ -305,7 +306,7 @@ export default function AdminDossierClient({ dossier }: AdminDossierClientProps)
         </Link>
         <div className="flex items-center gap-2">
           <span className="text-[10px] font-mono uppercase px-2 py-0.5 bg-white/5 border border-white/10 text-slate-400">
-            Dossier View
+            Application Details
           </span>
         </div>
       </div>
@@ -332,7 +333,7 @@ export default function AdminDossierClient({ dossier }: AdminDossierClientProps)
 
               {category && (
                 <span className="text-xs font-mono px-2 py-0.5 bg-white/5 border border-white/10 text-slate-300">
-                  Category #{category.code}: {category.name}
+                  Category #{getCategoryDisplayNumber(category.code)}: {category.name}
                 </span>
               )}
             </div>
@@ -500,7 +501,7 @@ export default function AdminDossierClient({ dossier }: AdminDossierClientProps)
                 className="px-3 py-1.5 bg-gold-400 hover:bg-gold-300 text-navy-950 text-xs font-semibold uppercase tracking-wider transition-colors inline-flex items-center gap-1.5"
               >
                 <Sparkles size={14} />
-                <span>Confirm as Winner / Laureate</span>
+                <span>Confirm as Winner</span>
               </button>
             )}
 
@@ -713,7 +714,7 @@ export default function AdminDossierClient({ dossier }: AdminDossierClientProps)
               <div className="space-y-1">
                 <span className="text-[11px] font-mono uppercase text-slate-400">Award Category</span>
                 <p className="text-sm font-semibold text-gold-400">
-                  {category ? `${category.code}. ${category.name}` : "Unassigned"}
+                  {category ? `${getCategoryDisplayNumber(category.code)}. ${category.name}` : "Unassigned"}
                 </p>
               </div>
 
@@ -889,7 +890,7 @@ export default function AdminDossierClient({ dossier }: AdminDossierClientProps)
                 Category Questionnaire Responses
               </h3>
               <p className="text-[11px] text-slate-400 mt-0.5">
-                Dynamic Step 4 submission responses configured for Category #{category?.code}: {category?.name}.
+                Dynamic Step 4 submission responses configured for Category #{getCategoryDisplayNumber(category?.code)}: {category?.name}.
               </p>
             </div>
             <span className="text-xs font-mono px-2 py-0.5 bg-gold-500/10 text-gold-400 border border-gold-500/30">
@@ -905,45 +906,35 @@ export default function AdminDossierClient({ dossier }: AdminDossierClientProps)
           ) : (
             <div className="space-y-6">
               {questionsAndAnswers.map((qa, index) => {
-                let formattedAnswer: React.ReactNode = null;
+                const formatted = formatAnswer(qa.fieldType, qa.options, {
+                  text: qa.answerText,
+                  number: qa.answerNumber,
+                  json: qa.answerJson,
+                });
+                let formattedAnswer: React.ReactNode;
 
-                if (qa.fieldType === "select" || qa.fieldType === "radio") {
-                  const matchedOption = qa.options.find((o) => o.value === qa.answerText);
-                  formattedAnswer = (
-                    <span className="font-semibold text-gold-300">
-                      {matchedOption ? matchedOption.label : qa.answerText || "Not answered"}
-                    </span>
-                  );
-                } else if (qa.fieldType === "number") {
-                  formattedAnswer = (
-                    <span className="font-mono text-white font-semibold">
-                      {qa.answerNumber !== null && qa.answerNumber !== undefined
-                        ? qa.answerNumber
-                        : qa.answerText || "Not answered"}
-                    </span>
-                  );
-                } else if (qa.fieldType === "checkbox" && qa.answerJson) {
-                  const selectedValues = Array.isArray(qa.answerJson)
-                    ? qa.answerJson
-                    : Object.keys(qa.answerJson);
+                if (formatted.kind === "list") {
                   formattedAnswer = (
                     <div className="flex flex-wrap gap-1.5 mt-1">
-                      {selectedValues.map((v: string) => (
+                      {formatted.items.map((v) => (
                         <span
                           key={v}
-                          className="px-2 py-0.5 bg-gold-500/10 border border-gold-500/30 text-gold-300 font-mono text-[11px]"
+                          className="px-2 py-0.5 bg-gold-500/10 border border-gold-500/30 text-gold-300 text-xs"
                         >
                           {v}
                         </span>
                       ))}
                     </div>
                   );
+                } else if (formatted.kind === "text") {
+                  formattedAnswer =
+                    qa.fieldType === "select" || qa.fieldType === "radio" || qa.fieldType === "number" ? (
+                      <span className="font-semibold text-gold-300">{formatted.text}</span>
+                    ) : (
+                      <p className="text-xs text-slate-200 whitespace-pre-wrap leading-relaxed">{formatted.text}</p>
+                    );
                 } else {
-                  formattedAnswer = (
-                    <p className="text-xs text-slate-200 whitespace-pre-wrap leading-relaxed">
-                      {qa.answerText || <span className="text-slate-500 italic">No answer submitted</span>}
-                    </p>
-                  );
+                  formattedAnswer = <span className="text-xs text-slate-400 italic">{NOT_PROVIDED_LABEL}</span>;
                 }
 
                 return (
@@ -1027,7 +1018,7 @@ export default function AdminDossierClient({ dossier }: AdminDossierClientProps)
                           {file.requirementTitle || file.upload_type}
                         </span>
                         {file.is_cover && (
-                          <span className="text-[9px] font-mono uppercase px-1.5 py-0.2 bg-gold-500/20 text-gold-300 border border-gold-500/30">
+                          <span className="text-[11px] font-mono uppercase px-1.5 py-0.2 bg-gold-500/20 text-gold-300 border border-gold-500/30">
                             Cover Image
                           </span>
                         )}
@@ -1086,7 +1077,7 @@ export default function AdminDossierClient({ dossier }: AdminDossierClientProps)
                   Add Internal Review Note
                 </h3>
                 <p className="text-[11px] text-slate-400 mt-0.5">
-                  Confidential administrative observations, verification notes, and desk comments.
+                  Administrative observations, verification notes, and review comments.
                 </p>
               </div>
               <Lock size={16} className="text-gold-400" />

@@ -59,3 +59,19 @@ export function formatDeterministicNumber(val: number | string | null | undefine
   return num.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
 }
 
+export {
+  getCategoryDisplayNumber,
+  formatCategoryBadge,
+  formatCategoryLabel,
+  CATEGORY_CODE_TO_DISPLAY_NUMBER,
+  TOTAL_ACTIVE_CATEGORIES,
+  ACTIVE_CATEGORIES,
+  getActiveCategories,
+  isRetiredCategory,
+  RETIRED_CATEGORY_CODES,
+  RETIRED_CATEGORY_UUIDS,
+  RETIRED_CATEGORY_SLUGS,
+  type ActiveCategoryItem,
+} from "./categories/display-number";
+
+

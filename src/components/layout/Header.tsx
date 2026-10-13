@@ -71,7 +71,7 @@ export function Header() {
             className="group flex flex-col focus-visible:outline-none flex-shrink-0"
             aria-label="Kutchmitra Home & Decor Awards 2026 Home"
           >
-            <span className="font-mono text-[9px] sm:text-[10px] font-semibold tracking-[0.22em] text-slate-400 uppercase group-hover:text-gold-400 transition-colors duration-200">
+            <span className="font-mono text-[11px] sm:text-[10px] font-semibold tracking-[0.22em] text-slate-400 uppercase group-hover:text-gold-400 transition-colors duration-200">
               Kutchmitra
             </span>
             <span className="font-display text-base sm:text-lg 2xl:text-xl font-semibold tracking-tight text-white group-hover:text-gold-300 transition-colors duration-200 whitespace-nowrap">

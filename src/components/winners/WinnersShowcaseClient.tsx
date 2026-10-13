@@ -14,7 +14,7 @@ import {
   Filter,
   ExternalLink,
 } from "lucide-react";
-import { cn } from "@/lib/utils";
+import { cn, getCategoryDisplayNumber } from "@/lib/utils";
 import { SectionMarker } from "@/components/ui/SectionMarker";
 import { Button } from "@/components/ui/Button";
 import type { PublicWinnerCard } from "@/types/shortlist-winner.types";
@@ -87,7 +87,7 @@ export default function WinnersShowcaseClient({
                 Awaiting Official Announcement
               </h2>
               <p className="font-sans text-base sm:text-lg text-[#4A4F5C] leading-relaxed max-w-xl mx-auto">
-                Winner announcements will be published here following the grand jury evaluation and gala deliberation. Comprehensive project spotlights, citations, and architect profiles will be featured in this dedicated gallery.
+                Winner announcements will be published here following the grand jury evaluation and committee review. Comprehensive project spotlights, citations, and architect profiles will be featured in this dedicated gallery.
               </p>
             </div>
 
@@ -96,13 +96,13 @@ export default function WinnersShowcaseClient({
                 2026 Awards Timeline
               </span>
               <p>
-                Qualifying entries proceed through technical verification, qualitative jury scoring, and committee shortlisting prior to final winner proclamation.
+                Qualifying entries proceed through technical verification, qualitative jury scoring, and committee shortlisting prior to final winner selection.
               </p>
             </div>
 
             <div className="pt-4 flex flex-wrap items-center justify-center gap-4">
               <Button href="/categories" variant="outline-dark" size="md">
-                Explore 13 Categories
+                Explore 14 Categories
               </Button>
               <Button href="/register" variant="primary" size="md" icon={<ArrowRight size={14} />}>
                 Nominate Now
@@ -163,7 +163,7 @@ export default function WinnersShowcaseClient({
                           : "bg-white text-[#4A4F5C] border-navy-900/10 hover:border-navy-900/30"
                       )}
                     >
-                      <span>Cat {c.code}: {c.name}</span>
+                      <span>Cat {getCategoryDisplayNumber(c.code)}: {c.name}</span>
                       <span className={cn(
                         "px-1.5 py-0.2 text-[10px] rounded-full",
                         selectedCategory === c.slug ? "bg-gold-500 text-navy-950 font-bold" : "bg-sand-100 text-[#4A4F5C]"
@@ -231,7 +231,7 @@ export default function WinnersShowcaseClient({
                         <div className="p-6 space-y-3">
                           {/* Category Tag */}
                           <div className="text-[11px] font-mono text-gold-600 font-semibold uppercase tracking-wider">
-                            Category {winner.categoryCode} // {winner.categoryName}
+                            Category {getCategoryDisplayNumber(winner.categoryCode)} // {winner.categoryName}
                           </div>
 
                           {/* Project Name */}

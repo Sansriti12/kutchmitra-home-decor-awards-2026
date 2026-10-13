@@ -4,6 +4,7 @@ import { revalidatePath } from "next/cache";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { getAdminSession } from "@/lib/admin/auth";
 import { sendNotification } from "@/lib/notifications/notification-service";
+import { getActiveCategories, isRetiredCategory } from "@/lib/utils";
 import type {
   WinnerRecord,
   WinnerProfilePayload,
@@ -31,7 +32,7 @@ export async function getWinnersWorkspaceData(params?: {
   stats: WinnerWorkspaceStats;
 }> {
   const session = await getAdminSession();
-  if (!session || (!session.isAdmin && !session.isVerificationTeam)) {
+  if (!session || !session.isAdmin) {
     return {
       success: false,
       error: "Unauthorized: Administrator credentials required.",
@@ -53,14 +54,14 @@ export async function getWinnersWorkspaceData(params?: {
   const adminClient = createAdminClient();
 
   try {
-    // 1. Fetch categories
+    // 1. Fetch categories (authoritative 14 active categories, ordered 01-14)
     const { data: rawCategories } = await adminClient
       .from("categories")
       .select("id, name, code, display_order")
       .eq("is_active", true)
       .order("display_order");
 
-    const categories = (rawCategories || []).map((c) => ({
+    const categories = getActiveCategories(rawCategories).map((c) => ({
       id: c.id,
       name: c.name,
       code: c.code,
@@ -218,7 +219,7 @@ export async function getWinnersWorkspaceData(params?: {
           let coverImageUrl: string | undefined;
           if (cover?.storage_path) {
             const { data: signed } = await adminClient.storage
-              .from("nomination-files")
+              .from("application-files")
               .createSignedUrl(cover.storage_path, 3600);
             coverImageUrl = signed?.signedUrl;
           }
@@ -319,8 +320,9 @@ export async function selectWinner(
         project_name,
         project_city,
         project_state,
+        applicant_id,
         status,
-        users!applications_user_id_fkey(full_name, organization)
+        users:applicant_id(id, full_name)
       `)
       .eq("id", applicationId)
       .single();
@@ -333,6 +335,20 @@ export async function selectWinner(
       return {
         success: false,
         error: `Cannot designate a ${app.status.toUpperCase()} entry as an award winner.`,
+      };
+    }
+
+    // Verify application category is active
+    const { data: catCheck } = await adminClient
+      .from("categories")
+      .select("id, is_active")
+      .eq("id", app.category_id)
+      .maybeSingle();
+
+    if (catCheck && (catCheck.is_active === false || isRetiredCategory(app.category_id))) {
+      return {
+        success: false,
+        error: "Action Blocked: Cannot designate a winner for an entry belonging to an inactive award category.",
       };
     }
 
@@ -358,6 +374,18 @@ export async function selectWinner(
     const now = new Date().toISOString();
     const userObj = Array.isArray(app.users) ? app.users[0] : app.users;
 
+    let orgName = "";
+    if (app.applicant_id) {
+      const { data: prof } = await adminClient
+        .from("applicant_profiles")
+        .select("organization_name")
+        .eq("user_id", app.applicant_id)
+        .maybeSingle();
+      if (prof?.organization_name) {
+        orgName = prof.organization_name;
+      }
+    }
+
     // 3. Upsert into winners table
     const { data: winnerRecord, error: winErr } = await adminClient
       .from("winners")
@@ -371,7 +399,7 @@ export async function selectWinner(
           winner_title: `${payload.awardTitle.trim()} — ${app.project_name}`,
           project_name: app.project_name,
           entrant_name: userObj?.full_name || "",
-          organization_name: userObj?.organization || "",
+          organization_name: orgName,
           project_location: `${app.project_city || ""}, ${app.project_state || ""}`,
           citation: payload.citation?.trim() || null,
           project_story: payload.projectStory?.trim() || null,

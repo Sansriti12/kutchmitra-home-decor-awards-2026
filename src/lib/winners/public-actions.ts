@@ -1,4 +1,5 @@
 import { createClient } from "@/lib/supabase/server";
+import { getActiveCategories } from "@/lib/utils";
 import type { PublicWinnerCard, PublicWinnerDetail, WinnerType } from "@/types/shortlist-winner.types";
 
 const CURRENT_EDITION_ID = "e2026000-0000-0000-0000-000000002026";
@@ -22,14 +23,14 @@ export async function getPublicWinners(params?: {
     const supabase = createClient();
     const editionId = params?.editionId || CURRENT_EDITION_ID;
 
-    // 1. Fetch active categories
+    // 1. Fetch active categories (authoritative 14 active categories, ordered 01-14)
     const { data: rawCategories } = await supabase
       .from("categories")
       .select("id, name, code, slug, display_order")
       .eq("is_active", true)
       .order("display_order");
 
-    const categoriesList = (rawCategories || []).map((c) => ({
+    const categoriesList = getActiveCategories(rawCategories).map((c) => ({
       id: c.id,
       name: c.name,
       code: c.code,
@@ -37,11 +38,15 @@ export async function getPublicWinners(params?: {
       count: 0,
     }));
 
-    // 2. Fetch published winners with safe public projection
+    // 2. Fetch published winners with safe public projection.
+    // NOTE: `winners` has no direct foreign key to `categories` (its only FK is the composite
+    // fk_winner_application_edition_category -> applications). Category details are therefore
+    // resolved from the plain `category_id` column against the publicly readable categories list.
     let query = supabase
       .from("winners")
       .select(`
         id,
+        category_id,
         award_title,
         winner_type,
         winner_title,
@@ -53,12 +58,7 @@ export async function getPublicWinners(params?: {
         citation,
         hero_image_url,
         is_featured,
-        display_order,
-        categories!winners_category_id_fkey(
-          code,
-          name,
-          slug
-        )
+        display_order
       `)
       .eq("edition_id", editionId)
       .eq("is_published", true)
@@ -81,9 +81,10 @@ export async function getPublicWinners(params?: {
 
     // Count per category
     const catCountMap = new Map<string, number>();
+    const categoryById = new Map(categoriesList.map((c) => [c.id, c]));
 
     const winners: PublicWinnerCard[] = (rawWinners || []).map((w: any) => {
-      const cat = Array.isArray(w.categories) ? w.categories[0] : w.categories;
+      const cat = categoryById.get(w.category_id);
       const catCode = cat?.code || "00";
       const catName = cat?.name || "";
       const catSlug = cat?.slug || "";
@@ -134,6 +135,7 @@ export async function getPublicWinnerDetail(winnerId: string): Promise<PublicWin
       .from("winners")
       .select(`
         id,
+        category_id,
         award_title,
         winner_type,
         winner_title,
@@ -148,12 +150,7 @@ export async function getPublicWinnerDetail(winnerId: string): Promise<PublicWin
         gallery_urls,
         is_featured,
         display_order,
-        published_at,
-        categories!winners_category_id_fkey(
-          code,
-          name,
-          slug
-        )
+        published_at
       `)
       .eq("id", winnerId)
       .eq("is_published", true)
@@ -164,7 +161,12 @@ export async function getPublicWinnerDetail(winnerId: string): Promise<PublicWin
       return null;
     }
 
-    const cat = Array.isArray(w.categories) ? w.categories[0] : w.categories;
+    // `winners` has no direct FK to `categories`; resolve via the plain category_id column.
+    const { data: cat } = await supabase
+      .from("categories")
+      .select("code, name, slug")
+      .eq("id", w.category_id)
+      .maybeSingle();
 
     return {
       id: w.id,

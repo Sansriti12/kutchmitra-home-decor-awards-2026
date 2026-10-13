@@ -8,6 +8,7 @@ import type { CategoryOption } from "@/components/nominations/Step2Category";
 import type { EntrantDetailsData } from "@/components/nominations/Step1EntrantDetails";
 import type { DynamicQuestionItem } from "@/components/nominations/Step4DynamicQuestions";
 import type { FileItem, UploadRequirementItem } from "@/components/nominations/Step5MediaDocuments";
+import { getActiveCategories } from "@/lib/utils";
 
 export const dynamic = "force-dynamic";
 
@@ -132,7 +133,8 @@ export default async function NominationPage({ params }: NominationPageProps) {
     options: optionsMap.get(q.id) || [],
   }));
 
-  const allCategories: CategoryOption[] = allCategoriesData.map((c) => ({
+  const activeCategoriesList = getActiveCategories(allCategoriesData);
+  const allCategories: CategoryOption[] = activeCategoriesList.map((c) => ({
     id: c.id,
     code: c.code,
     name: c.name,
@@ -141,8 +143,17 @@ export default async function NominationPage({ params }: NominationPageProps) {
     eligibility_criteria: c.eligibility_criteria,
   }));
 
-  const activeCategory =
-    allCategories.find((c) => c.id === application.category_id) || allCategories[0];
+  // Resolve current nomination's category (matching by ID or code, with fallback to historical row if retired)
+  const matchedActive = allCategories.find((c) => c.id === application.category_id || c.code === (application as any).category?.code);
+  const matchedHistorical = !matchedActive && (allCategoriesData || []).find((c) => c.id === application.category_id);
+  const activeCategory: CategoryOption = matchedActive || (matchedHistorical ? {
+    id: matchedHistorical.id,
+    code: matchedHistorical.code,
+    name: matchedHistorical.name,
+    slug: matchedHistorical.slug,
+    short_description: matchedHistorical.short_description,
+    eligibility_criteria: matchedHistorical.eligibility_criteria,
+  } : allCategories[0]);
 
   const entrant: EntrantDetailsData = {
     fullName: dbUser?.full_name || user.email?.split("@")[0] || "Entrant",
@@ -185,7 +196,7 @@ export default async function NominationPage({ params }: NominationPageProps) {
 
   const isClarification = application.status === "clarification_required";
 
-  // If locked or submitted (and not in clarification mode), render read-only Dossier Viewer
+  // If locked or submitted (and not in clarification mode), render read-only Application Viewer
   if ((application.is_locked || application.status !== "draft") && !isClarification) {
     return (
       <NominationDossierViewer

@@ -3,6 +3,7 @@
 import React, { useState } from "react";
 import { ArrowLeft, ArrowRight, Sparkles, AlertCircle, Info, CheckCircle2 } from "lucide-react";
 import { Button } from "@/components/ui/Button";
+import { getCategoryDisplayNumber } from "@/lib/utils";
 import type { QuestionFieldType } from "@/types/database.types";
 
 export interface DynamicQuestionOption {
@@ -190,7 +191,7 @@ export default function Step4DynamicQuestions({
         </h2>
         <p className="text-sm text-[#4A4F5C] leading-relaxed max-w-2xl">
           Dynamic evaluation criteria questions configured for{" "}
-          <strong className="text-navy-900 font-semibold">#{categoryCode} — {categoryName}</strong>.
+          <strong className="text-navy-900 font-semibold">#{getCategoryDisplayNumber(categoryCode)} — {categoryName}</strong>.
         </p>
       </div>
 

@@ -18,6 +18,23 @@ export default async function AdminShortlistingPage() {
     redirect("/admin/login?redirect=/admin/shortlisting");
   }
 
+  // Strict Role Gate: Shortlisting is restricted to Management & Super Admin
+  if (!session.isAdmin) {
+    return (
+      <div className="max-w-2xl mx-auto py-12 px-4">
+        <div className="bg-red-950/70 border-2 border-red-500/50 p-8 space-y-4 shadow-card">
+          <h1 className="font-display text-xl font-bold text-white">
+            Access Restricted — Management Privileges Required
+          </h1>
+          <p className="text-xs text-red-200 leading-relaxed font-sans">
+            Shortlisting curation, committee deliberation, and finalist locking are strictly restricted to Managerial and Super Administrator accounts.
+            Verification team members do not have authorization to curate or lock shortlists.
+          </p>
+        </div>
+      </div>
+    );
+  }
+
   const result = await getShortlistingWorkspaceData();
 
   if (!result.success) {

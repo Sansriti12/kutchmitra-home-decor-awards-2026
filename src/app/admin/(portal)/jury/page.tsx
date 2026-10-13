@@ -7,7 +7,7 @@ import AdminJuryClient from "@/components/admin/AdminJuryClient";
 
 export const metadata: Metadata = {
   title: "Grand Jury Management | Kutchmitra Awards 2026 Admin",
-  description: "Governance, juror appointment, nomination assignments, and confidential evaluation monitoring.",
+  description: "Juror appointments, nomination assignments, and jury evaluation monitoring.",
 };
 
 export const dynamic = "force-dynamic";
@@ -16,6 +16,23 @@ export default async function AdminJuryPage() {
   const session = await getAdminSession();
   if (!session) {
     redirect("/admin/login?redirect=/admin/jury");
+  }
+
+  // Strict Role Gate: Jury governance is restricted to Management & Super Admin
+  if (!session.isAdmin) {
+    return (
+      <div className="max-w-2xl mx-auto py-12 px-4">
+        <div className="bg-red-950/70 border-2 border-red-500/50 p-8 space-y-4 shadow-card">
+          <h1 className="font-display text-xl font-bold text-white">
+            Access Restricted — Management Privileges Required
+          </h1>
+          <p className="text-xs text-red-200 leading-relaxed font-sans">
+            Grand Jury Management and juror assignments are restricted to Managerial and Super Administrator accounts.
+            Operational reviewers and verification team members do not have authorization to view or alter jury appointments.
+          </p>
+        </div>
+      </div>
+    );
   }
 
   const overview = await getAdminJuryOverview();

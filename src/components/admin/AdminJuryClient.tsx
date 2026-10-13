@@ -28,7 +28,7 @@ import {
   Info,
   Award,
 } from "lucide-react";
-import { cn, formatDeterministicDate } from "@/lib/utils";
+import { cn, formatDeterministicDate, getCategoryDisplayNumber } from "@/lib/utils";
 import {
   createJuryMember,
   updateJuryMember,
@@ -283,13 +283,13 @@ export default function AdminJuryClient({
         <div>
           <div className="flex items-center gap-2 text-xs font-mono text-gold-400 uppercase tracking-wider mb-1">
             <Shield size={14} />
-            <span>Award Governance // Phase D</span>
+            <span>Jury Management</span>
           </div>
           <h1 className="font-display text-2xl sm:text-3xl text-white font-medium">
             Grand Jury Management &amp; Assignments
           </h1>
           <p className="text-xs sm:text-sm text-slate-400 font-sans mt-1">
-            Appoint independent design authorities, allocate eligible nominations, enforce conflict of interest protocols, and monitor confidential criteria assessments.
+            Add jury members, assign eligible nominations, manage conflicts of interest, and track jury evaluations.
           </p>
         </div>
 
@@ -378,7 +378,7 @@ export default function AdminJuryClient({
             <AlertTriangle size={12} className="text-red-400" />
           </div>
           <div className="text-2xl font-mono font-bold text-red-300">{stats.conflictsDeclared}</div>
-          <div className="text-[10px] font-mono text-red-400/70">Recusals Logged</div>
+          <div className="text-[10px] font-mono text-red-400/70">Conflicts of Interest Recorded</div>
         </div>
 
         <div className="p-4 bg-navy-900/80 border border-white/10 space-y-1">
@@ -495,7 +495,7 @@ export default function AdminJuryClient({
                             {m.fullName}
                           </span>
                           {m.isPublic && (
-                            <span className="text-[9px] font-mono uppercase px-1.5 py-0.5 bg-blue-950/80 text-blue-300 border border-blue-500/30">
+                            <span className="text-[11px] font-mono uppercase px-1.5 py-0.5 bg-blue-950/80 text-blue-300 border border-blue-500/30">
                               Public
                             </span>
                           )}
@@ -668,7 +668,7 @@ export default function AdminJuryClient({
                           {a.category?.name || "Category"}
                         </span>
                         <div className="text-[10px] font-mono text-slate-500">
-                          Code: {a.category?.code}
+                          Code: {getCategoryDisplayNumber(a.category?.code)}
                         </div>
                       </td>
 
@@ -745,7 +745,7 @@ export default function AdminJuryClient({
         <div className="space-y-4">
           <div className="p-4 bg-navy-900/60 border border-white/10 space-y-2">
             <h3 className="text-xs font-mono uppercase tracking-wider text-gold-400 font-bold">
-              Confidential Evaluation Monitoring
+              Jury Evaluation Monitoring
             </h3>
             <p className="text-xs text-slate-300 leading-relaxed max-w-3xl">
               Inspect submitted evaluations, qualitative recommendations, and strengths/observations. If administrative corrections are justified, evaluations can be unlocked via the Reopen action.
@@ -1225,7 +1225,10 @@ export default function AdminJuryClient({
                 </div>
                 <div>
                   <div className="text-[10px] font-mono text-slate-400 uppercase">Category</div>
-                  <div className="text-slate-300">{viewingAssignment.category?.name}</div>
+                  <div className="text-slate-300">
+                    {viewingAssignment.category?.code ? `Cat ${getCategoryDisplayNumber(viewingAssignment.category.code)} // ` : ""}
+                    {viewingAssignment.category?.name}
+                  </div>
                 </div>
                 <div>
                   <div className="text-[10px] font-mono text-slate-400 uppercase">Juror</div>
@@ -1293,7 +1296,7 @@ export default function AdminJuryClient({
                 rel="noreferrer"
                 className="text-xs font-mono text-gold-400 hover:text-gold-300 inline-flex items-center gap-1"
               >
-                <span>Open Admin Dossier</span>
+                <span>View Application Details</span>
                 <ExternalLink size={11} />
               </a>
 

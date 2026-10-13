@@ -4,6 +4,12 @@ import { revalidatePath } from "next/cache";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { getAdminSession } from "@/lib/admin/auth";
 import { sendNotification } from "@/lib/notifications/notification-service";
+import {
+  formatAnswerAsString,
+  NOT_PROVIDED_LABEL,
+  type AnswerOption,
+} from "@/lib/nominations/answer-format";
+import { getActiveCategories, isRetiredCategory } from "@/lib/utils";
 import type {
   ShortlistWorkspaceItem,
   ShortlistStats,
@@ -34,7 +40,7 @@ export async function getShortlistingWorkspaceData(params?: {
   categories: Array<{ id: string; name: string; code: string }>;
 }> {
   const session = await getAdminSession();
-  if (!session || (!session.isAdmin && !session.isVerificationTeam)) {
+  if (!session || !session.isAdmin) {
     return {
       success: false,
       error: "Unauthorized: Administrator access required.",
@@ -53,14 +59,14 @@ export async function getShortlistingWorkspaceData(params?: {
   const adminClient = createAdminClient();
 
   try {
-    // 1. Fetch categories
+    // 1. Fetch categories (authoritative 14 active categories, ordered 01-14)
     const { data: categoriesData } = await adminClient
       .from("categories")
       .select("id, name, code, display_order")
       .eq("is_active", true)
       .order("display_order");
 
-    const categories = (categoriesData || []).map((c) => ({
+    const categories = getActiveCategories(categoriesData).map((c) => ({
       id: c.id,
       name: c.name,
       code: c.code,
@@ -430,6 +436,20 @@ export async function addToShortlist(
       };
     }
 
+    // Verify application category is active
+    const { data: catCheck } = await adminClient
+      .from("categories")
+      .select("id, is_active")
+      .eq("id", app.category_id)
+      .maybeSingle();
+
+    if (catCheck && (catCheck.is_active === false || isRetiredCategory(app.category_id))) {
+      return {
+        success: false,
+        error: "Action Blocked: Cannot shortlist an entry belonging to an inactive award category.",
+      };
+    }
+
     const now = new Date().toISOString();
 
     // 3. Upsert into application_shortlists
@@ -722,7 +742,7 @@ export async function getFinalDeliberationDossier(
   applicationId: string
 ): Promise<{ success: boolean; error?: string; dossier?: FinalDeliberationDossier }> {
   const session = await getAdminSession();
-  if (!session || (!session.isAdmin && !session.isVerificationTeam)) {
+  if (!session || !session.isAdmin) {
     return { success: false, error: "Unauthorized: Administrator credentials required." };
   }
 
@@ -784,11 +804,11 @@ export async function getFinalDeliberationDossier(
       .eq("application_id", applicationId)
       .maybeSingle();
 
-    // 3. Fetch dynamic questionnaire questions and answers
-    const [qRes, aRes] = await Promise.all([
+    // 3. Fetch dynamic questionnaire questions, option labels and answers
+    const [qRes, aRes, oRes] = await Promise.all([
       adminClient
         .from("category_questions")
-        .select("id, question_key, question_text, help_text, display_order")
+        .select("id, question_key, question_text, help_text, field_type, display_order")
         .eq("category_id", app.category_id)
         .eq("is_active", true)
         .order("display_order"),
@@ -796,12 +816,23 @@ export async function getFinalDeliberationDossier(
         .from("application_answers")
         .select("question_id, answer_text, answer_number, answer_json")
         .eq("application_id", applicationId),
+      adminClient
+        .from("question_options")
+        .select("question_id, label, value, display_order")
+        .eq("is_active", true)
+        .order("display_order"),
     ]);
 
-    const answersMap = new Map<string, any>();
+    const optionsByQuestion = new Map<string, AnswerOption[]>();
+    ((oRes.data || []) as any[]).forEach((o) => {
+      const list = optionsByQuestion.get(o.question_id) || [];
+      list.push({ label: o.label, value: o.value });
+      optionsByQuestion.set(o.question_id, list);
+    });
+
+    const answersMap = new Map<string, { text: string | null; number: number | null; json: unknown }>();
     ((aRes.data || []) as any[]).forEach((a) => {
-      const val = a.answer_text ?? a.answer_number ?? a.answer_json ?? "";
-      answersMap.set(a.question_id, val);
+      answersMap.set(a.question_id, { text: a.answer_text, number: a.answer_number, json: a.answer_json });
     });
 
     const dynamicQuestions = (qRes.data || []).map((q) => ({
@@ -809,11 +840,9 @@ export async function getFinalDeliberationDossier(
       questionKey: q.question_key,
       questionText: q.question_text,
       helpText: q.help_text || undefined,
-      answer: answersMap.has(q.id)
-        ? typeof answersMap.get(q.id) === "object"
-          ? JSON.stringify(answersMap.get(q.id))
-          : String(answersMap.get(q.id))
-        : "Not answered",
+      answer:
+        formatAnswerAsString(q.field_type, optionsByQuestion.get(q.id) || [], answersMap.get(q.id)) ||
+        NOT_PROVIDED_LABEL,
     }));
 
     // 4. Fetch uploaded media files and generate signed URLs
@@ -827,7 +856,7 @@ export async function getFinalDeliberationDossier(
         let signedUrl: string | undefined;
         if (f.storage_path) {
           const { data: signed } = await adminClient.storage
-            .from("nomination-files")
+            .from("application-files")
             .createSignedUrl(f.storage_path, 3600);
           signedUrl = signed?.signedUrl;
         }

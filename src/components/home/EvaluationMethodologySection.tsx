@@ -70,7 +70,7 @@ export function EvaluationMethodologySection() {
               How Winners Are Chosen
             </h2>
             <p className="text-sm sm:text-base text-[#4A4F5C] font-sans leading-relaxed">
-              Every qualifying nomination undergoes rigorous and confidential evaluation by an independent expert jury across five approved evaluation criteria to ensure an impartial and holistic assessment.
+              Every qualifying nomination undergoes rigorous jury evaluation by an independent expert panel across five approved criteria to ensure an impartial and holistic assessment.
             </p>
           </div>
 

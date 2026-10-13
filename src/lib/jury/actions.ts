@@ -5,6 +5,7 @@ import { createAdminClient } from "@/lib/supabase/admin";
 import { getAdminSession } from "@/lib/admin/auth";
 import { getJurySession } from "@/lib/jury/auth";
 import { sendNotification, notifyAdmins } from "@/lib/notifications/notification-service";
+import { isRetiredCategory } from "@/lib/utils";
 import type {
   JuryMemberItem,
   JuryAssignmentItem,
@@ -54,8 +55,8 @@ export async function getAdminJuryOverview(): Promise<{
   }>;
 }> {
   const session = await getAdminSession();
-  if (!session) {
-    return { success: false, error: "Unauthorized: Admin privileges required." };
+  if (!session || !session.isAdmin) {
+    return { success: false, error: "Unauthorized: Management privileges required." };
   }
 
   const adminClient = createAdminClient();
@@ -160,7 +161,8 @@ export async function getAdminJuryOverview(): Promise<{
           id,
           code,
           name,
-          slug
+          slug,
+          is_active
         )
       `)
       .in("status", ["eligible", "jury_review"])
@@ -251,18 +253,23 @@ export async function getAdminJuryOverview(): Promise<{
       };
     });
 
-    // Format eligible applications
-    const eligibleApplications = (rawEligible || []).map((app: any) => {
-      const cat = Array.isArray(app.categories) ? app.categories[0] : app.categories;
-      return {
-        id: app.id,
-        nominationId: app.nomination_id,
-        projectName: app.project_name || "Untitled Project",
-        projectCity: app.project_city || "Kutch",
-        status: app.status,
-        category: cat ? { id: cat.id, code: cat.code, name: cat.name, slug: cat.slug } : null,
-      };
-    });
+    // Format eligible applications (only include applications from active categories)
+    const eligibleApplications = (rawEligible || [])
+      .filter((app: any) => {
+        const cat = Array.isArray(app.categories) ? app.categories[0] : app.categories;
+        return cat && cat.is_active !== false;
+      })
+      .map((app: any) => {
+        const cat = Array.isArray(app.categories) ? app.categories[0] : app.categories;
+        return {
+          id: app.id,
+          nominationId: app.nomination_id,
+          projectName: app.project_name || "Untitled Project",
+          projectCity: app.project_city || "Kutch",
+          status: app.status,
+          category: cat ? { id: cat.id, code: cat.code, name: cat.name, slug: cat.slug } : null,
+        };
+      });
 
     // Aggregate summary stats
     const totalJuryMembers = juryMembers.length;
@@ -309,7 +316,7 @@ export async function createJuryMember(data: {
   isPublic?: boolean;
 }): Promise<{ success: boolean; error?: string; juryProfileId?: string }> {
   const session = await getAdminSession();
-  if (!session) {
+  if (!session || !session.isAdmin) {
     return { success: false, error: "Unauthorized: Admin privileges required." };
   }
 
@@ -435,7 +442,7 @@ export async function updateJuryMember(
   }
 ): Promise<{ success: boolean; error?: string }> {
   const session = await getAdminSession();
-  if (!session) {
+  if (!session || !session.isAdmin) {
     return { success: false, error: "Unauthorized: Admin privileges required." };
   }
 
@@ -503,7 +510,7 @@ export async function toggleJuryMemberStatus(
   isActive: boolean
 ): Promise<{ success: boolean; error?: string }> {
   const session = await getAdminSession();
-  if (!session) {
+  if (!session || !session.isAdmin) {
     return { success: false, error: "Unauthorized: Admin privileges required." };
   }
 
@@ -544,7 +551,7 @@ export async function assignApplicationToJury(
   juryProfileId: string
 ): Promise<{ success: boolean; error?: string }> {
   const session = await getAdminSession();
-  if (!session) {
+  if (!session || !session.isAdmin) {
     return { success: false, error: "Unauthorized: Admin privileges required." };
   }
 
@@ -554,7 +561,7 @@ export async function assignApplicationToJury(
     // 1. Verify application eligibility
     const { data: app, error: appErr } = await adminClient
       .from("applications")
-      .select("id, nomination_id, status, edition_id, project_name, categories(name)")
+      .select("id, nomination_id, status, edition_id, project_name, category_id")
       .eq("id", applicationId)
       .single();
 
@@ -566,6 +573,20 @@ export async function assignApplicationToJury(
       return {
         success: false,
         error: `Only applications with status 'eligible' or 'jury_review' can be assigned to jurors (current: ${app.status}).`,
+      };
+    }
+
+    // Verify application category is active
+    const { data: catCheck } = await adminClient
+      .from("categories")
+      .select("id, name, is_active")
+      .eq("id", app.category_id)
+      .maybeSingle();
+
+    if (catCheck && (catCheck.is_active === false || isRetiredCategory(catCheck.id))) {
+      return {
+        success: false,
+        error: "Action Blocked: Cannot assign applications belonging to an inactive award category.",
       };
     }
 
@@ -657,7 +678,7 @@ export async function assignApplicationToJury(
         nominationId: app.nomination_id,
         data: {
           projectName: app.project_name,
-          categoryName: (app.categories as any)?.name,
+          categoryName: catCheck?.name || "",
         },
         idempotencyKey: `jury_assigned:${applicationId}:${juryProfileId}`,
         channels: ["email", "in_app"],
@@ -680,7 +701,7 @@ export async function removeJuryAssignment(
   assignmentId: string
 ): Promise<{ success: boolean; error?: string }> {
   const session = await getAdminSession();
-  if (!session) {
+  if (!session || !session.isAdmin) {
     return { success: false, error: "Unauthorized: Admin privileges required." };
   }
 
@@ -731,7 +752,7 @@ export async function reopenJuryEvaluation(
   reason: string
 ): Promise<{ success: boolean; error?: string }> {
   const session = await getAdminSession();
-  if (!session) {
+  if (!session || !session.isAdmin) {
     return { success: false, error: "Unauthorized: Admin privileges required." };
   }
 
@@ -1084,22 +1105,31 @@ export async function getJuryApplicationDossier(
 
     const cat = Array.isArray(app.categories) ? app.categories[0] : app.categories;
 
-    // 3. Fetch dynamic questions and answers
-    const [questionsRes, answersRes, filesRes, criteriaRes, evalRes] = await Promise.all([
+    // 3. Fetch dynamic questions, applicant answers, option labels, files, criteria and evaluation.
+    // NOTE: only columns that exist in the schema may be selected. `application_answers` stores
+    // answer_text / answer_number / answer_json (no answer_date / answer_boolean) and
+    // `application_files` uses original_filename / storage_path / caption.
+    const [questionsRes, answersRes, optionsRes, filesRes, criteriaRes, evalRes] = await Promise.all([
       adminClient
         .from("category_questions")
-        .select("id, question_key, question_text, help_text, field_type, display_order")
+        .select("id, question_key, question_text, help_text, field_type, is_required, display_order")
         .eq("category_id", app.category_id)
         .eq("is_active", true)
         .order("display_order"),
       adminClient
         .from("application_answers")
-        .select("question_id, answer_text, answer_json, answer_number, answer_date, answer_boolean, category_questions(question_key)")
+        .select("question_id, answer_text, answer_number, answer_json")
         .eq("application_id", applicationId),
       adminClient
+        .from("question_options")
+        .select("question_id, label, value, display_order")
+        .eq("is_active", true)
+        .order("display_order"),
+      adminClient
         .from("application_files")
-        .select("id, upload_type, title, description, file_path, file_name, file_size_bytes, mime_type")
-        .eq("application_id", applicationId),
+        .select("id, upload_type, caption, original_filename, storage_path, file_size_bytes, mime_type, display_order")
+        .eq("application_id", applicationId)
+        .order("display_order"),
       adminClient
         .from("scoring_criteria")
         .select("id, code, title, description, weight_percentage, max_score, display_order, is_active")
@@ -1131,38 +1161,58 @@ export async function getJuryApplicationDossier(
         .maybeSingle(),
     ]);
 
-    // Map answers by question_key
+    // Never report an answer as missing because a query failed: surface the failure instead.
+    if (questionsRes.error || answersRes.error || optionsRes.error || filesRes.error) {
+      const failure = questionsRes.error || answersRes.error || optionsRes.error || filesRes.error;
+      console.error("Jury dossier data query failed:", failure);
+      return {
+        success: false,
+        error: "The nomination details could not be loaded right now. Please refresh the page or try again shortly.",
+      };
+    }
+
+    // Option labels by question
+    const optionsByQuestion = new Map<string, Array<{ label: string; value: string }>>();
+    (optionsRes.data || []).forEach((o: any) => {
+      const list = optionsByQuestion.get(o.question_id) || [];
+      list.push({ label: o.label, value: o.value });
+      optionsByQuestion.set(o.question_id, list);
+    });
+
+    // Raw answers by question id (read-only for jurors) + legacy key map
+    const answerValues: Record<string, { text: string | null; number: number | null; json: unknown }> = {};
+    const questionKeyById = new Map<string, string>();
+    (questionsRes.data || []).forEach((q: any) => questionKeyById.set(q.id, q.question_key));
     const answerMap: Record<string, any> = {};
     (answersRes.data || []).forEach((ans: any) => {
-      const qKey = ans.category_questions?.question_key;
+      answerValues[ans.question_id] = {
+        text: ans.answer_text ?? null,
+        number: ans.answer_number !== null && ans.answer_number !== undefined ? Number(ans.answer_number) : null,
+        json: ans.answer_json ?? null,
+      };
+      const qKey = questionKeyById.get(ans.question_id);
       if (qKey) {
-        answerMap[qKey] =
-          ans.answer_text ??
-          ans.answer_number ??
-          ans.answer_date ??
-          ans.answer_boolean ??
-          ans.answer_json ??
-          "";
+        answerMap[qKey] = ans.answer_text ?? ans.answer_number ?? ans.answer_json ?? "";
       }
     });
 
-    // Generate signed URLs for uploaded files
+    // Generate signed URLs for uploaded files (private bucket)
     const filesWithUrls = await Promise.all(
       (filesRes.data || []).map(async (f: any) => {
         let signedUrl: string | null = null;
-        if (f.file_path) {
+        if (f.storage_path) {
           const { data: urlData } = await adminClient.storage
             .from("application-files")
-            .createSignedUrl(f.file_path, 3600); // 1 hour valid
+            .createSignedUrl(f.storage_path, 3600); // 1 hour valid
           signedUrl = urlData?.signedUrl || null;
         }
         return {
           id: f.id,
           uploadType: f.upload_type,
-          title: f.title || f.file_name,
-          description: f.description,
-          filePath: f.file_path,
-          fileName: f.file_name,
+          title: f.caption || f.original_filename,
+          description: f.caption,
+          filePath: f.storage_path,
+          fileName: f.original_filename,
           signedUrl,
           fileSizeBytes: f.file_size_bytes,
           mimeType: f.mime_type,
@@ -1265,9 +1315,12 @@ export async function getJuryApplicationDossier(
         questionText: q.question_text,
         helpText: q.help_text,
         fieldType: q.field_type,
+        isRequired: Boolean(q.is_required),
+        options: optionsByQuestion.get(q.id) || [],
         displayOrder: q.display_order,
       })),
       answers: answerMap,
+      answerValues,
       files: filesWithUrls,
       criteria,
       evaluation: existingEvaluation,

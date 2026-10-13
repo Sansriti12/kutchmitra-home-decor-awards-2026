@@ -27,7 +27,7 @@ import {
   Save,
   Trophy,
 } from "lucide-react";
-import { cn, formatDeterministicDate, formatDeterministicNumber } from "@/lib/utils";
+import { cn, formatDeterministicDate, formatDeterministicNumber, getCategoryDisplayNumber } from "@/lib/utils";
 import { updateDeliberationNotes, addToShortlist, removeFromShortlist } from "@/lib/admin/shortlist-actions";
 import { selectWinner, removeWinner } from "@/lib/admin/winner-actions";
 import type {
@@ -75,9 +75,9 @@ export default function AdminDeliberationClient({
     startTransition(async () => {
       const res = await updateDeliberationNotes(application.id, deliberationNotes);
       if (res.success) {
-        setFeedback({ type: "success", text: "Committee deliberation notes saved successfully." });
+        setFeedback({ type: "success", text: "Committee review notes saved successfully." });
       } else {
-        setFeedback({ type: "error", text: res.error || "Failed to save deliberation notes." });
+        setFeedback({ type: "error", text: res.error || "Failed to save review notes." });
       }
     });
   };
@@ -98,11 +98,11 @@ export default function AdminDeliberationClient({
         setShowWinnerModal(false);
         setFeedback({
           type: "success",
-          text: `Entry successfully designated as ${awardTitle}! Profile initialized in Winner Management.`,
+          text: `Entry selected as ${awardTitle}! Profile created in Winners Showcase.`,
         });
         router.refresh();
       } else {
-        setFeedback({ type: "error", text: res.error || "Failed to designate winner." });
+        setFeedback({ type: "error", text: res.error || "Failed to select winner." });
       }
     });
   };
@@ -142,11 +142,11 @@ export default function AdminDeliberationClient({
             <span className="text-gold-400 font-bold">{application.nominationId}</span>
           </div>
           <h1 className="font-display text-2xl sm:text-3xl text-white font-medium">
-            Final Deliberation Dossier
+            Final Application Review
           </h1>
           <div className="flex items-center gap-3 text-xs font-mono text-slate-400 pt-0.5">
             <span className="text-gold-400 font-semibold">
-              Category {application.category.code} // {application.category.name}
+              Category {getCategoryDisplayNumber(application.category.code)} // {application.category.name}
             </span>
           </div>
         </div>
@@ -156,7 +156,7 @@ export default function AdminDeliberationClient({
           {winnerRecord ? (
             <div className="inline-flex items-center gap-2 px-3 py-1.5 bg-amber-950 border border-amber-500/50 text-amber-300 font-mono text-xs font-bold uppercase">
               <Trophy size={13} />
-              <span>Designated: {winnerRecord.awardTitle}</span>
+              <span>Selected: {winnerRecord.awardTitle}</span>
             </div>
           ) : (
             <button
@@ -166,7 +166,7 @@ export default function AdminDeliberationClient({
               className="inline-flex items-center gap-1.5 px-4 py-2 bg-gold-500 hover:bg-gold-400 text-navy-950 font-mono text-xs font-bold uppercase tracking-wider transition-colors shadow-sm disabled:opacity-50"
             >
               <Trophy size={13} />
-              <span>Designate Winner / Runner-Up</span>
+              <span>Select Winner / Runner-Up</span>
             </button>
           )}
 
@@ -245,7 +245,7 @@ export default function AdminDeliberationClient({
           )}
         >
           <Scale size={14} />
-          <span>1. Jury Evaluation &amp; Synthesis ({evaluations.length} Jurors)</span>
+          <span>1. Jury Review &amp; Summary ({evaluations.length} Jurors)</span>
         </button>
 
         <button
@@ -259,7 +259,7 @@ export default function AdminDeliberationClient({
           )}
         >
           <FileText size={14} />
-          <span>2. Project Dossier &amp; Evidence ({files.length} Files)</span>
+          <span>2. Application Details &amp; Documents ({files.length} Files)</span>
         </button>
 
         <button
@@ -273,7 +273,7 @@ export default function AdminDeliberationClient({
           )}
         >
           <Trophy size={14} />
-          <span>3. Deliberation Notes &amp; Winner Designation</span>
+          <span>3. Review Notes &amp; Winner Selection</span>
         </button>
       </div>
 
@@ -285,7 +285,7 @@ export default function AdminDeliberationClient({
             <div className="flex items-center justify-between pb-3 border-b border-white/10">
               <h3 className="font-display text-lg text-white font-medium flex items-center gap-2">
                 <Sparkles size={16} className="text-gold-400" />
-                <span>Qualitative Recommendation Synthesis</span>
+                <span>Jury Recommendation Summary</span>
               </h3>
               <span className="text-xs font-mono text-slate-400">
                 {synthesis.totalEvaluations} Submitted Evaluations
@@ -373,7 +373,7 @@ export default function AdminDeliberationClient({
           {/* Individual Juror Submissions Cards */}
           <div className="space-y-4">
             <h3 className="font-display text-lg text-white font-medium">
-              Individual Confidential Juror Assessments ({evaluations.length})
+              Individual Jury Evaluations ({evaluations.length})
             </h3>
 
             {evaluations.map((j) => (
@@ -476,7 +476,8 @@ export default function AdminDeliberationClient({
                 <FileCheck size={16} className="text-gold-400" />
                 <span>Category Architectural Questionnaire</span>
               </h3>
-              <span className="text-xs font-mono text-slate-400">
+              <span className="text-xs font-mono text-slate-300">
+                {dynamicQuestions.filter((q) => q.answer !== "Not provided").length} of{" "}
                 {dynamicQuestions.length} Questions Answered
               </span>
             </div>
@@ -484,13 +485,17 @@ export default function AdminDeliberationClient({
             <div className="divide-y divide-white/5">
               {dynamicQuestions.map((q, idx) => (
                 <div key={q.id} className="py-4 space-y-1.5">
-                  <span className="text-[10px] font-mono text-gold-400 font-bold uppercase">
+                  <span className="text-xs font-mono text-gold-400 font-bold uppercase">
                     QUESTION {idx + 1}
                   </span>
                   <div className="text-sm font-medium text-white">{q.questionText}</div>
                   {q.helpText && <div className="text-xs text-slate-400 italic">{q.helpText}</div>}
-                  <div className="mt-2 p-3 bg-navy-950 border border-white/10 text-xs text-slate-200 whitespace-pre-wrap leading-relaxed">
-                    {q.answer}
+                  <div className="mt-2 p-3 bg-navy-950 border border-white/10 text-sm text-slate-200 whitespace-pre-wrap leading-relaxed">
+                    {q.answer === "Not provided" ? (
+                      <span className="text-slate-400 italic">Not provided</span>
+                    ) : (
+                      q.answer
+                    )}
                   </div>
                 </div>
               ))}
@@ -624,7 +629,7 @@ export default function AdminDeliberationClient({
             <div className="flex items-center justify-between pb-3 border-b border-white/10">
               <h3 className="font-display text-lg text-white font-medium flex items-center gap-2">
                 <FileText size={16} className="text-gold-400" />
-                <span>Committee Deliberation Record &amp; Final Assessment</span>
+                <span>Committee Review Notes &amp; Final Decision</span>
               </h3>
               <button
                 type="button"
@@ -639,7 +644,7 @@ export default function AdminDeliberationClient({
 
             <div className="space-y-1.5">
               <label className="block text-xs font-mono text-slate-300 uppercase tracking-wider">
-                Confidential Deliberation Notes
+                Committee Review Notes
               </label>
               <textarea
                 rows={6}
@@ -660,7 +665,7 @@ export default function AdminDeliberationClient({
             <div className="flex items-center justify-between pb-3 border-b border-white/10">
               <h3 className="font-display text-lg text-white font-medium flex items-center gap-2">
                 <Trophy size={18} className="text-gold-400" />
-                <span>Designate Category Award Winner</span>
+                <span>Select Category Award Winner</span>
               </h3>
               <button
                 type="button"
@@ -674,7 +679,7 @@ export default function AdminDeliberationClient({
             <div className="space-y-1 text-xs font-mono text-slate-300 bg-navy-900/80 p-3 border border-white/5">
               <div>Nomination ID: <strong className="text-gold-400">{application.nominationId}</strong></div>
               <div>Project: <strong className="text-white">{application.projectName}</strong></div>
-              <div>Category: <span className="text-slate-300">Cat {application.category.code} // {application.category.name}</span></div>
+              <div>Category: <span className="text-slate-300">Cat {getCategoryDisplayNumber(application.category.code)} // {application.category.name}</span></div>
             </div>
 
             <form onSubmit={handleDesignateWinner} className="space-y-4 text-xs font-sans">
@@ -756,7 +761,7 @@ export default function AdminDeliberationClient({
                   disabled={isPending}
                   className="px-5 py-2 bg-gold-500 hover:bg-gold-400 text-navy-950 text-xs font-mono font-bold uppercase disabled:opacity-50"
                 >
-                  {isPending ? "Designating..." : "Confirm Designation"}
+                  {isPending ? "Saving..." : "Confirm Selection"}
                 </button>
               </div>
             </form>

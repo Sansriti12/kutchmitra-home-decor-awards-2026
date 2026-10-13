@@ -280,7 +280,7 @@ export default function Step7Declaration({
           size="md"
           icon={<ArrowLeft size={14} />}
         >
-          Previous: Review Dossier
+          Previous: Application Preview
         </Button>
 
         {isConfigurationPending ? (

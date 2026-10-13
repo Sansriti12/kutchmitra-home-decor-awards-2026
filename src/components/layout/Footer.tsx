@@ -25,17 +25,18 @@ const PORTAL_LINKS = [
 const CATEGORIES_SAMPLE = [
   "Architect of the Year",
   "Best Luxury Residence",
-  "Best Apartment Design",
   "Best Renovation Project",
   "Best Sustainable Home",
-  "Ultra-Luxury Residential",
   "Interior Designer of the Year",
   "Emerging Designer",
   "Best Compact Home",
   "Best Smart Home",
   "Best Themed Project",
   "Luxury Villa Project",
-  "Best Contractor of the Year",
+  "Best Developer of the Year",
+  "Best Organised Township",
+  "Best Office Design",
+  "Best Commercial Building",
 ];
 
 export function Footer() {
@@ -145,7 +146,7 @@ export function Footer() {
           <div className="lg:col-span-2 space-y-2">
             <div className="flex items-center justify-between">
               <h4 className="font-mono text-[11px] uppercase tracking-wider text-white font-semibold">
-                13 Categories
+                14 Categories
               </h4>
               <Link
                 href="/categories"

@@ -16,7 +16,8 @@ import {
   Sparkles,
 } from "lucide-react";
 import { Button } from "@/components/ui/Button";
-import { formatDeterministicDate } from "@/lib/utils";
+import { formatDeterministicDate, getCategoryDisplayNumber } from "@/lib/utils";
+import { formatAnswer, NOT_PROVIDED_LABEL } from "@/lib/nominations/answer-format";
 import type { EntrantDetailsData } from "./Step1EntrantDetails";
 import type { CategoryOption } from "./Step2Category";
 import type { ProjectDetailsData } from "./Step3ProjectDetails";
@@ -71,11 +72,11 @@ export default function Step6Preview({
           </span>
           <span className="text-slate-400 font-mono text-xs">/</span>
           <span className="text-xs font-mono uppercase tracking-wider text-slate-500 font-medium">
-            Dossier Review
+            Application Preview
           </span>
         </div>
         <h2 className="font-display text-2xl sm:text-3xl lg:text-4xl text-navy-900 font-medium tracking-tight">
-          Complete Nomination Dossier Preview
+          Complete Application Preview
         </h2>
         <p className="text-sm text-[#4A4F5C] leading-relaxed max-w-2xl">
           Carefully review all entrant credentials, category rules, project data, and attached documentation.
@@ -106,14 +107,14 @@ export default function Step6Preview({
               {nominationId}
             </span>
             <span className="text-[10px] font-mono uppercase tracking-wider text-amber-800 bg-amber-50 px-2.5 py-1 border border-amber-200/80 font-semibold shadow-2xs">
-              Draft Dossier Review
+              Draft Application Preview
             </span>
           </div>
           <h3 className="font-display text-2xl sm:text-3xl text-navy-900 font-bold tracking-tight pt-1">
             {project.projectName || "Untitled Project Entry"}
           </h3>
           <p className="text-xs text-[#4A4F5C] font-mono">
-            #{category.code} — {category.name}
+            #{getCategoryDisplayNumber(category.code)} — {category.name}
           </p>
         </div>
 
@@ -207,7 +208,7 @@ export default function Step6Preview({
         <div className="space-y-2 text-xs bg-white p-4 border border-navy-900/5 shadow-2xs">
           <div className="flex items-center gap-2.5">
             <span className="font-mono text-[10px] font-bold uppercase tracking-wider text-navy-900 bg-navy-900/5 px-2.5 py-0.5 border border-navy-900/10">
-              Category #{category.code}
+              Category #{getCategoryDisplayNumber(category.code)}
             </span>
             <span className="font-display text-lg text-navy-900 font-bold">
               {category.name}
@@ -291,22 +292,23 @@ export default function Step6Preview({
 
         {questions.length === 0 ? (
           <div className="p-4 bg-white border border-dashed border-navy-900/15 text-xs text-slate-500 italic">
-            No dynamic category criteria questions were configured for #{category.code} — {category.name}. (Official questionnaire configuration pending committee release).
+            No dynamic category criteria questions were configured for #{getCategoryDisplayNumber(category.code)} — {category.name}. (Official questionnaire configuration pending committee release).
           </div>
         ) : (
           <div className="space-y-3.5 text-xs">
             {questions.map((q) => {
               const ans = answersMap.get(q.id);
-              const displayVal =
-                ans?.text ||
-                (ans?.number !== undefined && ans.number !== null ? String(ans.number) : null) ||
-                (Array.isArray(ans?.json) ? ans.json.join(", ") : null);
+              const formatted = formatAnswer(q.field_type, q.options || [], ans);
 
               return (
                 <div key={q.id} className="space-y-1 p-3 bg-white border border-navy-900/5 shadow-2xs">
                   <span className="font-medium text-navy-900 block text-xs">{q.question_text}</span>
-                  <div className="text-slate-700 font-mono text-xs pt-0.5">
-                    {displayVal || <span className="text-slate-400 italic font-sans">No answer provided</span>}
+                  <div className="text-slate-700 font-mono text-xs pt-0.5 whitespace-pre-wrap">
+                    {formatted.kind === "text" && formatted.text}
+                    {formatted.kind === "list" && formatted.items.join(", ")}
+                    {formatted.kind === "empty" && (
+                      <span className="text-slate-400 italic font-sans">{NOT_PROVIDED_LABEL}</span>
+                    )}
                   </div>
                 </div>
               );

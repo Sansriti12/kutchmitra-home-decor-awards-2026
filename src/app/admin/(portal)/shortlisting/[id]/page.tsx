@@ -17,8 +17,8 @@ export const dynamic = "force-dynamic";
 
 export async function generateMetadata({ params }: PageProps): Promise<Metadata> {
   return {
-    title: "Final Deliberation Dossier | Admin Portal | Kutchmitra Awards 2026",
-    description: "Confidential committee review, jury evaluation synthesis, and winner selection.",
+    title: "Final Application Review | Admin Portal | Kutchmitra Awards 2026",
+    description: "Committee review, jury evaluation summary, and winner selection.",
   };
 }
 
@@ -36,9 +36,9 @@ export default async function AdminDeliberationPage({ params }: PageProps) {
         <div className="w-12 h-12 bg-red-950/80 border border-red-500/40 text-red-400 flex items-center justify-center mx-auto">
           <ShieldAlert size={24} />
         </div>
-        <h2 className="text-xl font-display text-white">Deliberation Dossier Not Found</h2>
+        <h2 className="text-xl font-display text-white">Application Review Not Found</h2>
         <p className="text-xs font-mono text-slate-400">
-          {result.error || "The requested nomination could not be retrieved for final deliberation."}
+          {result.error || "The requested nomination could not be retrieved for final review."}
         </p>
         <div className="pt-2">
           <Link

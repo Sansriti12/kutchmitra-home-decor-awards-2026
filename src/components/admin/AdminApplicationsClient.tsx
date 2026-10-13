@@ -27,7 +27,7 @@ import {
   ShieldCheck,
   ExternalLink,
 } from "lucide-react";
-import { cn } from "@/lib/utils";
+import { cn, getCategoryDisplayNumber } from "@/lib/utils";
 import type {
   AdminApplicationSummaryItem,
   StatusCounts,
@@ -109,7 +109,7 @@ const STATUS_CONFIG: Record<
     dot: "bg-purple-400",
   },
   winner: {
-    label: "Winner / Laureate",
+    label: "Winner",
     text: "text-gold-200",
     bg: "bg-gold-900/60",
     border: "border-gold-400/50",
@@ -237,18 +237,15 @@ export default function AdminApplicationsClient({
       <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4 pb-4 border-b border-white/10">
         <div>
           <div className="flex items-center gap-2 mb-1">
-            <span className="text-[10px] font-mono uppercase tracking-[0.2em] text-gold-400 font-semibold">
-              Nomination Governance
-            </span>
-            <span className="text-[9px] font-mono px-1.5 py-0.2 bg-gold-500/20 text-gold-300 border border-gold-500/30 uppercase">
-              Phase C Live
+            <span className="text-[10px] font-mono px-1.5 py-0.5 bg-gold-500/10 text-gold-400 border border-gold-500/30 uppercase font-semibold">
+              Applications Registry
             </span>
           </div>
           <h1 className="font-display text-2xl sm:text-3xl text-white font-medium tracking-tight">
-            Applications &amp; Desk Audit
+            Applications &amp; Review
           </h1>
           <p className="text-xs text-slate-400 font-sans mt-0.5">
-            Comprehensive registry of all submitted and drafted entries across all 13 official categories.
+            Comprehensive registry of all submitted and drafted entries across all 14 official categories.
           </p>
         </div>
 
@@ -280,7 +277,7 @@ export default function AdminApplicationsClient({
         >
           <div className="text-[10px] font-mono uppercase tracking-wider text-slate-400">Total</div>
           <div className="text-2xl font-mono font-bold text-white mt-1">{statusCounts.total}</div>
-          <div className="text-[9px] text-slate-500 mt-0.5">All entries</div>
+          <div className="text-[11px] text-slate-500 mt-0.5">All entries</div>
         </button>
 
         {/* Submitted */}
@@ -298,7 +295,7 @@ export default function AdminApplicationsClient({
         >
           <div className="text-[10px] font-mono uppercase tracking-wider text-blue-400">Submitted</div>
           <div className="text-2xl font-mono font-bold text-blue-300 mt-1">{statusCounts.submitted}</div>
-          <div className="text-[9px] text-slate-500 mt-0.5">Awaiting audit</div>
+          <div className="text-[11px] text-slate-500 mt-0.5">Awaiting audit</div>
         </button>
 
         {/* Under Verification */}
@@ -316,7 +313,7 @@ export default function AdminApplicationsClient({
         >
           <div className="text-[10px] font-mono uppercase tracking-wider text-amber-400">Verifying</div>
           <div className="text-2xl font-mono font-bold text-amber-300 mt-1">{statusCounts.under_verification}</div>
-          <div className="text-[9px] text-slate-500 mt-0.5">In desk review</div>
+          <div className="text-[11px] text-slate-500 mt-0.5">In desk review</div>
         </button>
 
         {/* Clarification Required */}
@@ -334,7 +331,7 @@ export default function AdminApplicationsClient({
         >
           <div className="text-[10px] font-mono uppercase tracking-wider text-orange-400">Clarify</div>
           <div className="text-2xl font-mono font-bold text-orange-300 mt-1">{statusCounts.clarification_required}</div>
-          <div className="text-[9px] text-slate-500 mt-0.5">Applicant action</div>
+          <div className="text-[11px] text-slate-500 mt-0.5">Applicant action</div>
         </button>
 
         {/* Eligible */}
@@ -352,7 +349,7 @@ export default function AdminApplicationsClient({
         >
           <div className="text-[10px] font-mono uppercase tracking-wider text-emerald-400">Eligible</div>
           <div className="text-2xl font-mono font-bold text-emerald-300 mt-1">{statusCounts.eligible}</div>
-          <div className="text-[9px] text-slate-500 mt-0.5">Jury-ready</div>
+          <div className="text-[11px] text-slate-500 mt-0.5">Jury-ready</div>
         </button>
 
         {/* Jury Review */}
@@ -370,7 +367,7 @@ export default function AdminApplicationsClient({
         >
           <div className="text-[10px] font-mono uppercase tracking-wider text-gold-400">Jury</div>
           <div className="text-2xl font-mono font-bold text-gold-300 mt-1">{statusCounts.jury_review}</div>
-          <div className="text-[9px] text-slate-500 mt-0.5">Scoring active</div>
+          <div className="text-[11px] text-slate-500 mt-0.5">Scoring active</div>
         </button>
 
         {/* Shortlisted */}
@@ -388,7 +385,7 @@ export default function AdminApplicationsClient({
         >
           <div className="text-[10px] font-mono uppercase tracking-wider text-purple-400">Shortlisted</div>
           <div className="text-2xl font-mono font-bold text-purple-300 mt-1">{statusCounts.shortlisted}</div>
-          <div className="text-[9px] text-slate-500 mt-0.5">Finalists</div>
+          <div className="text-[11px] text-slate-500 mt-0.5">Finalists</div>
         </button>
 
         {/* Drafts */}
@@ -406,7 +403,7 @@ export default function AdminApplicationsClient({
         >
           <div className="text-[10px] font-mono uppercase tracking-wider text-slate-400">Drafts</div>
           <div className="text-2xl font-mono font-bold text-slate-300 mt-1">{statusCounts.draft}</div>
-          <div className="text-[9px] text-slate-500 mt-0.5">Unsubmitted</div>
+          <div className="text-[11px] text-slate-500 mt-0.5">Unsubmitted</div>
         </button>
       </div>
 
@@ -445,10 +442,10 @@ export default function AdminApplicationsClient({
               aria-label="Filter by category"
               className="bg-navy-950/80 border border-white/10 px-3 py-2 text-xs text-slate-200 focus:outline-none focus:border-gold-500 transition-colors appearance-none pr-8 cursor-pointer"
             >
-              <option value="all">All 13 Categories</option>
+              <option value="all">All Categories ({categories.length})</option>
               {categories.map((c) => (
                 <option key={c.id} value={c.id}>
-                  {c.code}. {c.name}
+                  {getCategoryDisplayNumber(c.code)}. {c.name}
                 </option>
               ))}
             </select>
@@ -475,7 +472,7 @@ export default function AdminApplicationsClient({
               <option value="eligible">Eligible</option>
               <option value="jury_review">Jury Review</option>
               <option value="shortlisted">Shortlisted</option>
-              <option value="winner">Winner / Laureate</option>
+              <option value="winner">Winner</option>
               <option value="draft">Draft</option>
               <option value="rejected">Rejected</option>
               <option value="disqualified">Disqualified</option>
@@ -628,7 +625,7 @@ export default function AdminApplicationsClient({
                               {app.project_state ? `, ${app.project_state}` : ""}
                             </span>
                             {isKutch && (
-                              <span className="text-[9px] font-mono px-1 py-0.2 bg-emerald-950/80 text-emerald-400 border border-emerald-500/30 uppercase">
+                              <span className="text-[11px] font-mono px-1 py-0.2 bg-emerald-950/80 text-emerald-400 border border-emerald-500/30 uppercase">
                                 Kutch Sited
                               </span>
                             )}
@@ -642,7 +639,7 @@ export default function AdminApplicationsClient({
                           <div className="space-y-0.5">
                             <div className="flex items-center gap-1.5">
                               <span className="font-mono text-[10px] px-1 py-0.2 bg-gold-500/10 text-gold-400 border border-gold-500/30 font-semibold">
-                                #{app.category.code}
+                                #{getCategoryDisplayNumber(app.category.code)}
                               </span>
                               <span className="text-slate-200 line-clamp-1 font-medium">
                                 {app.category.name}
@@ -705,10 +702,10 @@ export default function AdminApplicationsClient({
                       <td className="p-3.5 align-middle text-right whitespace-nowrap">
                         <Link
                           href={`/admin/applications/${app.id}`}
-                          className="inline-flex items-center gap-1 px-3 py-1.5 text-xs font-mono font-medium text-gold-400 hover:text-navy-950 bg-gold-500/10 hover:bg-gold-500 border border-gold-500/30 transition-all duration-150"
+                          className="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-mono font-medium text-gold-400 hover:text-navy-950 bg-gold-500/10 hover:bg-gold-500 border border-gold-500/30 transition-all duration-150"
                         >
                           <Eye size={12} />
-                          <span>Review Dossier</span>
+                          <span>View Application</span>
                         </Link>
                       </td>
                     </tr>

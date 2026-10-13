@@ -17,8 +17,8 @@ export const dynamic = "force-dynamic";
 
 export async function generateMetadata({ params }: PageProps): Promise<Metadata> {
   return {
-    title: `Jury Evaluation Dossier | Kutchmitra Awards 2026`,
-    description: "Confidential architectural review and criteria evaluation.",
+    title: `Jury Evaluation | Kutchmitra Awards 2026`,
+    description: "Architectural review and criteria evaluation.",
   };
 }
 

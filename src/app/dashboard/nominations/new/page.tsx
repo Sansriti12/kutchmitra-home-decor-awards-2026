@@ -4,6 +4,7 @@ import { createClient } from "@/lib/supabase/server";
 import { ensureApplicantProfile } from "@/lib/auth/profile";
 import CategorySelectorClient from "@/components/nominations/CategorySelectorClient";
 import type { CategoryOption } from "@/components/nominations/Step2Category";
+import { getActiveCategories } from "@/lib/utils";
 
 export const dynamic = "force-dynamic";
 
@@ -21,17 +22,13 @@ export default async function NewNominationPage() {
   await ensureApplicantProfile(supabase, user);
 
   // Fetch active 2026 categories
-  const { data: categoriesData, error: catErr } = await supabase
+  const { data: categoriesData } = await supabase
     .from("categories")
     .select("id, code, name, slug, short_description, eligibility_criteria")
     .eq("is_active", true)
     .order("display_order");
 
-  if (catErr || !categoriesData) {
-    throw new Error("Unable to load award categories. Please try again later.");
-  }
-
-  const categories: CategoryOption[] = categoriesData.map((c) => ({
+  const categories: CategoryOption[] = getActiveCategories(categoriesData).map((c) => ({
     id: c.id,
     code: c.code,
     name: c.name,

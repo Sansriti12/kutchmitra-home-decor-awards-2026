@@ -77,3 +77,12 @@ export async function getAdminSession(): Promise<AdminUserSession | null> {
     return null;
   }
 }
+
+/**
+ * Checks whether the authenticated user has Manager or Super Admin level access.
+ * Strictly returns false for verification_team, jury members, applicants, or unauthenticated users.
+ */
+export function isManagementAuthorized(session: AdminUserSession | null): boolean {
+  return Boolean(session && session.isAdmin);
+}
+

@@ -27,7 +27,7 @@ import {
   Building,
   User,
 } from "lucide-react";
-import { cn } from "@/lib/utils";
+import { cn, getCategoryDisplayNumber } from "@/lib/utils";
 import {
   selectWinner,
   removeWinner,
@@ -171,13 +171,13 @@ export default function AdminWinnersClient({
       if (res.success) {
         setFeedback({
           type: "success",
-          text: `Designated ${designatingCandidate.nominationId} as ${designateAwardTitle}!`,
+          text: `Selected ${designatingCandidate.nominationId} as ${designateAwardTitle}!`,
         });
         setDesignatingCandidate(null);
         setDesignateCitation("");
         router.refresh();
       } else {
-        setFeedback({ type: "error", text: res.error || "Failed to designate winner." });
+        setFeedback({ type: "error", text: res.error || "Failed to select winner." });
       }
     });
   };
@@ -269,13 +269,13 @@ export default function AdminWinnersClient({
         <div>
           <div className="flex items-center gap-2 text-xs font-mono text-gold-400 uppercase tracking-wider mb-1">
             <Trophy size={14} />
-            <span>Phase E // Grand Finale Governance</span>
+            <span>Committee Review</span>
           </div>
           <h1 className="font-display text-2xl sm:text-3xl text-white font-medium">
             Winner Management &amp; Public Showcase
           </h1>
           <p className="text-xs font-mono text-slate-400 mt-1">
-            Designate category winners, curate public editorial profiles, and publish official results to the live website.
+            Select category winners, curate public profiles, and publish official results to the live website.
           </p>
         </div>
 
@@ -323,7 +323,7 @@ export default function AdminWinnersClient({
       <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-4">
         <div className="bg-navy-900/80 border border-white/10 p-4 space-y-1">
           <span className="text-[10px] font-mono text-slate-400 uppercase tracking-wider block">
-            Designated Honorees
+            Selected Winners
           </span>
           <div className="text-2xl font-mono font-bold text-white">{stats.totalWinners}</div>
           <span className="text-[10px] font-mono text-slate-500">Winners &amp; Commendations</span>
@@ -331,7 +331,7 @@ export default function AdminWinnersClient({
 
         <div className="bg-navy-900/80 border border-white/10 p-4 space-y-1">
           <span className="text-[10px] font-mono text-blue-400 uppercase tracking-wider block">
-            Approved Profiles
+            Winners Ready to Publish
           </span>
           <div className="text-2xl font-mono font-bold text-blue-300">{stats.totalApproved}</div>
           <span className="text-[10px] font-mono text-slate-500">Ready for Grand Release</span>
@@ -339,7 +339,7 @@ export default function AdminWinnersClient({
 
         <div className="bg-navy-900/80 border border-white/10 p-4 space-y-1">
           <span className="text-[10px] font-mono text-emerald-400 uppercase tracking-wider block">
-            Published Live
+            Published Winners
           </span>
           <div className="text-2xl font-mono font-bold text-emerald-300">{stats.totalPublished}</div>
           <span className="text-[10px] font-mono text-slate-500">Visible on Public /winners</span>
@@ -361,7 +361,7 @@ export default function AdminWinnersClient({
           </span>
           <div className="text-2xl font-mono font-bold text-amber-300">{stats.totalShortlisted}</div>
           <span className="text-[10px] font-mono text-slate-500">
-            {stats.availableFinalists} Available for Designation
+            {stats.availableFinalists} Available for Selection
           </span>
         </div>
       </div>
@@ -378,7 +378,7 @@ export default function AdminWinnersClient({
               : "bg-navy-900 text-slate-400 border-white/10 hover:text-white"
           )}
         >
-          All 13 Categories ({stats.totalWinners})
+          All Categories ({stats.totalWinners})
         </button>
 
         {categories.map((c) => {
@@ -397,7 +397,7 @@ export default function AdminWinnersClient({
                   : "bg-navy-900 text-slate-400 border-white/10 hover:text-white"
               )}
             >
-              <span>Cat {c.code}: {c.name}</span>
+              <span>Cat {getCategoryDisplayNumber(c.code)}: {c.name}</span>
               {catWinners.length > 0 && (
                 <span className={cn(
                   "px-1 py-0.2 rounded text-[10px] font-bold",
@@ -416,7 +416,7 @@ export default function AdminWinnersClient({
         <div className="flex items-center justify-between">
           <h2 className="font-display text-xl text-white font-medium flex items-center gap-2">
             <Trophy size={18} className="text-gold-400" />
-            <span>Designated Honorees ({displayWinners.length})</span>
+            <span>Selected Winners ({displayWinners.length})</span>
           </h2>
           <span className="text-xs font-mono text-slate-400">
             Gated publication: Entry only visible publicly when published
@@ -426,9 +426,9 @@ export default function AdminWinnersClient({
         {displayWinners.length === 0 ? (
           <div className="p-8 bg-navy-900/60 border border-white/10 text-center space-y-2">
             <Award size={32} className="mx-auto text-slate-600" />
-            <div className="text-sm font-display text-slate-300">No winners designated in this selection</div>
+            <div className="text-sm font-display text-slate-300">No winners selected in this category</div>
             <p className="text-xs font-mono text-slate-500 max-w-sm mx-auto">
-              Select a shortlisted finalist below or complete committee deliberation to designate winners.
+              Select a shortlisted finalist below or complete committee review to select winners.
             </p>
           </div>
         ) : (
@@ -446,7 +446,7 @@ export default function AdminWinnersClient({
                     {/* Header: Category & Publication Badge */}
                     <div className="flex items-center justify-between gap-2">
                       <span className="text-[10px] font-mono text-gold-400 uppercase tracking-wider font-bold">
-                        Cat {w.categoryCode} // {w.categoryName}
+                        Cat {getCategoryDisplayNumber(w.categoryCode)} // {w.categoryName}
                       </span>
 
                       <span
@@ -502,7 +502,7 @@ export default function AdminWinnersClient({
                         href={`/admin/shortlisting/${w.applicationId}`}
                         className="px-2.5 py-1 bg-navy-950 hover:bg-navy-800 text-slate-400 hover:text-white border border-white/5 uppercase"
                       >
-                        <span>Dossier</span>
+                        <span>Application Details</span>
                       </Link>
                     </div>
 
@@ -557,7 +557,7 @@ export default function AdminWinnersClient({
                           onClick={() => handleRevoke(w.id, w.awardTitle)}
                           disabled={isPending}
                           className="px-2 py-1 bg-red-950/80 hover:bg-red-900 text-red-300 border border-red-500/40 uppercase disabled:opacity-50"
-                          title="Revoke Winner Designation"
+                          title="Remove Selected Winner"
                         >
                           <Trash2 size={11} />
                         </button>
@@ -577,12 +577,12 @@ export default function AdminWinnersClient({
           <h2 className="font-display text-xl text-white font-medium flex items-center gap-2">
             <Award size={18} className="text-gold-400" />
             <span>
-              Shortlisted Finalists Available for Designation ({displayCandidates.length}
+              Shortlisted Finalists Available for Selection ({displayCandidates.length}
               {selectedCategory !== "all" ? " in Selected Category" : ""})
             </span>
           </h2>
           <p className="text-xs font-mono text-slate-400">
-            Select an officially shortlisted finalist below to designate as Winner, Runner-Up, or Special Commendation for its category.
+            Select an officially shortlisted finalist below as Winner, Runner-Up, or Special Commendation for its category.
           </p>
         </div>
 
@@ -606,7 +606,7 @@ export default function AdminWinnersClient({
                   <tr key={c.id} className="hover:bg-white/[0.02]">
                     <td className="py-3 px-4 space-y-0.5">
                       <span className="font-mono text-gold-400 font-bold block">{c.nominationId}</span>
-                      <span className="text-[10px] font-mono text-slate-400">Cat {c.categoryCode} // {c.categoryName}</span>
+                      <span className="text-[10px] font-mono text-slate-400">Cat {getCategoryDisplayNumber(c.categoryCode)} // {c.categoryName}</span>
                     </td>
                     <td className="py-3 px-4">
                       <div className="font-medium text-white">{c.projectName}</div>
@@ -621,7 +621,7 @@ export default function AdminWinnersClient({
                         href={`/admin/shortlisting/${c.id}`}
                         className="px-2.5 py-1 bg-navy-950 text-slate-300 border border-white/10 font-mono uppercase inline-block"
                       >
-                        Deliberation
+                        Review
                       </Link>
                       <button
                         type="button"
@@ -633,7 +633,7 @@ export default function AdminWinnersClient({
                         }}
                         className="px-3 py-1 bg-gold-500 hover:bg-gold-400 text-navy-950 font-mono font-bold uppercase transition-colors"
                       >
-                        + Designate Winner
+                        + Select Winner
                       </button>
                     </td>
                   </tr>
@@ -831,7 +831,7 @@ export default function AdminWinnersClient({
             <div className="flex items-center justify-between pb-3 border-b border-white/10">
               <h3 className="font-display text-lg text-white font-medium flex items-center gap-2">
                 <Trophy size={18} className="text-gold-400" />
-                <span>Designate Winner</span>
+                <span>Select Winner</span>
               </h3>
               <button
                 type="button"
@@ -845,7 +845,7 @@ export default function AdminWinnersClient({
             <div className="space-y-1 text-xs font-mono text-slate-300 bg-navy-900 p-3 border border-white/5">
               <div>Nomination ID: <strong className="text-gold-400">{designatingCandidate.nominationId}</strong></div>
               <div>Project: <strong className="text-white">{designatingCandidate.projectName}</strong></div>
-              <div>Category: <span className="text-slate-400">Cat {designatingCandidate.categoryCode}: {designatingCandidate.categoryName}</span></div>
+              <div>Category: <span className="text-slate-400">Cat {getCategoryDisplayNumber(designatingCandidate.categoryCode)}: {designatingCandidate.categoryName}</span></div>
             </div>
 
             <form onSubmit={handleDesignate} className="space-y-4 text-xs font-sans">
@@ -909,7 +909,7 @@ export default function AdminWinnersClient({
                   disabled={isPending}
                   className="px-5 py-2 bg-gold-500 hover:bg-gold-400 text-navy-950 text-xs font-mono font-bold uppercase disabled:opacity-50"
                 >
-                  {isPending ? "Confirming..." : "Confirm Designation"}
+                  {isPending ? "Confirming..." : "Confirm Selection"}
                 </button>
               </div>
             </form>
@@ -937,7 +937,7 @@ export default function AdminWinnersClient({
 
             <p className="text-xs text-slate-300 font-sans leading-relaxed">
               Are you sure you want to bulk publish all{" "}
-              <strong className="text-gold-400 font-mono">{stats.totalApproved} approved winners</strong> across all 13 categories to the public website?
+              <strong className="text-gold-400 font-mono">{stats.totalApproved} approved winners</strong> across all categories to the public website?
             </p>
 
             <div className="p-3 bg-emerald-950/70 border border-emerald-500/40 text-emerald-300 text-xs font-mono">

@@ -4,6 +4,7 @@ import { getAdminSession } from "@/lib/admin/auth";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { getAdminApplications } from "@/lib/admin/actions";
 import AdminApplicationsClient from "@/components/admin/AdminApplicationsClient";
+import { getActiveCategories } from "@/lib/utils";
 
 export const dynamic = "force-dynamic";
 
@@ -35,7 +36,7 @@ export default async function AdminApplicationsPage({ searchParams }: Applicatio
 
   const adminClient = createAdminClient();
 
-  // Parallel fetch: applications data and all 13 active categories
+  // Parallel fetch: applications data and all 14 active categories
   const [appsResult, categoriesRes] = await Promise.all([
     getAdminApplications({
       page,
@@ -53,7 +54,7 @@ export default async function AdminApplicationsPage({ searchParams }: Applicatio
       .order("display_order"),
   ]);
 
-  const categories = categoriesRes.data || [];
+  const categories = getActiveCategories(categoriesRes.data);
 
   return (
     <div className="space-y-6 animate-fade-up">

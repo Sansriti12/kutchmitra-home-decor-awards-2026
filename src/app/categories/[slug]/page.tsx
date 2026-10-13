@@ -105,7 +105,7 @@ export default function CategoryDetailPage({ params }: PageProps) {
                 />
                 <div className="absolute inset-0 bg-gradient-to-t from-navy-950/70 via-transparent to-transparent" />
                 <div className="absolute bottom-3 left-3 right-3 text-white">
-                  <span className="font-mono text-[9px] uppercase tracking-widest text-gold-400 block">
+                  <span className="font-mono text-[11px] uppercase tracking-widest text-gold-400 block">
                     Category {category.number}
                   </span>
                   <p className="font-display text-base text-white font-medium truncate">

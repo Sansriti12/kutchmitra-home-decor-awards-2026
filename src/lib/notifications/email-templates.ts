@@ -220,7 +220,7 @@ export function renderEmailTemplate(
         <div class="lead">Welcome, ${name}.</div>
         <p>Thank you for registering for the <strong>Kutchmitra Home &amp; Decor Awards 2026</strong> — the premier benchmark of architectural, design, and craftsmanship excellence across Kutch District.</p>
         
-        <p>Your entrant credentials are ready. You may now access the nomination wizard to prepare and submit projects across the 13 official award disciplines.</p>
+        <p>Your entrant credentials are ready. You may now access the nomination wizard to prepare and submit projects across the 12 official award disciplines.</p>
 
         <div class="data-card">
           <div style="font-size: 11px; font-weight: 700; color: #C5A059; text-transform: uppercase; margin-bottom: 8px;">Key Entry Reminders</div>

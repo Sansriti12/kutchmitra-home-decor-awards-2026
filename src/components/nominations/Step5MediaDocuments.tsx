@@ -735,7 +735,7 @@ export default function Step5MediaDocuments({
           icon={<ArrowRight size={14} />}
           disabled={isSaving}
         >
-          Proceed to Review Dossier
+          Proceed to Application Preview
         </Button>
       </div>
 

@@ -14,15 +14,15 @@ export function CategoriesSection() {
           <div className="space-y-3">
             <SectionMarker number="02" label="Disciplines &amp; Categories" theme="light" />
             <h2 className="heading-editorial text-navy-900">
-              13 Official Award Categories
+              14 Official Award Categories
             </h2>
           </div>
           <p className="body-editorial text-[#4A4F5C] max-w-md text-sm sm:text-base">
-            Structured across architecture, interiors, residential innovation, contracting, and sustainable craftsmanship for the 2026 edition.
+            Structured across architecture, interiors, residential innovation, real estate development, and sustainable craftsmanship for the 2026 edition.
           </p>
         </div>
 
-        {/* 13 Categories Editorial Grid */}
+        {/* 14 Categories Editorial Grid */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 lg:gap-8">
           {AWARD_CATEGORIES.map((category) => (
             <article
@@ -44,11 +44,11 @@ export function CategoriesSection() {
                 <div className="relative aspect-[16/9] w-full bg-navy-950 overflow-hidden border border-navy-900/10 transition-colors">
                   <div className="absolute inset-2 border border-white/10 pointer-events-none" />
                   <div className="absolute inset-0 flex flex-col items-center justify-center p-4 text-center">
-                    <span className="font-mono text-[9px] uppercase tracking-[0.2em] text-gold-400">
+                    <span className="font-mono text-[11px] uppercase tracking-[0.2em] text-gold-400">
                       {category.title}
                     </span>
                     <span className="text-[11px] text-slate-400 font-sans mt-1">
-                      Project Dossier Image Specimen
+                      Project Photography &amp; Drawings
                     </span>
                   </div>
                 </div>
@@ -95,7 +95,7 @@ export function CategoriesSection() {
             size="md"
             icon={<ArrowRight size={14} />}
           >
-            Explore All 13 Categories
+            Explore All 14 Categories
           </Button>
         </div>
       </div>

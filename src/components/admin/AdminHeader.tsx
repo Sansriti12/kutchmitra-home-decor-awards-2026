@@ -57,7 +57,7 @@ export function AdminHeader({
         </button>
 
         <div className="flex items-center gap-2 font-mono text-xs">
-          <span className="text-slate-400 hidden sm:inline">Governance</span>
+          <span className="text-slate-400 hidden sm:inline">Administration</span>
           <span className="text-slate-600 hidden sm:inline">/</span>
           <span className="text-gold-400 font-semibold uppercase tracking-wider">
             Admin Portal

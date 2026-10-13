@@ -33,12 +33,12 @@ export function HowToNominatePreview() {
     {
       number: "06",
       title: "Complete Preview",
-      desc: "Inspect a comprehensive, formatted dossier preview of all answers, drawings, and images prior to submission.",
+      desc: "Review a comprehensive preview of all answers, drawings, and images prior to submission.",
     },
     {
       number: "07",
       title: "Declaration & Submit",
-      desc: "Review legal declarations, lock the nomination dossier, and receive an official Nomination ID and receipt.",
+      desc: "Review declarations, submit your application, and receive an official Nomination ID and receipt.",
     },
   ];
 
@@ -69,7 +69,7 @@ export function HowToNominatePreview() {
                   <span className="font-mono text-xl font-light text-gold-600 block">
                     {stage.number}
                   </span>
-                  <span className="text-[9px] font-mono text-slate-400 uppercase tracking-widest bg-navy-900/5 px-1.5 py-0.5 border border-navy-900/10">
+                  <span className="text-[11px] font-mono text-slate-400 uppercase tracking-widest bg-navy-900/5 px-1.5 py-0.5 border border-navy-900/10">
                     STAGE {stage.number}
                   </span>
                 </div>
@@ -81,7 +81,7 @@ export function HowToNominatePreview() {
                 </p>
               </div>
 
-              <div className="pt-2 border-t border-navy-900/5 flex items-center gap-1.5 text-[9px] font-mono text-slate-400">
+              <div className="pt-2 border-t border-navy-900/5 flex items-center gap-1.5 text-[11px] font-mono text-slate-400">
                 <span className="w-1.5 h-1.5 rounded-full bg-gold-500/60" />
                 <span>Portal Wizard</span>
               </div>

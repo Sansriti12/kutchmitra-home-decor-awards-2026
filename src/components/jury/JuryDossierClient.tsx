@@ -30,12 +30,14 @@ import {
   formatDeterministicDate,
   formatDeterministicDateTime,
   formatDeterministicNumber,
+  getCategoryDisplayNumber,
 } from "@/lib/utils";
 import {
   saveJuryEvaluationDraft,
   submitJuryEvaluation,
   declareJuryConflict,
 } from "@/lib/jury/actions";
+import { formatAnswer, NOT_PROVIDED_LABEL } from "@/lib/nominations/answer-format";
 import type {
   JuryApplicationDossier,
   QualitativeRating,
@@ -51,7 +53,7 @@ export default function JuryDossierClient({ dossier }: JuryDossierClientProps) {
   const router = useRouter();
   const [isPending, startTransition] = useTransition();
 
-  const { assignment, application, questions, answers, files, criteria, evaluation } = dossier;
+  const { assignment, application, questions, answerValues, files, criteria, evaluation } = dossier;
 
   const [activeTab, setActiveTab] = useState<"dossier" | "evaluation">("dossier");
 
@@ -131,7 +133,7 @@ export default function JuryDossierClient({ dossier }: JuryDossierClientProps) {
     if (missingRating) {
       setFeedback({
         type: "error",
-        text: "Please select a qualitative assessment rating for each of the 5 criteria before final submission.",
+        text: "Please select a qualitative rating for each of the 5 criteria before final submission.",
       });
       setShowSubmitModal(false);
       return;
@@ -159,7 +161,7 @@ export default function JuryDossierClient({ dossier }: JuryDossierClientProps) {
         setShowSubmitModal(false);
         setFeedback({
           type: "success",
-          text: "Evaluation submitted and permanently locked. Thank you for your confidential assessment.",
+          text: "Evaluation submitted and permanently locked. Thank you for your jury evaluation.",
         });
         router.refresh();
       } else {
@@ -231,7 +233,7 @@ export default function JuryDossierClient({ dossier }: JuryDossierClientProps) {
           ) : (
             <div className="inline-flex items-center gap-1.5 px-2.5 py-1 text-xs font-mono uppercase bg-amber-950/80 border border-amber-500/40 text-amber-300">
               <Clock size={12} />
-              <span>Draft Assessment</span>
+              <span>Draft Evaluation</span>
             </div>
           )}
 
@@ -255,7 +257,7 @@ export default function JuryDossierClient({ dossier }: JuryDossierClientProps) {
           <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
             <div className="space-y-1">
               <div className="flex items-center gap-2 text-[11px] font-mono text-gold-400 uppercase tracking-wider">
-                <span>Category {application.category?.code}</span>
+                <span>Category {getCategoryDisplayNumber(application.category)}</span>
                 <span>//</span>
                 <span>{application.category?.name}</span>
               </div>
@@ -331,10 +333,10 @@ export default function JuryDossierClient({ dossier }: JuryDossierClientProps) {
           <div className="p-4 bg-red-950/70 border border-red-500/50 space-y-2 text-xs font-sans text-red-200">
             <div className="flex items-center gap-2 font-mono font-bold text-red-300 uppercase">
               <AlertTriangle size={15} />
-              <span>Recusal Notice: Declared Conflict of Interest</span>
+              <span>Conflict of Interest Notice</span>
             </div>
             <p className="leading-relaxed">
-              You have formally declared a conflict of interest for this entry ({assignment.conflictReason || "Unspecified"}). As per award governance regulations, evaluation controls for this dossier are permanently disabled.
+              You have declared a conflict of interest for this entry ({assignment.conflictReason || "Unspecified"}). As per award guidelines, evaluation controls for this application are disabled.
             </p>
           </div>
         )}
@@ -347,7 +349,7 @@ export default function JuryDossierClient({ dossier }: JuryDossierClientProps) {
               <span>Official Evaluation Submitted &amp; Locked</span>
             </div>
             <p className="leading-relaxed">
-              Your evaluation was formally transmitted on {evaluation?.submittedAt ? formatDeterministicDateTime(evaluation.submittedAt) : "record"}. The assessment below is displayed in read-only mode for your reference.
+              Your evaluation was submitted on {evaluation?.submittedAt ? formatDeterministicDateTime(evaluation.submittedAt) : "record"}. The evaluation below is displayed in read-only mode for your reference.
             </p>
           </div>
         )}
@@ -365,7 +367,7 @@ export default function JuryDossierClient({ dossier }: JuryDossierClientProps) {
             )}
           >
             <FileText size={14} />
-            <span>1. Project Dossier &amp; Evidence ({files.length} uploads)</span>
+            <span>1. Application Details &amp; Documents ({files.length} uploads)</span>
           </button>
 
           <button
@@ -379,22 +381,27 @@ export default function JuryDossierClient({ dossier }: JuryDossierClientProps) {
             )}
           >
             <Scale size={14} />
-            <span>2. Confidential Evaluation ({criteria.length} Criteria)</span>
+            <span>2. Jury Evaluation ({criteria.length} Criteria)</span>
           </button>
         </div>
 
-        {/* TAB 1: PROJECT DOSSIER & EVIDENCE */}
+        {/* TAB 1: APPLICATION DETAILS & DOCUMENTS */}
         {activeTab === "dossier" && (
           <div className="space-y-8">
-            {/* Dynamic Questionnaire Responses */}
+            {/* Dynamic Questionnaire Responses (read-only: submitted by the applicant) */}
             <div className="bg-navy-900/60 border border-white/10 p-6 space-y-4">
-              <div className="flex items-center justify-between pb-3 border-b border-white/10">
+              <div className="flex flex-wrap items-center justify-between gap-2 pb-3 border-b border-white/10">
                 <h2 className="font-display text-lg text-white font-medium flex items-center gap-2">
                   <FileCheck size={16} className="text-gold-400" />
                   <span>Category-Specific Architectural Questionnaire</span>
                 </h2>
-                <span className="text-[11px] font-mono text-slate-400">
-                  {questions.length} Questions Answered
+                <span className="text-xs font-mono text-slate-300">
+                  {
+                    questions.filter(
+                      (q) => formatAnswer(q.fieldType, q.options, answerValues[q.id]).kind !== "empty"
+                    ).length
+                  }{" "}
+                  of {questions.length} Questions Answered
                 </span>
               </div>
 
@@ -405,18 +412,35 @@ export default function JuryDossierClient({ dossier }: JuryDossierClientProps) {
               ) : (
                 <div className="divide-y divide-white/5">
                   {questions.map((q, idx) => {
-                    const ans = answers[q.questionKey];
+                    const formatted = formatAnswer(q.fieldType, q.options, answerValues[q.id]);
                     return (
                       <div key={q.id} className="py-4 space-y-1.5">
-                        <div className="text-[11px] font-mono text-gold-400/90 font-semibold">
+                        <div className="text-xs font-mono text-gold-400/90 font-semibold">
                           QUESTION {idx + 1}
                         </div>
                         <div className="text-sm font-medium text-white font-sans">{q.questionText}</div>
                         {q.helpText && (
-                          <div className="text-[11px] text-slate-400 font-sans italic">{q.helpText}</div>
+                          <div className="text-xs text-slate-400 font-sans italic">{q.helpText}</div>
                         )}
-                        <div className="mt-2 p-3 bg-navy-950 border border-white/10 text-xs sm:text-sm text-slate-200 font-sans whitespace-pre-wrap leading-relaxed">
-                          {ans ? String(ans) : <span className="text-slate-500 italic">Not specified</span>}
+                        <div className="mt-2 p-3 bg-navy-950 border border-white/10 text-sm text-slate-200 font-sans whitespace-pre-wrap leading-relaxed">
+                          {formatted.kind === "text" && formatted.text}
+                          {formatted.kind === "list" && (
+                            <ul className="flex flex-wrap gap-1.5">
+                              {formatted.items.map((item) => (
+                                <li
+                                  key={item}
+                                  className="px-2 py-0.5 bg-gold-500/10 border border-gold-500/30 text-gold-300 text-xs"
+                                >
+                                  {item}
+                                </li>
+                              ))}
+                            </ul>
+                          )}
+                          {formatted.kind === "empty" && (
+                            <span className="text-slate-400 italic">
+                              {q.isRequired ? `${NOT_PROVIDED_LABEL} by the applicant` : `${NOT_PROVIDED_LABEL} (optional)`}
+                            </span>
+                          )}
                         </div>
                       </div>
                     );
@@ -517,17 +541,17 @@ export default function JuryDossierClient({ dossier }: JuryDossierClientProps) {
           </div>
         )}
 
-        {/* TAB 2: CONFIDENTIAL EVALUATION */}
+        {/* TAB 2: JURY EVALUATION */}
         {activeTab === "evaluation" && (
           <div className="space-y-8">
             {/* Guidelines banner */}
             <div className="p-4 bg-navy-900/60 border border-white/10 space-y-2">
               <div className="flex items-center gap-2 text-xs font-mono text-gold-400 uppercase font-bold">
                 <Info size={14} />
-                <span>Qualitative Assessment Guidelines</span>
+                <span>Jury Evaluation Guidelines</span>
               </div>
               <p className="text-xs text-slate-300 font-sans leading-relaxed">
-                Assess this entry across each of the five official Kutchmitra criteria. Select a qualitative rating level reflecting architectural merit, and provide confidential observations to support your assessment.
+                Evaluate this entry across each of the five official Kutchmitra criteria. Select a qualitative rating level reflecting architectural merit, and provide observations to support your evaluation.
               </p>
             </div>
 
@@ -739,14 +763,14 @@ export default function JuryDossierClient({ dossier }: JuryDossierClientProps) {
               {/* General Confidential Summary */}
               <div className="space-y-1.5">
                 <label className="block text-[11px] font-mono text-slate-400 uppercase tracking-wider">
-                  Confidential General Summary / Jury Notes
+                  General Summary / Jury Notes
                 </label>
                 <textarea
                   rows={3}
                   disabled={isLocked || isConflict}
                   value={generalComment}
                   onChange={(e) => setGeneralComment(e.target.value)}
-                  placeholder="Summary remarks for organizing committee deliberations..."
+                  placeholder="Summary remarks for organizing committee review..."
                   className="w-full bg-navy-950 border border-white/10 text-white p-3 text-xs font-sans placeholder-slate-600 focus:outline-none focus:border-gold-500 disabled:opacity-75 disabled:cursor-not-allowed"
                 />
               </div>
@@ -928,7 +952,7 @@ export default function JuryDossierClient({ dossier }: JuryDossierClientProps) {
                       : "bg-emerald-600 hover:bg-emerald-500 text-white"
                   )}
                 >
-                  {isPending ? "Recording..." : conflictDeclaringMode ? "Record Recusal" : "Confirm Independence"}
+                  {isPending ? "Recording..." : conflictDeclaringMode ? "Record Conflict of Interest" : "Confirm Independence"}
                 </button>
               </div>
             </form>

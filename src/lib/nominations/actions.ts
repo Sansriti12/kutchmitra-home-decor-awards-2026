@@ -5,6 +5,7 @@ import { createAdminClient } from "@/lib/supabase/admin";
 import { revalidatePath } from "next/cache";
 import type { Database, UploadType } from "@/types/database.types";
 import { sendNotification, notifyAdmins } from "@/lib/notifications/notification-service";
+import { isRetiredCategory } from "@/lib/utils";
 
 type ApplicationUpdate = Database["public"]["Tables"]["applications"]["Update"];
 
@@ -22,7 +23,7 @@ export async function createDraftApplication(categoryId: string) {
     return { success: false, error: "Authentication required to create a nomination." };
   }
 
-  // 1. Verify category exists and is active
+  // 1. Verify category exists and is active (and not retired)
   const { data: category, error: catErr } = await supabase
     .from("categories")
     .select("id, edition_id, code, name")
@@ -30,7 +31,7 @@ export async function createDraftApplication(categoryId: string) {
     .eq("is_active", true)
     .single();
 
-  if (catErr || !category) {
+  if (catErr || !category || isRetiredCategory(categoryId) || isRetiredCategory(category.code)) {
     return { success: false, error: "The selected category is inactive or invalid." };
   }
 
@@ -300,7 +301,7 @@ export async function saveWizardProgress(params: {
         .eq("is_active", true)
         .maybeSingle();
 
-      if (newCat) {
+      if (newCat && !isRetiredCategory(newCat.id)) {
         updatePayload.category_id = newCat.id;
       }
     }
@@ -580,7 +581,7 @@ export async function submitFinalNomination(
   // 2. Fetch application and category
   const { data: app, error: appErr } = await supabase
     .from("applications")
-    .select("*, categories(id, code, name)")
+    .select("*, categories(id, code, name, is_active)")
     .eq("id", applicationId)
     .single();
 
@@ -590,6 +591,14 @@ export async function submitFinalNomination(
 
   if (app.applicant_id !== user.id) {
     return { success: false, error: "You are not authorized to submit this nomination." };
+  }
+
+  const catObj = Array.isArray(app.categories) ? app.categories[0] : app.categories;
+  if (catObj && catObj.is_active === false) {
+    return {
+      success: false,
+      error: "This award category is not active for the 2026 edition. Please switch your nomination to an active category before submitting.",
+    };
   }
 
   const isClarificationResubmit = app.status === "clarification_required";
