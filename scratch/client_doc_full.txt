@@ -1,0 +1,155 @@
+
+w:rsidR="005E7C4D" w:rsidRPr="009A56A6" w:rsidRDefault="004A0DF8">Portal Revision & Development Requirements
+w:rsidR="005E7C4D" w:rsidRDefault="00961D9E">A. Proposed Award Categories – 16 Categories
+w:rsidR="005E7C4D" w:rsidRDefault="004A0DF8">The previously proposed 14-category structure is to be expanded by adding two dedicated categories: Excellence in Vernacular Architecture and Excellence in Kutchi Craft & Artisan Integration. The resulting 16-category list is proposed and subject to management approval.
+w:rsidR="005E7C4D" w:rsidRDefault="004A0DF8">1. Architect of the Year
+w:rsidR="005E7C4D" w:rsidRDefault="004A0DF8">Recognising licensed architects or architectural firms with a strong portfolio of impactful residential or commercial projects.
+w:rsidR="005E7C4D" w:rsidRDefault="004A0DF8">Suggested evaluation parameters:
+w:rsidR="005E7C4D" w:rsidRDefault="004A0DF8">Interpretation of Kutchi architectural heritage.
+w:rsidR="005E7C4D" w:rsidRDefault="004A0DF8">Climate-responsive and context-sensitive design.
+w:rsidR="005E7C4D" w:rsidRDefault="004A0DF8">Integration of traditional elements with contemporary needs.
+w:rsidR="005E7C4D" w:rsidRDefault="004A0DF8">Use of local materials and construction techniques.
+w:rsidR="005E7C4D" w:rsidRDefault="004A0DF8">2. Best Luxury Residence
+w:rsidR="005E7C4D" w:rsidRDefault="004A0DF8">Celebrating high-end residential projects distinguished by premium materials, bespoke design elements and exceptional craftsmanship.
+w:rsidR="005E7C4D" w:rsidRDefault="004A0DF8">Suggested evaluation parameters:
+w:rsidR="005E7C4D" w:rsidRDefault="004A0DF8">Kutchi craftsmanship and local materials, where relevant.
+w:rsidR="005E7C4D" w:rsidRDefault="004A0DF8">Climate-responsive luxury design.
+w:rsidR="005E7C4D" w:rsidRDefault="004A0DF8">Harmony between architecture, interiors and landscape.
+w:rsidR="005E7C4D" w:rsidRDefault="004A0DF8">Comfort and sustainability.
+w:rsidR="005E7C4D" w:rsidRDefault="004A0DF8">3. Best Renovation Project
+w:rsidR="005E7C4D" w:rsidRDefault="004A0DF8">Recognising projects that showcase a substantial and creative transformation of an existing space.
+w:rsidR="005E7C4D" w:rsidRDefault="004A0DF8">Suggested evaluation parameters:
+w:rsidR="005E7C4D" w:rsidRDefault="004A0DF8">Preservation of original architectural character, where applicable.
+w:rsidR="005E7C4D" w:rsidRDefault="004A0DF8">Sensitive restoration of traditional elements.
+w:rsidR="005E7C4D" w:rsidRDefault="004A0DF8">Modern facilities integrated without compromising heritage.
+w:rsidR="005E7C4D" w:rsidRDefault="004A0DF8">Before-and-after documentation.
+w:rsidR="005E7C4D" w:rsidRDefault="004A0DF8">4. Best Sustainable Home
+w:rsidR="005E7C4D" w:rsidRDefault="004A0DF8">Recognising residential projects that incorporate environmentally responsible materials, energy-efficient systems and climate-responsive design principles.
+w:rsidR="005E7C4D" w:rsidRDefault="004A0DF8">Suggested evaluation parameters:
+w:rsidR="005E7C4D" w:rsidRDefault="004A0DF8">Local stone, earth, lime, recycled or reclaimed materials.
+w:rsidR="005E7C4D" w:rsidRDefault="004A0DF8">Passive cooling, ventilation, orientation and shading.
+w:rsidR="005E7C4D" w:rsidRDefault="004A0DF8">Water conservation and sustainable landscaping.
+w:rsidR="005E7C4D" w:rsidRDefault="004A0DF8">Energy efficiency and low-impact construction.
+w:rsidR="005E7C4D" w:rsidRDefault="004A0DF8">5. Interior Designer of the Year
+w:rsidR="005E7C4D" w:rsidRDefault="004A0DF8">Recognising interior design professionals or studios that demonstrate excellence in spatial planning, design aesthetics and overall execution.
+w:rsidR="005E7C4D" w:rsidRDefault="004A0DF8">Suggested evaluation parameters:
+w:rsidR="005E7C4D" w:rsidRDefault="004A0DF8">Integration of Kutchi crafts and regional materials, where relevant.
+w:rsidR="005E7C4D" w:rsidRDefault="004A0DF8">Contemporary interpretation of traditional elements.
+w:rsidR="005E7C4D" w:rsidRDefault="004A0DF8">Recognition and credit to artisans.
+w:rsidR="005E7C4D" w:rsidRDefault="004A0DF8">Spatial harmony, natural light, ventilation and liveability.
+w:rsidR="005E7C4D" w:rsidRDefault="004A0DF8">6. Emerging Designer
+w:rsidR="005E7C4D" w:rsidRDefault="004A0DF8">Recognising young design professionals or newly established firms, typically with less than 5–7 years of practice, who demonstrate exceptional potential, creativity and promise.
+w:rsidR="005E7C4D" w:rsidRDefault="004A0DF8">Suggested evaluation parameters:
+w:rsidR="005E7C4D" w:rsidRDefault="004A0DF8">Confirm the qualifying experience period before publication.
+w:rsidR="005E7C4D" w:rsidRDefault="004A0DF8">Assess originality, quality of work and demonstrated potential.
+w:rsidR="005E7C4D" w:rsidRDefault="004A0DF8">7. Best Compact Home
+w:rsidR="005E7C4D" w:rsidRDefault="004A0DF8">Recognising residential projects that creatively maximise functionality, comfort and design appeal within a limited floor area.
+w:rsidR="005E7C4D" w:rsidRDefault="004A0DF8">Suggested evaluation parameters:
+w:rsidR="005E7C4D" w:rsidRDefault="004A0DF8">Efficient space utilisation and functional planning.
+w:rsidR="005E7C4D" w:rsidRDefault="004A0DF8">Natural light and ventilation.
+w:rsidR="005E7C4D" w:rsidRDefault="004A0DF8">Comfort, liveability and indoor-outdoor connection.
+w:rsidR="005E7C4D" w:rsidRDefault="004A0DF8">8. Best Smart Home
+w:rsidR="005E7C4D" w:rsidRDefault="004A0DF8">Recognising residences that integrate automated technologies for lighting, climate control, security, entertainment and other aspects of modern home living.
+w:rsidR="005E7C4D" w:rsidRDefault="004A0DF8">Suggested evaluation parameters:
+w:rsidR="005E7C4D" w:rsidRDefault="004A0DF8">Demonstrable performance and usefulness of technologies.
+w:rsidR="005E7C4D" w:rsidRDefault="004A0DF8">Energy efficiency and intelligent climate control.
+w:rsidR="005E7C4D" w:rsidRDefault="004A0DF8">Ease of use, reliability and integration.
+w:rsidR="005E7C4D" w:rsidRDefault="004A0DF8">9. Best Themed Project of the Year (Concept & Design)
+w:rsidR="005E7C4D" w:rsidRDefault="004A0DF8">Recognising projects that translate a distinctive creative concept or cultural theme into a cohesive physical living space.
+w:rsidR="005E7C4D" w:rsidRDefault="004A0DF8">Suggested evaluation parameters:
+w:rsidR="005E7C4D" w:rsidRDefault="004A0DF8">Authenticity of cultural or regional concept.
+w:rsidR="005E7C4D" w:rsidRDefault="004A0DF8">Meaningful integration of Kutchi motifs, textures and craftsmanship.
+w:rsidR="005E7C4D" w:rsidRDefault="004A0DF8">Consistency between concept and execution.
+w:rsidR="005E7C4D" w:rsidRDefault="004A0DF8">Avoid superficial cultural decoration.
+w:rsidR="005E7C4D" w:rsidRDefault="004A0DF8">10. Luxury Villa Project of the Year
+w:rsidR="005E7C4D" w:rsidRDefault="004A0DF8">Recognising standalone villa projects that combine sophisticated architecture, elegant interiors, premium materials and thoughtfully designed indoor and outdoor living spaces.
+w:rsidR="005E7C4D" w:rsidRDefault="004A0DF8">Suggested evaluation parameters:
+w:rsidR="005E7C4D" w:rsidRDefault="004A0DF8">Architectural quality and landscape integration.
+w:rsidR="005E7C4D" w:rsidRDefault="004A0DF8">Craftsmanship, material quality and contextual response.
+w:rsidR="005E7C4D" w:rsidRDefault="004A0DF8">Comfort, sustainability and climate response.
+w:rsidR="005E7C4D" w:rsidRDefault="004A0DF8">11. Best Developer of the Year
+w:rsidR="005E7C4D" w:rsidRDefault="004A0DF8">Recognising real estate developers who demonstrate excellence in project planning, design coordination, construction quality, timely delivery and high-quality residential or commercial development.
+w:rsidR="005E7C4D" w:rsidRDefault="004A0DF8">Suggested evaluation parameters:
+w:rsidR="005E7C4D" w:rsidRDefault="004A0DF8">Quality of planning and development approach.
+w:rsidR="005E7C4D" w:rsidRDefault="004A0DF8">Construction quality, delivery and user experience.
+w:rsidR="005E7C4D" w:rsidRDefault="004A0DF8">Sustainable development and local-context sensitivity.
+w:rsidR="005E7C4D" w:rsidRDefault="004A0DF8">12. Best Organised Township of the Year
+w:rsidR="005E7C4D" w:rsidRDefault="004A0DF8">Recognising well-planned township developments integrating residential spaces, infrastructure, amenities, open spaces and community facilities.
+w:rsidR="005E7C4D" w:rsidRDefault="004A0DF8">Suggested evaluation parameters:
+w:rsidR="005E7C4D" w:rsidRDefault="004A0DF8">Integrated planning and community facilities.
+w:rsidR="005E7C4D" w:rsidRDefault="004A0DF8">Open spaces and climate-responsive planning.
+w:rsidR="005E7C4D" w:rsidRDefault="004A0DF8">Water management, infrastructure and sustainability.
+w:rsidR="005E7C4D" w:rsidRDefault="004A0DF8">13. Best Office Design of the Year
+w:rsidR="005E7C4D" w:rsidRDefault="004A0DF8">Recognising office spaces demonstrating excellence in workplace planning, functionality, aesthetics, ergonomics and effective use of space.
+w:rsidR="005E7C4D" w:rsidRDefault="004A0DF8">Suggested evaluation parameters:
+w:rsidR="005E7C4D" w:rsidRDefault="004A0DF8">Workplace planning, ergonomics and functionality.
+w:rsidR="005E7C4D" w:rsidRDefault="004A0DF8">Natural light, ventilation and employee comfort.
+w:rsidR="005E7C4D" w:rsidRDefault="004A0DF8">Energy efficiency and responsible materials.
+w:rsidR="005E7C4D" w:rsidRDefault="004A0DF8">14. Best Commercial Building of the Year
+w:rsidR="005E7C4D" w:rsidRDefault="004A0DF8">Recognising commercial buildings demonstrating excellence in architectural design, functionality, construction quality, sustainability and user-oriented facilities.
+w:rsidR="005E7C4D" w:rsidRDefault="004A0DF8">Suggested evaluation parameters:
+w:rsidR="005E7C4D" w:rsidRDefault="004A0DF8">Architectural quality and user experience.
+w:rsidR="005E7C4D" w:rsidRDefault="004A0DF8">Sustainable design, climate response and material sensitivity.
+w:rsidR="005E7C4D" w:rsidRDefault="004A0DF8">Infrastructure, accessibility and execution quality.
+w:rsidR="005E7C4D" w:rsidRDefault="004A0DF8">15. Excellence in Vernacular Architecture 
+w:rsidR="005E7C4D" w:rsidRDefault="004A0DF8">Recognising homes and residential projects that thoughtfully reinterpret Kutch’s traditional architecture, including the bhunga, local building forms, courtyards, proportions and traditional spatial planning, while responding to contemporary living needs.
+w:rsidR="005E7C4D" w:rsidRDefault="004A0DF8">Suggested evaluation parameters:
+w:rsidR="005E7C4D" w:rsidRDefault="004A0DF8">Authentic understanding of traditional Kutchi building forms and spatial planning.
+w:rsidR="005E7C4D" w:rsidRDefault="004A0DF8">Thoughtful interpretation of bhunga forms, courtyards and local architectural vocabulary.
+w:rsidR="005E7C4D" w:rsidRDefault="004A0DF8">Traditional knowledge, local materials and techniques, where appropriate.
+w:rsidR="005E7C4D" w:rsidRDefault="004A0DF8">Contemporary functionality and comfort without superficial imitation.
+w:rsidR="005E7C4D" w:rsidRDefault="004A0DF8">16. Excellence in Kutchi Craft & Artisan Integration 
+w:rsidR="005E7C4D" w:rsidRDefault="004A0DF8">Recognising interior or residential projects that meaningfully integrate Kutchi crafts and regional artisans, including embroidery, Ajrakh, Bandhani, woodwork, pottery, metalwork, leatherwork and other local craft traditions.
+w:rsidR="005E7C4D" w:rsidRDefault="004A0DF8">Suggested evaluation parameters:
+w:rsidR="005E7C4D" w:rsidRDefault="004A0DF8">Meaningful and sensitive integration of Kutchi crafts.
+w:rsidR="005E7C4D" w:rsidRDefault="004A0DF8">Quality, originality and relevance of craft application.
+w:rsidR="005E7C4D" w:rsidRDefault="004A0DF8">Involvement, acknowledgement and appropriate credit to artisans.
+w:rsidR="005E7C4D" w:rsidRDefault="004A0DF8">Contemporary interpretation that respects craft identity.
+w:rsidR="005E7C4D" w:rsidRDefault="00961D9E">B. Website and Category Page Changes
+w:rsidR="005E7C4D" w:rsidRDefault="004A0DF8">Add a short statement on the Awards/About page explaining the focus on Kutch’s architectural heritage, contemporary design, local craftsmanship and sustainability.
+w:rsidR="00961D9E" w:rsidRDefault="00961D9E" w:rsidP="00961D9E">We can add this tagline: Celebrating the Spirit of Kutch Through Architecture, Craft and Sustainability.
+w:rsidR="005E7C4D" w:rsidRDefault="004A0DF8">Clarify that both traditional and contemporary approaches are welcome; applicants are not expected to reproduce historic styles.
+w:rsidR="00C81131" w:rsidRDefault="00961D9E" w:rsidP="00C81131">C. Nomination Form – 
+w:rsidR="00C81131" w:rsidRPr="00C81131" w:rsidRDefault="00C81131" w:rsidP="00C81131">Additional Eligibility and Application Rules
+w:rsidR="00C81131" w:rsidRDefault="00C81131" w:rsidP="00C81131">Applicant eligibility: The nominating applicant must be an architect based in Kutch or an architectural firm based in Kutch. The nomination form and eligibility page should clearly state this requirement.
+w:rsidR="00C81131" w:rsidRDefault="00C81131" w:rsidP="00C81131">Project location: The project being submitted must also be located within Kutch district, consistent with the previously communicated geographical eligibility condition.
+w:rsidR="00C81131" w:rsidRDefault="00C81131" w:rsidP="00C81131">Maximum category entries: An applicant may submit nominations in a maximum of three award categories. The portal must prevent or clearly restrict an applicant from submitting nominations in more than three categories.
+w:rsidR="00C81131" w:rsidRDefault="00C81131" w:rsidP="00C81131">Project completion period: Only projects completed during calendar years 2024, 2025 or 2026 are eligible. Display these years clearly in the eligibility guidelines and provide an appropriate completion-year field in the nomination form.
+w:rsidR="00C81131" w:rsidRPr="00C81131" w:rsidRDefault="00C81131" w:rsidP="00C81131">Project Information Form – Required Fields
+w:rsidR="00C81131" w:rsidRDefault="00C81131" w:rsidP="00C81131">Ensure that the project information section captures, at a minimum, the following details:
+w:rsidR="00C81131" w:rsidRDefault="00C81131" w:rsidP="00C81131">Project name.
+w:rsidR="00C81131" w:rsidRDefault="00C81131" w:rsidP="00C81131">Project location.
+w:rsidR="00C81131" w:rsidRDefault="00C81131" w:rsidP="00C81131">Built-up area.
+w:rsidR="00C81131" w:rsidRDefault="00C81131" w:rsidP="00C81131">Project brief, limited to 500 characters.
+w:rsidR="00C81131" w:rsidRDefault="00C81131" w:rsidP="00C81131">Project completion year/date, with eligibility restricted to calendar years 2024, 2025 and 2026.
+w:rsidR="00C81131" w:rsidRDefault="00C81131" w:rsidP="00C81131">Other category-specific details and supporting information as required by the approved nomination guidelines.
+w:rsidR="00C81131" w:rsidRDefault="00C81131" w:rsidP="00C81131">
+w:rsidR="00C81131" w:rsidRPr="00C81131" w:rsidRDefault="00C81131" w:rsidP="00C81131">Project Plan Upload
+w:rsidR="00C81131" w:rsidRDefault="00C81131" w:rsidP="00C81131">Provide an upload field for the project plan in A3 size.
+w:rsidR="00C81131" w:rsidRDefault="00C81131" w:rsidP="00C81131">The upload instructions should clearly specify that project plans must be submitted in A3 format. The accepted file format and maximum file size for plans should be confirmed with management/development before publication; they are not specified in this instruction.
+w:rsidR="00C81131" w:rsidRPr="00C81131" w:rsidRDefault="00C81131" w:rsidP="00C81131">Project Photograph Upload Specifications
+w:rsidR="00C81131" w:rsidRDefault="00C81131" w:rsidP="00623B4E">Apply the following technical requirements to project image uploads:
+w:rsidR="00C81131" w:rsidRDefault="00C81131" w:rsidP="0026632A">Parameter
+w:rsidR="00C81131" w:rsidRDefault="00C81131" w:rsidP="0026632A">Requirement
+w:rsidR="00C81131" w:rsidRDefault="00C81131" w:rsidP="0026632A">Minimum resolution
+w:rsidR="00C81131" w:rsidRDefault="00C81131" w:rsidP="0026632A">500 × 500 pixels. Images below the minimum dimensions must be automatically rejected.
+w:rsidR="00C81131" w:rsidRDefault="00C81131" w:rsidP="0026632A">Recommended resolution
+w:rsidR="00C81131" w:rsidRDefault="00C81131" w:rsidP="0026632A">1000 × 1000 pixels or higher, to support high-definition zoom.
+w:rsidR="00C81131" w:rsidRDefault="00C81131" w:rsidP="0026632A">Aspect ratio
+w:rsidR="00C81131" w:rsidRDefault="00C81131" w:rsidP="0026632A">Square 1:1 strongly recommended. Treat this as a recommendation unless management approves it as mandatory.
+w:rsidR="00C81131" w:rsidRDefault="00C81131" w:rsidP="0026632A">Allowed formats
+w:rsidR="00C81131" w:rsidRDefault="00C81131" w:rsidP="0026632A">JPEG (.jpg) or PNG only.
+w:rsidR="00C81131" w:rsidRDefault="00C81131" w:rsidP="0026632A">Maximum file size
+w:rsidR="00C81131" w:rsidRDefault="00C81131" w:rsidP="0026632A">10 MB per image.
+w:rsidR="00C81131" w:rsidRDefault="00C81131" w:rsidP="00C81131">Validate file type, image dimensions and file size on the server as well as at the user interface. Display clear validation messages when an image is rejected.
+w:rsidR="00C81131" w:rsidRPr="00336B3C" w:rsidRDefault="00C81131" w:rsidP="00336B3C">Remove Before-Photo Upload Option
+w:rsidR="00C81131" w:rsidRDefault="00C81131" w:rsidP="00C81131">Remove the 'Before Photo' upload button/field from the nomination form.
+w:rsidR="00C81131" w:rsidRDefault="00C81131" w:rsidP="00C81131">Do not show the before-photo field as a mandatory or optional upload item in any category form. Review any existing renovation form logic to ensure this option is removed consistently.
+w:rsidR="00C81131" w:rsidRDefault="009A56A6" w:rsidP="00C81131">D. Self-Declaration
+w:rsidR="00C81131" w:rsidRDefault="00C81131" w:rsidP="00C81131">Add a mandatory self-declaration checkbox at the end of the nomination form, immediately before final submission.
+w:rsidR="00C81131" w:rsidRDefault="00C81131" w:rsidP="00C81131">“I hereby declare that, to the best of my knowledge, all information provided about myself, my firm and the project in this nomination form is true and accurate.”
+w:rsidR="00C81131" w:rsidRDefault="00C81131" w:rsidP="00C81131">The applicant must accept/tick this declaration before the portal allows final submission. Store the acceptance against the nomination record, including the submission timestamp.
+w:rsidR="00C81131" w:rsidRDefault="00EE26C0" w:rsidP="00C81131">E. Participant Certificate of Appreciation
+w:rsidR="00C81131" w:rsidRPr="00C81131" w:rsidRDefault="00C81131" w:rsidP="00EE26C0">The awards process will provide a Certificate of Appreciation to every participant.
+w:rsidR="005E7C4D" w:rsidRDefault="004A0DF8">Implementation Note
+w:rsidR="005E7C4D" w:rsidRDefault="004A0DF8" w:rsidP="00EE26C0">These additional requirements should be incorporated into the relevant sections of the portal: Eligibility Guidelines, Category-wise Nomination Forms, Project Details, Upload Controls, Final Declaration, FAQs/Participant Information and Admin Configuration. They should be treated as project instructions, while any unresolved technical specifications identified above should be confirmed before development is finalised.

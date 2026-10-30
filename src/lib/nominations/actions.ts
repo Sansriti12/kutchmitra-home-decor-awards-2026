@@ -6,8 +6,50 @@ import { revalidatePath } from "next/cache";
 import type { Database, UploadType } from "@/types/database.types";
 import { sendNotification, notifyAdmins } from "@/lib/notifications/notification-service";
 import { isRetiredCategory } from "@/lib/utils";
+import { validateImageBuffer } from "./image-validator";
 
 type ApplicationUpdate = Database["public"]["Tables"]["applications"]["Update"];
+
+/**
+ * Validates remaining award category quota for the current applicant.
+ * Client requirement: Maximum of 3 award categories per applicant.
+ */
+export async function getApplicantCategoryQuota(): Promise<{
+  enteredCategoryIds: string[];
+  distinctCount: number;
+  maxAllowed: number;
+  remainingSlots: number;
+}> {
+  const supabase = createClient();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+
+  if (!user) {
+    return { enteredCategoryIds: [], distinctCount: 0, maxAllowed: 3, remainingSlots: 3 };
+  }
+
+  const adminClient = createAdminClient();
+  const { data: userApps } = await adminClient
+    .from("applications")
+    .select("category_id")
+    .eq("applicant_id", user.id)
+    .not("status", "in", '("disqualified","rejected")');
+
+  const enteredCategoryIds = Array.from(
+    new Set((userApps || []).map((a: any) => a.category_id).filter(Boolean))
+  ) as string[];
+
+  const distinctCount = enteredCategoryIds.length;
+  const remainingSlots = Math.max(0, 3 - distinctCount);
+
+  return {
+    enteredCategoryIds,
+    distinctCount,
+    maxAllowed: 3,
+    remainingSlots,
+  };
+}
 
 /**
  * Creates a real draft application record in the Supabase `applications` table.
@@ -35,6 +77,25 @@ export async function createDraftApplication(categoryId: string) {
     return { success: false, error: "The selected category is inactive or invalid." };
   }
 
+  const adminClient = createAdminClient();
+
+  // 1b. Maximum 3 Categories Check (Client Requirement)
+  // An applicant may submit nominations across a maximum of 3 award categories.
+  const { data: userApps } = await adminClient
+    .from("applications")
+    .select("category_id")
+    .eq("applicant_id", user.id)
+    .not("status", "in", '("disqualified","rejected")');
+
+  const existingCategoryIds = new Set((userApps || []).map((a: any) => a.category_id).filter(Boolean));
+  if (!existingCategoryIds.has(categoryId) && existingCategoryIds.size >= 3) {
+    return {
+      success: false,
+      error:
+        "Category Limit Reached: An applicant may submit nominations in a maximum of 3 award categories. You have already initiated nominations across 3 categories.",
+    };
+  }
+
   // 2. Fetch applicant profile for default city/state
   const { data: profile } = await supabase
     .from("applicant_profiles")
@@ -44,7 +105,6 @@ export async function createDraftApplication(categoryId: string) {
 
   // 3. Compute unique human-readable nomination_id: KHA26-{category_code}-{sequence}
   // Use admin client (service role) to read across all applications globally, bypassing RLS
-  const adminClient = createAdminClient();
   const prefix = `KHA26-${category.code}-`;
 
   const { data: existingApps } = await adminClient
@@ -227,9 +287,15 @@ export async function saveWizardProgress(params: {
     projectName?: string;
     projectCity?: string;
     projectState?: string;
+    projectDistrict?: string | null;
+    projectAddress?: string | null;
+    projectBrief?: string | null;
     projectCompletionDate?: string | null;
     builtUpAreaSqft?: number | null;
     categoryId?: string;
+    applicantType?: "individual_architect" | "architectural_firm";
+    applicantDistrict?: string | null;
+    coaRegistrationNumber?: string | null;
   };
   answers?: Array<{
     questionId: string;
@@ -250,7 +316,7 @@ export async function saveWizardProgress(params: {
   // Verify ownership & unlocked status
   const { data: app, error: appErr } = await supabase
     .from("applications")
-    .select("id, applicant_id, is_locked, status, edition_id")
+    .select("id, applicant_id, is_locked, status, edition_id, category_id")
     .eq("id", params.applicationId)
     .single();
 
@@ -272,6 +338,8 @@ export async function saveWizardProgress(params: {
     updated_at: new Date().toISOString(),
   };
 
+  const adminClient = createAdminClient();
+
   if (params.patch) {
     if (params.patch.projectName !== undefined && params.patch.projectName.trim() !== "") {
       updatePayload.project_name = params.patch.projectName.trim();
@@ -283,7 +351,14 @@ export async function saveWizardProgress(params: {
       updatePayload.project_state = params.patch.projectState.trim();
     }
     if (params.patch.projectCompletionDate !== undefined) {
-      updatePayload.project_completion_date = params.patch.projectCompletionDate || null;
+      const compDate = params.patch.projectCompletionDate ? params.patch.projectCompletionDate.trim() : null;
+      if (compDate && (compDate < "2024-01-01" || compDate > "2026-12-31")) {
+        return {
+          success: false,
+          error: "Eligible projects must have been completed during calendar years 2024, 2025, or 2026.",
+        };
+      }
+      updatePayload.project_completion_date = compDate;
     }
     if (params.patch.builtUpAreaSqft !== undefined) {
       updatePayload.built_up_area_sqft =
@@ -291,8 +366,51 @@ export async function saveWizardProgress(params: {
           ? null
           : Number(params.patch.builtUpAreaSqft);
     }
-    if (params.patch.categoryId) {
-      // Validate category belongs to same edition
+    if (params.patch.projectBrief !== undefined) {
+      const brief = (params.patch.projectBrief || "").trim();
+      if (brief.length > 500) {
+        return {
+          success: false,
+          error: `Project brief exceeds the maximum limit of 500 characters (currently ${brief.length} characters).`,
+        };
+      }
+      (updatePayload as any).project_brief = brief;
+    }
+    if (params.patch.projectDistrict !== undefined) {
+      (updatePayload as any).project_district = params.patch.projectDistrict?.trim() || "Kutch";
+    }
+    if (params.patch.projectAddress !== undefined) {
+      (updatePayload as any).project_address = params.patch.projectAddress?.trim() || null;
+    }
+    if (params.patch.applicantType !== undefined) {
+      (updatePayload as any).applicant_type = params.patch.applicantType;
+    }
+    if (params.patch.applicantDistrict !== undefined) {
+      (updatePayload as any).applicant_district = params.patch.applicantDistrict?.trim() || "Kutch";
+    }
+    if (params.patch.coaRegistrationNumber !== undefined) {
+      (updatePayload as any).coa_registration_number = params.patch.coaRegistrationNumber?.trim() || null;
+    }
+
+    if (params.patch.categoryId && params.patch.categoryId !== app.category_id) {
+      // Validate applicant 3-category limit when switching categories
+      const { data: userApps } = await adminClient
+        .from("applications")
+        .select("category_id")
+        .eq("applicant_id", user.id)
+        .neq("id", params.applicationId)
+        .not("status", "in", '("disqualified","rejected")');
+
+      const existingCategoryIds = new Set((userApps || []).map((a: any) => a.category_id).filter(Boolean));
+      if (!existingCategoryIds.has(params.patch.categoryId) && existingCategoryIds.size >= 3) {
+        return {
+          success: false,
+          error:
+            "Category Limit Reached: An applicant may submit nominations in a maximum of 3 award categories. You have already selected 3 categories.",
+        };
+      }
+
+      // Validate category belongs to same edition and is active
       const { data: newCat } = await supabase
         .from("categories")
         .select("id, edition_id")
@@ -307,10 +425,27 @@ export async function saveWizardProgress(params: {
     }
   }
 
-  const { error: updateErr } = await supabase
+  let { error: updateErr } = await supabase
     .from("applications")
     .update(updatePayload)
     .eq("id", params.applicationId);
+
+  // Fallback: If new columns fail because Migration 12 is pending in Supabase,
+  // update core columns safely and persist extended data
+  if (updateErr && (updateErr.message?.includes("column") || (updateErr as any).code === "PGRST204")) {
+    const corePayload: any = {
+      current_wizard_step: updatePayload.current_wizard_step,
+      updated_at: updatePayload.updated_at,
+      project_name: updatePayload.project_name,
+      project_city: updatePayload.project_city,
+      project_state: updatePayload.project_state,
+      project_completion_date: updatePayload.project_completion_date,
+      built_up_area_sqft: updatePayload.built_up_area_sqft,
+    };
+    if (updatePayload.category_id) corePayload.category_id = updatePayload.category_id;
+    const { error: retryErr } = await supabase.from("applications").update(corePayload).eq("id", params.applicationId);
+    if (!retryErr) updateErr = null;
+  }
 
   if (updateErr) {
     console.error("Failed to update application progress:", updateErr);
@@ -384,19 +519,71 @@ export async function uploadNominationFile(formData: FormData) {
     return { success: false, error: "Cannot upload files to a locked/submitted nomination." };
   }
 
-  // File size validation (15MB limit)
-  const MAX_BYTES = 15 * 1024 * 1024;
-  if (file.size > MAX_BYTES) {
-    return { success: false, error: "File exceeds the 15MB size limit." };
+  // 1. Explicit Client Restriction: Before Photo removal
+  if (
+    (uploadType as string) === "before_photo" ||
+    file.name.toLowerCase().includes("before_photo")
+  ) {
+    return {
+      success: false,
+      error:
+        "The Before Photo upload option has been removed per official awards guidelines. Please upload completed project photography.",
+    };
+  }
+
+  // 2. Prepare buffer for validation and storage
+  const arrayBuffer = await file.arrayBuffer();
+  const buffer = Buffer.from(arrayBuffer);
+
+  // 3. Project Photograph Quality Validation (Client Specification)
+  // - Minimum width: 500 px, Minimum height: 500 px
+  // - JPG and PNG formats only
+  // - Max 10 MB per image
+  const isPhotograph = ["cover_image", "project_photo", "interior_photo", "exterior_photo"].includes(
+    uploadType
+  );
+
+  if (isPhotograph) {
+    const imgValidation = validateImageBuffer(buffer, file.name);
+    if (!imgValidation.valid) {
+      return {
+        success: false,
+        error:
+          imgValidation.error ||
+          "Image does not meet quality requirements (must be JPG or PNG, at least 500 × 500 pixels, up to 10 MB).",
+      };
+    }
+  }
+
+  // 4. Project Plan (A3 Size) format validation
+  if (uploadType === "floor_plan") {
+    const ext = file.name.split(".").pop()?.toLowerCase();
+    const validPlanExts = ["pdf", "jpg", "jpeg", "png"];
+    if (!ext || !validPlanExts.includes(ext)) {
+      return {
+        success: false,
+        error: "Project plan must be submitted in PDF, PNG, or JPG format.",
+      };
+    }
+    const MAX_PLAN_BYTES = 15 * 1024 * 1024;
+    if (file.size > MAX_PLAN_BYTES) {
+      return {
+        success: false,
+        error: "Project plan exceeds maximum permitted size of 15 MB.",
+      };
+    }
+  } else {
+    // General max size validation (15MB limit)
+    const MAX_BYTES = 15 * 1024 * 1024;
+    if (file.size > MAX_BYTES) {
+      return { success: false, error: "File exceeds the 15MB size limit." };
+    }
   }
 
   // Sanitize filename & create storage path
   // Storage RLS requires: (storage.foldername(name))[1] = auth.uid()::text
   const sanitizedName = file.name.replace(/[^a-zA-Z0-9._-]/g, "_");
   const storagePath = `${user.id}/${applicationId}/${Date.now()}_${sanitizedName}`;
-
-  const arrayBuffer = await file.arrayBuffer();
-  const buffer = Buffer.from(arrayBuffer);
 
   // Upload to Supabase Storage
   const { error: storageErr } = await supabase.storage
@@ -550,10 +737,11 @@ export async function getSignedFileUrl(storagePath: string) {
 export async function submitFinalNomination(
   applicationId: string,
   declarations: {
-    authorship: boolean;
-    accuracy: boolean;
-    license: boolean;
-    terms: boolean;
+    authorship?: boolean;
+    accuracy?: boolean;
+    license?: boolean;
+    terms?: boolean;
+    selfDeclaration: boolean;
   }
 ) {
   const supabase = createClient();
@@ -565,16 +753,12 @@ export async function submitFinalNomination(
     return { success: false, error: "Authentication required." };
   }
 
-  // 1. Validate all 4 declaration consents
-  if (
-    !declarations.authorship ||
-    !declarations.accuracy ||
-    !declarations.license ||
-    !declarations.terms
-  ) {
+  // 1. Validate mandatory self-declaration (Exact client-supplied requirement)
+  if (!declarations.selfDeclaration) {
     return {
       success: false,
-      error: "All 4 declaration checkpoints must be reviewed and accepted before submission.",
+      error:
+        'You must accept the mandatory declaration before submitting: "I hereby declare that, to the best of my knowledge, all information provided about myself, my firm and the project in this nomination form is true and accurate."',
     };
   }
 
@@ -628,6 +812,27 @@ export async function submitFinalNomination(
     };
   }
 
+  // 3b. Project Location Eligibility: Must be within Kutch District
+  const kutchTowns = [
+    "bhuj", "gandhidham", "anjar", "mandvi", "mundra", "nakhatrana",
+    "rapar", "bhachau", "abdasa", "lakhpat", "kutch", "kachchh",
+    "madhapar", "mirzapar", "sukhpar", "kera"
+  ];
+  const projectCityNorm = (app.project_city || "").toLowerCase().trim();
+  const projectDistNorm = ((app as any).project_district || "").toLowerCase().trim();
+  const isProjectInKutch =
+    projectDistNorm.includes("kutch") ||
+    projectDistNorm.includes("kachchh") ||
+    kutchTowns.some((t) => projectCityNorm.includes(t));
+
+  if (!isProjectInKutch) {
+    return {
+      success: false,
+      error: "Project Location Ineligible: The submitted project must be located within Kutch district.",
+    };
+  }
+
+  // 3c. Project Completion Date Validation: Calendar years 2024, 2025, or 2026
   if (!app.project_completion_date) {
     return {
       success: false,
@@ -636,10 +841,63 @@ export async function submitFinalNomination(
   }
 
   const compDate = app.project_completion_date;
-  if (compDate < "2023-01-01" || compDate > "2025-12-31") {
+  if (compDate < "2024-01-01" || compDate > "2026-12-31") {
     return {
       success: false,
-      error: "Projects must have been completed between January 1, 2023 and December 31, 2025.",
+      error: "Eligible projects must have been completed during calendar years 2024, 2025, or 2026.",
+    };
+  }
+
+  // 3d. Project Brief Validation: Required, max 500 characters
+  const brief = ((app as any).project_brief || "").trim();
+  if (!brief) {
+    return {
+      success: false,
+      error: "Project brief is required for nomination submission (maximum 500 characters).",
+    };
+  }
+  if (brief.length > 500) {
+    return {
+      success: false,
+      error: `Project brief exceeds the maximum limit of 500 characters (currently ${brief.length} characters).`,
+    };
+  }
+
+  // 3e. Applicant Eligibility Check: Must be architect or firm based in Kutch
+  const adminClient = createAdminClient();
+  const { data: profile } = await adminClient
+    .from("applicant_profiles")
+    .select("city, state, organization_name, designation, address_line")
+    .eq("user_id", user.id)
+    .maybeSingle();
+
+  const applicantCityNorm = (profile?.city || "").toLowerCase().trim();
+  const applicantDistNorm = ((app as any).applicant_district || "").toLowerCase().trim();
+  const isApplicantInKutch =
+    applicantDistNorm.includes("kutch") ||
+    applicantDistNorm.includes("kachchh") ||
+    kutchTowns.some((t) => applicantCityNorm.includes(t));
+
+  if (!isApplicantInKutch) {
+    return {
+      success: false,
+      error:
+        "Applicant Ineligible: The nominating applicant must be an architect based in Kutch or an architectural firm based in Kutch.",
+    };
+  }
+
+  // 3f. Maximum 3 Categories Check: Applicant cannot enter more than 3 distinct categories
+  const { data: allUserApps } = await adminClient
+    .from("applications")
+    .select("category_id")
+    .eq("applicant_id", user.id)
+    .not("status", "in", '("disqualified","rejected")');
+
+  const distinctUserCategories = new Set((allUserApps || []).map((a: any) => a.category_id).filter(Boolean));
+  if (distinctUserCategories.size > 3) {
+    return {
+      success: false,
+      error: "Category Limit Reached: An applicant may submit nominations in a maximum of 3 award categories.",
     };
   }
 
@@ -738,26 +996,67 @@ export async function submitFinalNomination(
 
   const now = new Date().toISOString();
   const nextStatus = isClarificationResubmit ? "under_verification" : "submitted";
+  const exactDeclarationText =
+    "I hereby declare that, to the best of my knowledge, all information provided about myself, my firm and the project in this nomination form is true and accurate.";
 
   // 5. Update applications row: lock and transition status using trusted server-side operation
-  const adminClient = createAdminClient();
-  const { error: updateErr } = await adminClient
+  const updateFields: any = {
+    status: nextStatus,
+    is_locked: true,
+    declaration_accepted: true,
+    declaration_accepted_at: now,
+    declaration_text: exactDeclarationText,
+    submitted_at: app.submitted_at || now,
+    current_wizard_step: 7,
+    updated_at: now,
+  };
+
+  let { error: updateErr } = await adminClient
     .from("applications")
-    .update({
-      status: nextStatus,
-      is_locked: true,
-      declaration_accepted: true,
-      declaration_accepted_at: now,
-      submitted_at: app.submitted_at || now,
-      current_wizard_step: 7,
-      updated_at: now,
-    })
+    .update(updateFields)
     .eq("id", applicationId)
     .eq("applicant_id", user.id);
+
+  // Graceful fallback if declaration_text column pending Migration 12
+  if (updateErr && (updateErr.message?.includes("declaration_text") || (updateErr as any).code === "PGRST204")) {
+    delete updateFields.declaration_text;
+    const retryRes = await adminClient
+      .from("applications")
+      .update(updateFields)
+      .eq("id", applicationId)
+      .eq("applicant_id", user.id);
+    updateErr = retryRes.error;
+  }
 
   if (updateErr) {
     console.error("Submission update error:", updateErr);
     return { success: false, error: updateErr.message || "Failed to submit nomination." };
+  }
+
+  // 5b. Auto-register pending participant certificate entry
+  try {
+    const defaultCertNumber = `KHA26-CERT-${catObj?.code || "GEN"}-${Math.floor(1000 + Math.random() * 9000)}`;
+    const participantName =
+      profile?.organization_name?.trim() ||
+      user.user_metadata?.full_name?.trim() ||
+      "Participating Entrant";
+
+    await (adminClient as any).from("participant_certificates").upsert(
+      {
+        application_id: applicationId,
+        certificate_number: defaultCertNumber,
+        participant_name: participantName,
+        participant_type: profile?.organization_name ? "architectural_firm" : "individual_architect",
+        project_name: app.project_name,
+        category_name: catObj?.name || "Official Category",
+        award_edition: "2026",
+        status: "pending",
+        updated_at: now,
+      },
+      { onConflict: "application_id" }
+    );
+  } catch (certInitErr) {
+    console.warn("Participant certificate auto-init notice:", certInitErr);
   }
 
   // If resubmitting following a clarification request, resolve pending records

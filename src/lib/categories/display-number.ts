@@ -2,18 +2,18 @@
  * Category Display Number Utility
  * Kutchmitra Home & Decor Awards 2026
  *
- * Provides safe presentation-layer sequential numbering (01 through 14)
- * for the 14 active award categories per official client specification
- * ("Kutchmitra_Home Decor Awards 2026_Categories.pdf").
+ * Provides safe presentation-layer sequential numbering (01 through 16)
+ * for the 16 active award categories per official client specification
+ * ("Kutchmitra_Home Decor Awards_Portal Changes.docx" / Section A).
  *
  * CRITICAL ARCHITECTURAL GUARANTEE:
- * - Internal database category codes ('01', '02', '04', ..., '17') remain unchanged for database
+ * - Internal database category codes ('01', '02', '04', ..., '17', '18', '19') remain unchanged for database
  *   relationships, primary keys, UUIDs, foreign keys, nomination IDs (KHA26-XX-XXXX), and audit logs.
  * - This module ONLY transforms values for user-visible display in UI badges, headers, filters, and cards.
  * - Retired categories ('03', '06', '13') retain safe fallbacks for historical data integrity.
  */
 
-export const TOTAL_ACTIVE_CATEGORIES = 14;
+export const TOTAL_ACTIVE_CATEGORIES = 16;
 
 /**
  * The three retired categories per client instruction:
@@ -235,6 +235,26 @@ export const ACTIVE_CATEGORIES: ActiveCategoryItem[] = [
     short_description: "Recognising commercial buildings that demonstrate excellence in architectural design, functionality, construction quality, sustainability and the effective integration of infrastructure and user-oriented facilities.",
     is_active: true,
   },
+  {
+    id: "c2026000-0000-0000-0000-000000000018",
+    code: "18",
+    displayNumber: "15",
+    name: "Excellence in Vernacular Architecture",
+    slug: "excellence-in-vernacular-architecture",
+    display_order: 15,
+    short_description: "Recognising homes and residential projects that thoughtfully reinterpret Kutch's traditional architecture, including the bhunga, local building forms, courtyards, proportions and traditional spatial planning, while responding to contemporary living needs.",
+    is_active: true,
+  },
+  {
+    id: "c2026000-0000-0000-0000-000000000019",
+    code: "19",
+    displayNumber: "16",
+    name: "Excellence in Kutchi Craft & Artisan Integration",
+    slug: "excellence-in-kutchi-craft-and-artisan-integration",
+    display_order: 16,
+    short_description: "Recognising interior or residential projects that meaningfully integrate Kutchi crafts and regional artisans, including embroidery, Ajrakh, Bandhani, woodwork, pottery, metalwork, leatherwork and other local craft traditions.",
+    is_active: true,
+  },
 ];
 
 const CODE_TO_CANONICAL = new Map(ACTIVE_CATEGORIES.map((c) => [c.code, c]));
@@ -242,12 +262,12 @@ const UUID_TO_CANONICAL = new Map(ACTIVE_CATEGORIES.map((c) => [c.id, c]));
 const SLUG_TO_CANONICAL = new Map(ACTIVE_CATEGORIES.map((c) => [c.slug, c]));
 
 /**
- * Returns the authoritative list of 14 active categories, ordered sequentially 01 through 14.
+ * Returns the authoritative list of 16 active categories, ordered sequentially 01 through 16.
  *
  * If `dbRows` is provided:
  * - Excludes retired categories (03, 06, 13) and any row with is_active === false.
  * - Merges DB row fields (preserving dynamic DB IDs, custom descriptions, etc.) with canonical numbering.
- * - Guarantees all 14 categories are always returned in the exact approved order, even if certain
+ * - Guarantees all 16 categories are always returned in the exact approved order, even if certain
  *   database rows have not yet been seeded in the live database.
  */
 export function getActiveCategories<
@@ -289,7 +309,7 @@ export function getActiveCategories<
     }
   }
 
-  // Sort strictly by displayNumber 01 through 14
+  // Sort strictly by displayNumber 01 through 16
   merged.sort(
     (a, b) => parseInt(a.displayNumber, 10) - parseInt(b.displayNumber, 10)
   );
@@ -299,7 +319,7 @@ export function getActiveCategories<
 
 /**
  * Static mapping from canonical database category code to user-visible sequential display number.
- * 14 active categories strictly ordered 01 to 14.
+ * 16 active categories strictly ordered 01 to 16.
  * Retired categories map to "Retired" to prevent duplicate numbers (e.g. 06, 13).
  */
 export const CATEGORY_CODE_TO_DISPLAY_NUMBER: Record<string, string> = {
@@ -315,11 +335,15 @@ export const CATEGORY_CODE_TO_DISPLAY_NUMBER: Record<string, string> = {
   "11": "09", // Best Themed Project of the Year (formerly 11)
   "12": "10", // Luxury Villa Project of the Year (formerly 12)
 
-  // 4 New Categories
-  "14": "11", // Best Developer of the Year (new 14)
-  "15": "12", // Best Organised Township of the Year (new 15)
-  "16": "13", // Best Office Design of the Year (new 16)
-  "17": "14", // Best Commercial Building of the Year (new 17)
+  // 4 Established Categories (from 14-category structure)
+  "14": "11", // Best Developer of the Year (code 14)
+  "15": "12", // Best Organised Township of the Year (code 15)
+  "16": "13", // Best Office Design of the Year (code 16)
+  "17": "14", // Best Commercial Building of the Year (code 17)
+
+  // 2 New Proposed Categories (16-category structure)
+  "18": "15", // Excellence in Vernacular Architecture (code 18)
+  "19": "16", // Excellence in Kutchi Craft & Artisan Integration (code 19)
 
   // Fallbacks for Retired Categories (avoid collision with active display numbers 03, 06, 13)
   "03": "Retired", // Best Apartment Design (Retired)
@@ -343,11 +367,15 @@ export const CATEGORY_UUID_TO_DISPLAY_NUMBER: Record<string, string> = {
   "c2026000-0000-0000-0000-000000000011": "09",
   "c2026000-0000-0000-0000-000000000012": "10",
 
-  // 4 New Categories
+  // 4 Established Categories
   "c2026000-0000-0000-0000-000000000014": "11",
   "c2026000-0000-0000-0000-000000000015": "12",
   "c2026000-0000-0000-0000-000000000016": "13",
   "c2026000-0000-0000-0000-000000000017": "14",
+
+  // 2 New Proposed Categories
+  "c2026000-0000-0000-0000-000000000018": "15",
+  "c2026000-0000-0000-0000-000000000019": "16",
 
   // Fallbacks for Retired Categories
   "c2026000-0000-0000-0000-000000000003": "Retired",
@@ -371,11 +399,16 @@ export const CATEGORY_SLUG_TO_DISPLAY_NUMBER: Record<string, string> = {
   "best-themed-project-of-the-year": "09",
   "luxury-villa-project-of-the-year": "10",
 
-  // 4 New Categories
+  // 4 Established Categories
   "best-developer-of-the-year": "11",
   "best-organised-township-of-the-year": "12",
   "best-office-design-of-the-year": "13",
   "best-commercial-building-of-the-year": "14",
+
+  // 2 New Proposed Categories
+  "excellence-in-vernacular-architecture": "15",
+  "excellence-in-kutchi-craft-and-artisan-integration": "16",
+  "excellence-in-kutchi-craft-artisan-integration": "16",
 
   // Fallbacks for Retired Categories
   "best-apartment-design": "Retired",

@@ -17,12 +17,15 @@ export function AwardIntroSection() {
 
           {/* Right: Short paragraph & CTA (7 cols) */}
           <div className="lg:col-span-7 space-y-4">
+            <p className="font-display italic text-lg sm:text-xl text-navy-900 font-medium">
+              &ldquo;Celebrating the Spirit of Kutch Through Architecture, Craft and Sustainability.&rdquo;
+            </p>
             <p className="body-editorial text-[#4A4F5C]">
-              The Kutchmitra Home &amp; Decor Awards 2026 celebrate outstanding residential architecture, interior design, and craftsmanship. The platform honors visionary design thinking and spatial innovation across diverse residential categories.
+              The Kutchmitra Home &amp; Decor Awards 2026 celebrate outstanding residential architecture, interior design, and local craftsmanship across Kutch. Welcoming both traditional and contemporary design approaches, the awards recognize architects and architectural firms based in Kutch for projects completed in 2024, 2025, or 2026 within Kutch district.
             </p>
             <div>
               <EditorialLink href="/about" theme="light" showArrow>
-                Read About the Awards
+                Read About the Awards &amp; Eligibility
               </EditorialLink>
             </div>
           </div>

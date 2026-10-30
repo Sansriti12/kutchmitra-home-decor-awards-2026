@@ -5,6 +5,7 @@ import { ensureApplicantProfile } from "@/lib/auth/profile";
 import CategorySelectorClient from "@/components/nominations/CategorySelectorClient";
 import type { CategoryOption } from "@/components/nominations/Step2Category";
 import { getActiveCategories } from "@/lib/utils";
+import { getApplicantCategoryQuota } from "@/lib/nominations/actions";
 
 export const dynamic = "force-dynamic";
 
@@ -20,6 +21,9 @@ export default async function NewNominationPage() {
 
   // Idempotently ensure applicant profile exists
   await ensureApplicantProfile(supabase, user);
+
+  // Fetch applicant's category quota (enforcing max 3 distinct categories)
+  const quota = await getApplicantCategoryQuota();
 
   // Fetch active 2026 categories
   const { data: categoriesData } = await supabase
@@ -37,5 +41,5 @@ export default async function NewNominationPage() {
     eligibility_criteria: c.eligibility_criteria,
   }));
 
-  return <CategorySelectorClient categories={categories} />;
+  return <CategorySelectorClient categories={categories} quota={quota} />;
 }

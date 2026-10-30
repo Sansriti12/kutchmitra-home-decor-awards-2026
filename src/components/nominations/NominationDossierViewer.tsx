@@ -22,6 +22,7 @@ import { Button } from "@/components/ui/Button";
 import { formatDeterministicDate, getCategoryDisplayNumber } from "@/lib/utils";
 import { getSignedFileUrl } from "@/lib/nominations/actions";
 import { formatAnswer, NOT_PROVIDED_LABEL } from "@/lib/nominations/answer-format";
+import CertificateView from "@/components/certificates/CertificateView";
 import type { EntrantDetailsData } from "./Step1EntrantDetails";
 import type { CategoryOption } from "./Step2Category";
 import type { ProjectDetailsData } from "./Step3ProjectDetails";
@@ -131,6 +132,7 @@ export default function NominationDossierViewer({
   files,
 }: NominationDossierViewerProps) {
   const [copied, setCopied] = useState(false);
+  const [showCertificateModal, setShowCertificateModal] = useState(false);
 
   const statusCfg = STATUS_CONFIG[application.status] || STATUS_CONFIG.submitted;
 
@@ -158,7 +160,7 @@ export default function NominationDossierViewer({
     <div className="min-h-screen bg-[#F4F1EA] pb-20 print:bg-white print:p-0">
       {/* Top Header Bar */}
       <div className="bg-[#FBFAF7] border-b border-navy-900/10 sticky top-0 z-30 shadow-sm print:hidden">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-3.5 flex items-center justify-between gap-4">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-3.5 flex items-center justify-between gap-4 flex-wrap">
           <div className="flex items-center gap-3">
             <Link
               href="/dashboard"
@@ -181,8 +183,16 @@ export default function NominationDossierViewer({
           <div className="flex items-center gap-2">
             <button
               type="button"
+              onClick={() => setShowCertificateModal(true)}
+              className="inline-flex items-center gap-1.5 px-3 py-1.5 border border-gold-500 bg-gold-500/15 hover:bg-gold-500/25 text-xs font-mono uppercase tracking-wider text-navy-900 font-bold transition-colors cursor-pointer shadow-2xs"
+            >
+              <ShieldCheck size={14} className="text-gold-700" />
+              <span>Certificate of Appreciation</span>
+            </button>
+            <button
+              type="button"
               onClick={() => window.print()}
-              className="inline-flex items-center gap-1.5 px-3 py-1.5 border border-gold-500/30 bg-gold-500/10 hover:bg-gold-500/20 text-xs font-mono uppercase tracking-wider text-gold-800 transition-colors"
+              className="inline-flex items-center gap-1.5 px-3 py-1.5 border border-navy-900/15 bg-white hover:bg-slate-50 text-xs font-mono uppercase tracking-wider text-navy-900 transition-colors"
             >
               <Printer size={13} />
               <span>Print Application</span>
@@ -397,10 +407,25 @@ export default function NominationDossierViewer({
         <div className="p-4 bg-emerald-50 border border-emerald-200 text-emerald-900 text-xs flex items-center gap-2">
           <ShieldCheck size={16} className="text-emerald-700 flex-shrink-0" />
           <span>
-            All 4 official governance declarations were accepted and certified by the applicant prior to submission.
+            All official governance declarations and the mandatory veracity affirmation were accepted and timestamped by the applicant prior to submission.
           </span>
         </div>
       </main>
+
+      {/* Official Certificate of Appreciation Modal */}
+      {showCertificateModal && (
+        <CertificateView
+          certificate={{
+            certificateNumber: `KMHDA-2026-${application.nomination_id || application.id.slice(0, 8).toUpperCase()}`,
+            participantName: entrant.fullName || entrant.organizationName || "Nominated Architect",
+            projectName: application.project_name || "Nominated Project",
+            categoryName: category.name || "Architecture & Spatial Design",
+            editionYear: "2026",
+            issuedAt: application.submitted_at || application.declaration_accepted_at || new Date().toISOString(),
+          }}
+          onClose={() => setShowCertificateModal(false)}
+        />
+      )}
     </div>
   );
 }

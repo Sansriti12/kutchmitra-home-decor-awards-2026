@@ -188,7 +188,7 @@ export async function getReportsWorkspaceData(): Promise<ReportWorkspaceData> {
   const adminClient = createAdminClient();
 
   try {
-    // 1. Fetch categories (authoritative 14 active categories, ordered by display_order)
+    // 1. Fetch categories (authoritative 16 active categories, ordered by display_order)
     const { data: rawCategories, error: catErr } = await adminClient
       .from("categories")
       .select("id, code, name, slug, display_order, is_active")

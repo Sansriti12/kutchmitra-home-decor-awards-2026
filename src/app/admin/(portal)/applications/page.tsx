@@ -36,7 +36,7 @@ export default async function AdminApplicationsPage({ searchParams }: Applicatio
 
   const adminClient = createAdminClient();
 
-  // Parallel fetch: applications data and all 14 active categories
+  // Parallel fetch: applications data and all 16 active categories
   const [appsResult, categoriesRes] = await Promise.all([
     getAdminApplications({
       page,

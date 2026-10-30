@@ -91,6 +91,7 @@ export interface CmsCategoryItem {
   coverImageUrl: string | null;
   isActive: boolean;
   displayOrder: number;
+  isDbSynced?: boolean;
 }
 
 export interface CmsWorkspaceData {

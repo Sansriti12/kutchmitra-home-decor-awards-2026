@@ -83,6 +83,25 @@ export default function CategoryDetailPage({ params }: PageProps) {
                 </p>
               </div>
 
+              {category.suggestedParameters && category.suggestedParameters.length > 0 && (
+                <div className="p-6 bg-[#FBFAF7] border-l-2 border-gold-500 border-y border-r border-navy-900/10 space-y-3">
+                  <span className="font-mono text-xs uppercase tracking-wider text-navy-900 font-semibold block">
+                    Suggested Evaluation Parameters
+                  </span>
+                  <ul className="space-y-2.5 text-sm text-[#4A4F5C] font-sans">
+                    {category.suggestedParameters.map((param, idx) => (
+                      <li key={idx} className="flex items-start gap-2.5">
+                        <CheckCircle2 size={16} className="text-gold-600 flex-shrink-0 mt-0.5" />
+                        <span className="leading-relaxed">{param}</span>
+                      </li>
+                    ))}
+                  </ul>
+                  <p className="text-[11px] font-mono text-slate-500 pt-1">
+                    Guidance for applicants and independent jury review.
+                  </p>
+                </div>
+              )}
+
               <div className="flex flex-wrap items-center gap-4 pt-2">
                 <Button href="/register" variant="primary" size="md" icon={<ArrowRight size={14} />}>
                   Nominate in this Category

@@ -14,12 +14,12 @@ export function FeaturedCategoriesSection() {
           <div className="space-y-3">
             <SectionMarker number="02" label="Award Disciplines" theme="light" />
             <h2 className="heading-editorial text-navy-900">
-              14 Award Categories
+              16 Proposed Award Categories
             </h2>
           </div>
           <div className="flex flex-col sm:flex-row sm:items-center gap-4">
             <p className="body-editorial text-[#4A4F5C] max-w-md text-sm sm:text-base">
-              The official disciplines recognized in the 2026 edition, honoring excellence across architecture, interior design, and residential development.
+              The official disciplines recognized in the 2026 edition, honoring excellence across architecture, interior design, vernacular heritage, and residential development.
             </p>
             <Button
               href="/categories"
@@ -33,9 +33,9 @@ export function FeaturedCategoriesSection() {
           </div>
         </div>
 
-        {/* 14 Categories Clean Horizontal Presentation */}
-        {/* Large desktop: 2 rows of 7 compact editorial cards, with smooth horizontal scroll capability if desired */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-7 gap-3.5 sm:gap-4">
+        {/* 16 Categories Clean Horizontal Presentation */}
+        {/* Responsive layout: 4 columns of 4 cards on desktop */}
+        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-4 gap-3.5 sm:gap-4">
           {AWARD_CATEGORIES.map((category) => (
             <article
               key={category.id}
@@ -84,10 +84,10 @@ export function FeaturedCategoriesSection() {
         {/* Informational Footer Note */}
         <div className="pt-4 flex items-center justify-between border-t border-navy-900/10 text-xs font-mono text-[#4A4F5C]">
           <span>
-            All 14 categories are open for official 2026 nominations upon registration.
+            All 16 categories are open for official 2026 nominations upon registration.
           </span>
           <span className="hidden sm:inline-block text-[11px] text-slate-400">
-            14 Disciplines &bull; Edition 2026
+            16 Disciplines &bull; Edition 2026
           </span>
         </div>
       </div>

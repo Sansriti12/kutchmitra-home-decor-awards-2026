@@ -59,7 +59,7 @@ export async function getShortlistingWorkspaceData(params?: {
   const adminClient = createAdminClient();
 
   try {
-    // 1. Fetch categories (authoritative 14 active categories, ordered 01-14)
+    // 1. Fetch categories (authoritative 16 active categories, ordered 01-16)
     const { data: categoriesData } = await adminClient
       .from("categories")
       .select("id, name, code, display_order")

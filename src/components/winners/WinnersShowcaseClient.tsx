@@ -102,7 +102,7 @@ export default function WinnersShowcaseClient({
 
             <div className="pt-4 flex flex-wrap items-center justify-center gap-4">
               <Button href="/categories" variant="outline-dark" size="md">
-                Explore 14 Categories
+                Explore 16 Categories
               </Button>
               <Button href="/register" variant="primary" size="md" icon={<ArrowRight size={14} />}>
                 Nominate Now

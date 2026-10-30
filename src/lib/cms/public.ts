@@ -19,7 +19,7 @@ export const DEFAULT_SITE_SETTINGS: CmsSiteSettings = {
   privacyContactEmail: "Kutchmitraweb@gmail.com",
   homepageBannerActive: false,
   homepageBannerBadge: "ANNOUNCEMENT",
-  homepageBannerText: "Nominations for the 2026 edition are opening soon across all 14 categories.",
+  homepageBannerText: "Nominations for the 2026 edition are opening soon across all 16 proposed categories.",
   homepageBannerLink: "/categories",
   homepageBannerLinkText: "View Categories",
   createdAt: new Date().toISOString(),

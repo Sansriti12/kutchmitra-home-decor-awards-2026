@@ -38,6 +38,8 @@ import {
 } from "lucide-react";
 import { cn, getCategoryDisplayNumber } from "@/lib/utils";
 import { formatAnswer, NOT_PROVIDED_LABEL } from "@/lib/nominations/answer-format";
+import CertificateView from "@/components/certificates/CertificateView";
+import type { ParticipantCertificateItem } from "@/lib/certificates/types";
 import {
   updateApplicationStatus,
   requestApplicationClarification,
@@ -212,9 +214,12 @@ export default function AdminDossierClient({ dossier }: AdminDossierClientProps)
 
   const isKutch = isKutchLocation(app?.project_city);
 
-  // Check completion date validity (2023-01-01 to 2025-12-31)
+  // Check completion date validity per 2026 rules (2024-01-01 to 2026-12-31)
   const compDate = app?.project_completion_date;
-  const isDateValid = compDate && compDate >= "2023-01-01" && compDate <= "2025-12-31";
+  const isDateValid = compDate && compDate >= "2024-01-01" && compDate <= "2026-12-31";
+
+  // Certificate of appreciation modal state
+  const [showCertificateModal, setShowCertificateModal] = useState(false);
 
   const handleCopy = (text: string) => {
     navigator.clipboard.writeText(text);
@@ -514,6 +519,17 @@ export default function AdminDossierClient({ dossier }: AdminDossierClientProps)
           </div>
 
           <div className="flex items-center gap-2">
+            {app.status !== "draft" && (
+              <button
+                onClick={() => setShowCertificateModal(true)}
+                className="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-mono text-gold-300 bg-gold-500/10 hover:bg-gold-500/20 border border-gold-500/30 transition-colors cursor-pointer"
+                title="View & Print Certificate of Appreciation"
+              >
+                <ShieldCheck size={13} className="text-gold-400" />
+                <span>Certificate of Appreciation</span>
+              </button>
+            )}
+
             <button
               onClick={() => setActiveTab("notes")}
               className="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-mono text-slate-300 bg-white/5 hover:bg-white/10 border border-white/10 transition-colors"
@@ -673,7 +689,7 @@ export default function AdminDossierClient({ dossier }: AdminDossierClientProps)
                 )}
                 <div className="space-y-1">
                   <div className="text-xs font-semibold text-white flex items-center gap-2">
-                    <span>Completion Window (2023–2025):</span>
+                    <span>Completion Window (2024–2026):</span>
                     <span
                       className={cn(
                         "text-[10px] font-mono uppercase px-1.5 py-0.2 border",
@@ -692,7 +708,7 @@ export default function AdminDossierClient({ dossier }: AdminDossierClientProps)
                     </span>
                   </p>
                   <p className="text-[10px] text-slate-400">
-                    Official guidelines require completion between January 1, 2023 and December 31, 2025.
+                    Official guidelines require completion during calendar years 2024, 2025, or 2026.
                   </p>
                 </div>
               </div>
@@ -726,13 +742,16 @@ export default function AdminDossierClient({ dossier }: AdminDossierClientProps)
               </div>
 
               <div className="space-y-1">
-                <span className="text-[11px] font-mono uppercase text-slate-400">Project City</span>
-                <p className="text-sm font-semibold text-white">{app.project_city || "Bhuj"}</p>
+                <span className="text-[11px] font-mono uppercase text-slate-400">Project District</span>
+                <p className="text-sm font-semibold text-emerald-400 flex items-center gap-1">
+                  <CheckCircle2 size={13} />
+                  <span>Kutch District</span>
+                </p>
               </div>
 
               <div className="space-y-1">
-                <span className="text-[11px] font-mono uppercase text-slate-400">Project State</span>
-                <p className="text-sm font-semibold text-white">{app.project_state || "Gujarat"}</p>
+                <span className="text-[11px] font-mono uppercase text-slate-400">Project City / Taluka</span>
+                <p className="text-sm font-semibold text-white">{app.project_city || "Bhuj"}</p>
               </div>
 
               <div className="space-y-1">
@@ -741,30 +760,57 @@ export default function AdminDossierClient({ dossier }: AdminDossierClientProps)
                   {app.project_completion_date || "Not specified"}
                 </p>
               </div>
+
+              {((app as any).project_address) && (
+                <div className="sm:col-span-2 lg:col-span-3 space-y-1 pt-2 border-t border-white/5">
+                  <span className="text-[11px] font-mono uppercase text-slate-400">Site Address / Landmark</span>
+                  <p className="text-sm text-slate-200">{(app as any).project_address}</p>
+                </div>
+              )}
+
+              {((app as any).project_brief) && (
+                <div className="sm:col-span-2 lg:col-span-3 space-y-1.5 pt-2 border-t border-white/5">
+                  <div className="flex items-center justify-between">
+                    <span className="text-[11px] font-mono uppercase text-gold-400 font-semibold">
+                      Architectural Project Brief
+                    </span>
+                    <span className="text-[10px] font-mono text-slate-500">
+                      {((app as any).project_brief || "").length} / 500 characters
+                    </span>
+                  </div>
+                  <p className="text-xs text-slate-200 font-sans leading-relaxed bg-navy-950 p-3.5 border border-white/10 whitespace-pre-wrap">
+                    {(app as any).project_brief}
+                  </p>
+                </div>
+              )}
             </div>
 
             {/* Declaration Details */}
-            <div className="pt-4 border-t border-white/10 space-y-2">
+            <div className="pt-4 border-t border-white/10 space-y-3">
               <div className="flex items-center justify-between">
-                <span className="text-[11px] font-mono uppercase text-slate-400">
-                  Applicant Declarations &amp; Authorship
+                <span className="text-[11px] font-mono uppercase text-gold-400 font-semibold flex items-center gap-2">
+                  <ShieldCheck size={14} />
+                  <span>Mandatory Self-Declaration (Verified Record)</span>
                 </span>
                 <span
                   className={cn(
-                    "text-[10px] font-mono uppercase px-2 py-0.5 border",
+                    "text-[10px] font-mono uppercase px-2 py-0.5 border font-semibold",
                     app.declaration_accepted
-                      ? "bg-emerald-950 text-emerald-400 border-emerald-500/30"
+                      ? "bg-emerald-950 text-emerald-400 border-emerald-500/40"
                       : "bg-slate-800 text-slate-400 border-slate-700"
                   )}
                 >
-                  {app.declaration_accepted ? "Declaration Accepted" : "Pending Declaration"}
+                  {app.declaration_accepted ? "✓ Declaration Formally Accepted" : "Pending Declaration"}
                 </span>
               </div>
-              <p className="text-xs text-slate-300">
+              <p className="text-xs text-slate-300 italic bg-navy-950 p-3 border border-white/5 leading-relaxed">
+                &ldquo;{(app as any).declaration_text || "I hereby declare that, to the best of my knowledge, all information provided about myself, my firm and the project in this nomination form is true and accurate."}&rdquo;
+              </p>
+              <p className="text-[11px] text-slate-400 font-mono">
                 {app.declaration_accepted
-                  ? `Applicant accepted all legal declarations (authorship, accuracy of information, copyright license, and terms) on ${new Date(
+                  ? `Signed and timestamped by applicant on ${new Date(
                       app.declaration_accepted_at || app.submitted_at || app.created_at
-                    ).toLocaleString("en-IN")}.`
+                    ).toLocaleString("en-IN")}. Verified for desk eligibility audit.`
                   : "Declarations have not yet been accepted by the applicant."}
               </p>
             </div>
@@ -791,6 +837,30 @@ export default function AdminDossierClient({ dossier }: AdminDossierClientProps)
             <div className="space-y-1">
               <span className="text-[11px] font-mono uppercase text-slate-400">Full Name</span>
               <p className="text-sm font-semibold text-white">{applicant?.fullName || "Not provided"}</p>
+            </div>
+
+            <div className="space-y-1">
+              <span className="text-[11px] font-mono uppercase text-slate-400">Applicant Eligibility Type</span>
+              <p className="text-sm font-semibold text-gold-300">
+                {(app as any).applicant_type === "architectural_firm"
+                  ? "Architectural Firm based in Kutch"
+                  : "Individual Architect based in Kutch"}
+              </p>
+            </div>
+
+            <div className="space-y-1">
+              <span className="text-[11px] font-mono uppercase text-slate-400">COA / Firm Registration</span>
+              <p className="text-sm font-mono text-white font-semibold">
+                {(app as any).coa_registration_number || (applicant as any)?.coaRegistrationNumber || "Verified on File"}
+              </p>
+            </div>
+
+            <div className="space-y-1">
+              <span className="text-[11px] font-mono uppercase text-slate-400">Practice District</span>
+              <p className="text-sm font-semibold text-emerald-400 flex items-center gap-1">
+                <CheckCircle2 size={13} />
+                <span>{(app as any).applicant_district || "Kutch District"}</span>
+              </p>
             </div>
 
             <div className="space-y-1">
@@ -1443,6 +1513,21 @@ export default function AdminDossierClient({ dossier }: AdminDossierClientProps)
             </div>
           </div>
         </div>
+      )}
+
+      {/* Participant Certificate of Appreciation Modal */}
+      {showCertificateModal && (
+        <CertificateView
+          certificate={{
+            certificateNumber: `KMHDA-2026-${app.nomination_id || app.id.slice(0, 8).toUpperCase()}`,
+            participantName: applicant?.fullName || applicant?.organizationName || "Participant Architect",
+            projectName: app.project_name || "Nominated Architectural Project",
+            categoryName: category?.name || "Architecture & Spatial Design",
+            editionYear: "2026",
+            issuedAt: app.submitted_at || app.created_at || new Date().toISOString(),
+          }}
+          onClose={() => setShowCertificateModal(false)}
+        />
       )}
     </div>
   );

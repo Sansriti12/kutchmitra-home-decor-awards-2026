@@ -161,6 +161,24 @@ export default function Step6Preview({
             <span className="font-medium text-navy-900 text-sm">{entrant.fullName}</span>
           </div>
           <div className="p-3 bg-white border border-navy-900/5 shadow-2xs">
+            <span className="font-mono text-[10px] text-slate-400 uppercase tracking-wider block">Applicant Type</span>
+            <span className="font-medium text-navy-900 text-sm">
+              {entrant.applicantType === "individual_architect" ? "Individual Architect" : "Architectural Firm"}
+            </span>
+          </div>
+          <div className="p-3 bg-white border border-navy-900/5 shadow-2xs">
+            <span className="font-mono text-[10px] text-slate-400 uppercase tracking-wider block">COA / Registration No.</span>
+            <span className="font-medium text-navy-900 text-sm font-mono">
+              {entrant.coaRegistrationNumber || "On File"}
+            </span>
+          </div>
+          <div className="p-3 bg-white border border-navy-900/5 shadow-2xs">
+            <span className="font-mono text-[10px] text-slate-400 uppercase tracking-wider block">Practice Location</span>
+            <span className="font-medium text-navy-900 text-sm">
+              {entrant.city}, {entrant.applicantDistrict || "Kutch"} ({entrant.state})
+            </span>
+          </div>
+          <div className="p-3 bg-white border border-navy-900/5 shadow-2xs">
             <span className="font-mono text-[10px] text-slate-400 uppercase tracking-wider block">Designation / Role</span>
             <span className="font-medium text-navy-900 text-sm">{entrant.designation || "Architect / Designer"}</span>
           </div>
@@ -175,10 +193,6 @@ export default function Step6Preview({
           <div className="p-3 bg-white border border-navy-900/5 shadow-2xs">
             <span className="font-mono text-[10px] text-slate-400 uppercase tracking-wider block">Phone / Mobile</span>
             <span className="font-medium text-navy-900 text-sm">{entrant.phone || "Not specified"}</span>
-          </div>
-          <div className="p-3 bg-white border border-navy-900/5 shadow-2xs">
-            <span className="font-mono text-[10px] text-slate-400 uppercase tracking-wider block">Studio Location</span>
-            <span className="font-medium text-navy-900 text-sm">{entrant.city}, {entrant.state}</span>
           </div>
         </div>
       </div>
@@ -249,7 +263,9 @@ export default function Step6Preview({
           </div>
           <div className="p-3 bg-white border border-navy-900/5 shadow-2xs">
             <span className="font-mono text-[10px] text-slate-400 uppercase tracking-wider block">Project Site Location</span>
-            <span className="font-medium text-navy-900 text-sm">{project.projectCity}, {project.projectState}</span>
+            <span className="font-medium text-navy-900 text-sm">
+              {project.projectCity}, {project.projectDistrict || "Kutch"} ({project.projectState})
+            </span>
           </div>
           <div className="p-3 bg-white border border-navy-900/5 shadow-2xs">
             <span className="font-mono text-[10px] text-slate-400 uppercase tracking-wider block">Completion Date</span>
@@ -265,6 +281,21 @@ export default function Step6Preview({
               {project.builtUpAreaSqft ? `${project.builtUpAreaSqft} Sq. Ft.` : "Not specified"}
             </span>
           </div>
+          {project.projectAddress && (
+            <div className="sm:col-span-2 p-3 bg-white border border-navy-900/5 shadow-2xs">
+              <span className="font-mono text-[10px] text-slate-400 uppercase tracking-wider block">Site Address / Landmark</span>
+              <span className="font-medium text-navy-900 text-sm">{project.projectAddress}</span>
+            </div>
+          )}
+          {project.projectBrief && (
+            <div className="sm:col-span-2 p-3.5 bg-white border border-navy-900/5 shadow-2xs space-y-1">
+              <div className="flex items-center justify-between">
+                <span className="font-mono text-[10px] text-slate-400 uppercase tracking-wider block">Project Brief</span>
+                <span className="font-mono text-[10px] text-slate-400">{project.projectBrief.length} / 500 characters</span>
+              </div>
+              <p className="font-sans text-xs text-navy-900 leading-relaxed whitespace-pre-wrap">{project.projectBrief}</p>
+            </div>
+          )}
         </div>
       </div>
 

@@ -20,6 +20,7 @@ import {
 } from "lucide-react";
 import { Button } from "@/components/ui/Button";
 import { uploadNominationFile, deleteNominationFile, getSignedFileUrl } from "@/lib/nominations/actions";
+import { validateImageFileClient } from "@/lib/nominations/image-validator";
 import type { UploadType } from "@/types/database.types";
 
 export interface FileItem {
@@ -62,7 +63,7 @@ const UPLOAD_TYPE_LABELS: Record<UploadType, string> = {
   project_photo: "General Project Photo",
   interior_photo: "Interior View Photo",
   exterior_photo: "Exterior / Elevation Photo",
-  floor_plan: "Architectural Floor Plan / Drawing",
+  floor_plan: "Project Plan (A3 Size) / Drawing",
   rendering_3d: "3D Render / Visualization",
   portfolio_pdf: "Project Portfolio Dossier (PDF)",
   supporting_doc: "Supporting Document / Certificate",
@@ -137,19 +138,30 @@ export default function Step5MediaDocuments({
   };
 
   const validateAndSetFile = (f: File) => {
-    const maxSizeMb = activeRequirement?.max_file_size_mb || 15;
+    const isPhoto = ["cover_image", "project_photo", "interior_photo", "exterior_photo"].includes(uploadType);
+    const maxSizeMb = isPhoto ? 10 : (activeRequirement?.max_file_size_mb || 15);
+
     if (f.size > maxSizeMb * 1024 * 1024) {
       setErrorMsg(`Selected file exceeds the ${maxSizeMb}MB size limit.`);
       setSelectedFile(null);
       return;
     }
 
-    const validMimes = ["image/jpeg", "image/png", "image/webp", "application/pdf"];
-    const isNamedValid = /\.(jpe?g|png|webp|pdf)$/i.test(f.name);
-    if (!validMimes.includes(f.type) && !isNamedValid) {
-      setErrorMsg("File format not supported. Please upload high-res JPG, PNG, WEBP, or PDF drawings.");
-      setSelectedFile(null);
-      return;
+    if (isPhoto) {
+      const ext = f.name.split(".").pop()?.toLowerCase();
+      if (ext !== "jpg" && ext !== "jpeg" && ext !== "png") {
+        setErrorMsg("Only JPG and PNG images are accepted for photographs.");
+        setSelectedFile(null);
+        return;
+      }
+    } else {
+      const validMimes = ["image/jpeg", "image/png", "application/pdf"];
+      const isNamedValid = /\.(jpe?g|png|pdf)$/i.test(f.name);
+      if (!validMimes.includes(f.type) && !isNamedValid) {
+        setErrorMsg("File format not supported. Accepted formats: PDF, JPG, PNG (up to 15MB).");
+        setSelectedFile(null);
+        return;
+      }
     }
 
     setSelectedFile(f);
@@ -191,6 +203,17 @@ export default function Step5MediaDocuments({
     setErrorMsg(null);
 
     try {
+      // Validate client-side image dimensions (min 500x500 px, JPG/PNG)
+      const isPhoto = ["cover_image", "project_photo", "interior_photo", "exterior_photo"].includes(uploadType);
+      if (isPhoto) {
+        const valRes = await validateImageFileClient(selectedFile);
+        if (!valRes.valid) {
+          setErrorMsg(valRes.error || "Image does not meet quality requirements.");
+          setIsUploading(false);
+          return;
+        }
+      }
+
       const formData = new FormData();
       formData.append("applicationId", applicationId);
       formData.append("file", selectedFile);
@@ -327,19 +350,31 @@ export default function Step5MediaDocuments({
         </p>
       </div>
 
-      {/* Advisory Notice */}
-      <div className="p-4 bg-white border border-navy-900/10 shadow-2xs flex items-start gap-3.5">
-        <div className="p-1.5 bg-gold-500/10 border border-gold-500/20 text-gold-700 flex-shrink-0 mt-0.5">
-          <Info size={16} />
+      {/* Official Upload Specifications Banner */}
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <div className="p-4 bg-white border border-navy-900/10 shadow-2xs space-y-1.5">
+          <div className="flex items-center gap-2 font-mono text-xs font-semibold text-navy-900 uppercase">
+            <ImageIcon size={15} className="text-gold-600" />
+            <span>Project Photograph Guidelines</span>
+          </div>
+          <ul className="text-xs text-[#4A4F5C] space-y-1 list-disc pl-4 leading-relaxed font-sans">
+            <li><strong>Minimum Dimensions:</strong> 500 × 500 pixels (uploads below 500px are rejected).</li>
+            <li><strong>Recommended Resolution:</strong> 1000 × 1000 pixels or higher for optimal jury viewing.</li>
+            <li><strong>Aspect Ratio:</strong> 1:1 square ratio recommended; non-square accepted if ≥ 500×500 px.</li>
+            <li><strong>Format & Size:</strong> JPG (.jpg, .jpeg) and PNG (.png) only; maximum 10 MB per image.</li>
+          </ul>
         </div>
-        <div className="text-xs text-[#4A4F5C] space-y-1 leading-relaxed">
-          <p className="font-medium text-navy-900">
-            Confidential Jury Dossier & Isolated Private Storage
-          </p>
-          <p>
-            All submitted files are securely stored in an encrypted private bucket accessible only by authorized verifiers and the category jury panel.
-            Supported formats: <span className="font-mono font-semibold text-navy-900">JPG, PNG, WEBP, PDF</span> (Maximum 15MB per file).
-          </p>
+
+        <div className="p-4 bg-white border border-navy-900/10 shadow-2xs space-y-1.5">
+          <div className="flex items-center gap-2 font-mono text-xs font-semibold text-navy-900 uppercase">
+            <FileText size={15} className="text-gold-600" />
+            <span>Project Plan (A3 Size) & Drawings</span>
+          </div>
+          <ul className="text-xs text-[#4A4F5C] space-y-1 list-disc pl-4 leading-relaxed font-sans">
+            <li><strong>Drawing Format:</strong> A3 size format recommended for architectural review.</li>
+            <li><strong>Accepted Formats:</strong> PDF (.pdf), JPG, or PNG. Maximum 15 MB per file.</li>
+            <li><strong>Notice:</strong> Before Photo upload option has been retired; only completed project photography and drawings are accepted.</li>
+          </ul>
         </div>
       </div>
 

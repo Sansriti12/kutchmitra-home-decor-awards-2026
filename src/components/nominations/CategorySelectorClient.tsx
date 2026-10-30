@@ -21,10 +21,17 @@ import type { CategoryOption } from "./Step2Category";
 
 interface CategorySelectorClientProps {
   categories: CategoryOption[];
+  quota?: {
+    enteredCategoryIds: string[];
+    distinctCount: number;
+    maxAllowed: number;
+    remainingSlots: number;
+  };
 }
 
 export default function CategorySelectorClient({
   categories,
+  quota = { enteredCategoryIds: [], distinctCount: 0, maxAllowed: 3, remainingSlots: 3 },
 }: CategorySelectorClientProps) {
   const router = useRouter();
 
@@ -95,6 +102,35 @@ export default function CategorySelectorClient({
           </p>
         </div>
 
+        {/* Quota Tracker Banner */}
+        <div className="bg-[#FBFAF7] border-2 border-navy-900/10 p-5 shadow-2xs flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+          <div className="space-y-1">
+            <div className="flex items-center gap-2">
+              <span className="font-mono text-[10px] uppercase tracking-wider text-slate-500 font-bold">
+                Category Entry Quota:
+              </span>
+              <span className="font-mono text-xs font-bold text-navy-900 bg-white px-2.5 py-0.5 border border-navy-900/15">
+                {quota.distinctCount} of {quota.maxAllowed} Categories Used
+              </span>
+              <span className={`font-mono text-xs font-semibold px-2.5 py-0.5 border ${
+                quota.remainingSlots > 0
+                  ? "bg-emerald-50 text-emerald-800 border-emerald-200"
+                  : "bg-amber-50 text-amber-900 border-amber-300"
+              }`}>
+                {quota.remainingSlots} {quota.remainingSlots === 1 ? "Slot" : "Slots"} Remaining
+              </span>
+            </div>
+            <p className="text-xs text-[#4A4F5C] leading-relaxed">
+              Official awards governance permits an applicant to participate in up to a maximum of 3 distinct award categories. Multiple projects can be submitted within any previously chosen category.
+            </p>
+          </div>
+          {quota.remainingSlots === 0 && (
+            <div className="px-3 py-2 bg-amber-50 border border-amber-200 text-amber-900 text-xs font-mono font-medium max-w-xs flex-shrink-0">
+              Maximum 3 categories reached. You may submit additional projects under your active categories, but cannot nominate under new ones.
+            </div>
+          )}
+        </div>
+
         {/* Error Alert */}
         {errorMsg && (
           <div className="p-4 bg-rose-50 border border-rose-200 text-rose-800 text-xs font-mono flex items-center gap-2">
@@ -115,24 +151,42 @@ export default function CategorySelectorClient({
           />
         </div>
 
-        {/* Categories Grid (12 Approved Categories) */}
+        {/* Categories Grid (16 Proposed Categories) */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
           {filteredCategories.map((cat) => {
             const isLoading = loadingCategoryId === cat.id;
+            const isAlreadyEntered = quota.enteredCategoryIds.includes(cat.id);
+            const isQuotaExhaustedForNew = quota.remainingSlots === 0 && !isAlreadyEntered;
 
             return (
               <div
                 key={cat.id}
-                className="bg-[#FBFAF7] border border-navy-900/10 p-6 shadow-card hover:border-gold-500/40 hover:shadow-card-hover transition-all flex flex-col justify-between gap-6"
+                className={`border p-6 shadow-card hover:shadow-card-hover transition-all flex flex-col justify-between gap-6 ${
+                  isAlreadyEntered
+                    ? "bg-[#FBFAF7] border-gold-500/40 ring-1 ring-gold-500/20"
+                    : isQuotaExhaustedForNew
+                    ? "bg-slate-50/70 border-slate-200 opacity-75"
+                    : "bg-[#FBFAF7] border-navy-900/10 hover:border-gold-500/40"
+                }`}
               >
                 <div className="space-y-3">
                   <div className="flex items-center justify-between">
                     <span className="font-mono text-xs font-bold text-gold-800 bg-gold-500/15 border border-gold-500/30 px-2.5 py-0.5 uppercase tracking-widest">
                       #{getCategoryDisplayNumber(cat.code)}
                     </span>
-                    <span className="text-[10px] font-mono text-emerald-700 bg-emerald-50 px-2 py-0.5 border border-emerald-200">
-                      Open for Nominations
-                    </span>
+                    {isAlreadyEntered ? (
+                      <span className="text-[10px] font-mono text-gold-800 bg-gold-500/20 px-2 py-0.5 border border-gold-500/40 font-semibold">
+                        Category Active
+                      </span>
+                    ) : isQuotaExhaustedForNew ? (
+                      <span className="text-[10px] font-mono text-slate-500 bg-slate-100 px-2 py-0.5 border border-slate-200">
+                        Quota Reached
+                      </span>
+                    ) : (
+                      <span className="text-[10px] font-mono text-emerald-700 bg-emerald-50 px-2 py-0.5 border border-emerald-200">
+                        Open for Nominations
+                      </span>
+                    )}
                   </div>
 
                   <h3 className="font-display text-xl text-navy-900 font-bold leading-snug">
@@ -156,19 +210,25 @@ export default function CategorySelectorClient({
                 <div className="pt-4 border-t border-navy-900/10">
                   <Button
                     onClick={() => handleStartNomination(cat.id)}
-                    variant="primary"
+                    variant={isQuotaExhaustedForNew ? "outline-dark" : "primary"}
                     size="sm"
-                    disabled={isLoading || loadingCategoryId !== null}
+                    disabled={isLoading || loadingCategoryId !== null || isQuotaExhaustedForNew}
                     icon={
                       isLoading ? (
                         <Loader2 size={13} className="animate-spin" />
-                      ) : (
+                      ) : isQuotaExhaustedForNew ? undefined : (
                         <ArrowRight size={13} />
                       )
                     }
                     className="w-full justify-center"
                   >
-                    {isLoading ? "Initializing Draft..." : "Start Nomination"}
+                    {isLoading
+                      ? "Initializing Draft..."
+                      : isQuotaExhaustedForNew
+                      ? "Category Limit Reached (3 of 3)"
+                      : isAlreadyEntered
+                      ? "Nominate Another Project in Category"
+                      : "Start Nomination"}
                   </Button>
                 </div>
               </div>

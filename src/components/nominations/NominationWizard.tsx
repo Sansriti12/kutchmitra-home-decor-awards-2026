@@ -80,9 +80,12 @@ export default function NominationWizard({
   const [projectData, setProjectData] = useState<ProjectDetailsData>({
     projectName: application.project_name,
     projectCity: application.project_city,
+    projectDistrict: (application as any).project_district || "Kutch",
+    projectAddress: (application as any).project_address || "",
     projectState: application.project_state,
     projectCompletionDate: application.project_completion_date,
     builtUpAreaSqft: application.built_up_area_sqft,
+    projectBrief: (application as any).project_brief || "",
   });
 
   // Questions and Answers state
@@ -120,6 +123,9 @@ export default function NominationWizard({
           projectName: projectData.projectName,
           projectCity: projectData.projectCity,
           projectState: projectData.projectState,
+          projectDistrict: projectData.projectDistrict || "Kutch",
+          projectAddress: projectData.projectAddress,
+          projectBrief: projectData.projectBrief,
           projectCompletionDate: projectData.projectCompletionDate,
           builtUpAreaSqft: projectData.builtUpAreaSqft,
           categoryId: selectedCategoryId,
@@ -140,11 +146,20 @@ export default function NominationWizard({
   };
 
   // Step 1: Entrant details confirmed
-  const handleStep1Next = async () => {
+  const handleStep1Next = async (patchData?: {
+    applicantType?: "individual_architect" | "architectural_firm";
+    applicantDistrict?: string;
+    coaRegistrationNumber?: string;
+  }) => {
     setCurrentStep(2);
     await saveWizardProgress({
       applicationId: application.id,
       step: 2,
+      patch: {
+        applicantType: patchData?.applicantType || entrant.applicantType || "individual_architect",
+        applicantDistrict: patchData?.applicantDistrict || entrant.applicantDistrict || "Kutch",
+        coaRegistrationNumber: patchData?.coaRegistrationNumber ?? entrant.coaRegistrationNumber,
+      },
     });
   };
 
@@ -195,6 +210,9 @@ export default function NominationWizard({
           projectName: data.projectName,
           projectCity: data.projectCity,
           projectState: data.projectState,
+          projectDistrict: data.projectDistrict || "Kutch",
+          projectAddress: data.projectAddress,
+          projectBrief: data.projectBrief,
           projectCompletionDate: data.projectCompletionDate,
           builtUpAreaSqft: data.builtUpAreaSqft,
         },

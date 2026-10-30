@@ -465,7 +465,7 @@ export default function AdminCmsClient({ initialData, isSuperAdmin }: AdminCmsCl
           { id: "jury", label: "Jury Profiles", icon: Users, count: juryProfiles.filter((j) => j.isPublic).length },
           { id: "announcements", label: "Announcements", icon: Megaphone, count: announcements.length },
           { id: "contact", label: "Contact Info", icon: Mail, count: undefined },
-          { id: "categories", label: "Categories (12 Active)", icon: Layers, count: 12 },
+          { id: "categories", label: `Categories (${categories.length} Proposed)`, icon: Layers, count: categories.length },
           { id: "winners", label: "Winners Showcase", icon: Trophy, count: initialData.winnerStats.publishedWinners },
         ].map((tab) => {
           const Icon = tab.icon;
@@ -530,9 +530,9 @@ export default function AdminCmsClient({ initialData, isSuperAdmin }: AdminCmsCl
             </div>
 
             <div className="p-4 bg-navy-900/60 border border-white/10 space-y-1">
-              <span className="text-[11px] font-mono text-slate-400 uppercase tracking-wider">Active Categories</span>
-              <p className="text-2xl font-display font-bold text-white">12</p>
-              <span className="text-[10px] font-mono text-slate-400">Sequential 01–12 Display</span>
+              <span className="text-[11px] font-mono text-slate-400 uppercase tracking-wider">Proposed Categories</span>
+              <p className="text-2xl font-display font-bold text-white">{categories.length}</p>
+              <span className="text-[10px] font-mono text-slate-400">Sequential 01–16 Display</span>
             </div>
           </div>
 
@@ -1150,7 +1150,7 @@ export default function AdminCmsClient({ initialData, isSuperAdmin }: AdminCmsCl
       )}
 
       {/* ========================================================================= */}
-      {/* TAB 7: CATEGORIES (12 ACTIVE CATEGORIES) */}
+      {/* TAB 7: CATEGORIES (16 PROPOSED CATEGORIES) */}
       {/* ========================================================================= */}
       {activeTab === "categories" && (
         <div className="space-y-4">
@@ -1161,7 +1161,7 @@ export default function AdminCmsClient({ initialData, isSuperAdmin }: AdminCmsCl
             </div>
             <p className="text-xs text-slate-300 font-sans leading-relaxed">
               Award categories are strictly tied to the database schema. Retired categories
-              remain preserved for historical integrity. Visible numbering is strictly <strong>01–14</strong> across the 14 active
+              remain preserved for historical integrity. Visible numbering is strictly <strong>01–16</strong> across the 16 proposed
               categories. Editing is restricted to public descriptions and criteria text.
             </p>
           </div>
@@ -1173,11 +1173,20 @@ export default function AdminCmsClient({ initialData, isSuperAdmin }: AdminCmsCl
                 className="p-5 bg-navy-900/40 border border-white/10 space-y-3 hover:border-gold-500/30 transition-colors"
               >
                 <div className="flex items-center justify-between">
-                  <div className="flex items-center gap-2">
+                  <div className="flex items-center gap-2 flex-wrap">
                     <span className="px-2.5 py-0.5 bg-gold-500/15 border border-gold-500/40 text-gold-400 font-mono text-xs font-bold">
                       CATEGORY {c.displayNumber}
                     </span>
                     <span className="text-[10px] font-mono text-slate-500">DB Code: {c.code}</span>
+                    {c.isDbSynced ? (
+                      <span className="px-1.5 py-0.5 text-[10px] font-mono bg-emerald-950/80 border border-emerald-500/30 text-emerald-400">
+                        Database Synced
+                      </span>
+                    ) : (
+                      <span className="px-1.5 py-0.5 text-[10px] font-mono bg-amber-950/80 border border-amber-500/40 text-amber-400">
+                        Proposed (Pending Migration)
+                      </span>
+                    )}
                   </div>
 
                   <button

@@ -11,6 +11,15 @@ import {
   Compass,
   Briefcase,
   HeartHandshake,
+  Sparkles,
+  Building2,
+  MapPin,
+  Calendar,
+  Hammer,
+  Leaf,
+  Award,
+  CheckCircle2,
+  Layers,
 } from "lucide-react";
 import { SectionMarker } from "@/components/ui/SectionMarker";
 import { Button } from "@/components/ui/Button";
@@ -143,6 +152,14 @@ export default function AboutPage() {
             <h1 className="font-display text-3xl sm:text-4xl md:text-5xl lg:text-5xl text-navy-900 font-medium leading-[1.18] tracking-tight">
               A Legacy of Journalism, Public Service &amp; Regional Connect
             </h1>
+
+            {/* Official Awards Tagline Callout */}
+            <div className="p-4 sm:p-5 bg-gold-500/10 border-l-4 border-gold-600 border-y border-r border-gold-500/20 shadow-sm">
+              <p className="font-display text-lg sm:text-xl md:text-2xl text-navy-900 font-semibold italic">
+                &ldquo;Celebrating the Spirit of Kutch Through Architecture, Craft and Sustainability.&rdquo;
+              </p>
+            </div>
+
             <div className="space-y-3 text-base sm:text-lg text-[#3A3F4C] leading-relaxed font-sans">
               <p>
                 For over <strong className="font-semibold text-navy-900">93 years</strong>, the Janmabhoomi Group, under the stewardship of Saurashtra Trust, has been a respected institution in Gujarati journalism, public communication and business publishing. With a strong legacy of editorial credibility, regional understanding and public service, the Group has built an enduring relationship of trust with millions of readers across generations.
@@ -464,7 +481,228 @@ export default function AboutPage() {
       </section>
 
       {/* ========================================================================= */}
-      {/* SECTION 06 — THE AWARDS & THE OFFICIAL CREDO (DARK AWARDS CTA) */}
+      {/* SECTION 06 — THE AWARDS: PURPOSE, ARCHITECTURAL FOCUS & ELIGIBILITY */}
+      {/* ========================================================================= */}
+      <section className="py-12 sm:py-16 lg:py-20 border-b border-navy-900/10 bg-ivory">
+        <div className="container-editorial space-y-12">
+          {/* Section Marker & Intro */}
+          <div className="space-y-4 max-w-3xl">
+            <SectionMarker number="06" label="The Awards Vision" theme="light" />
+            <h2 className="font-display text-2xl sm:text-3xl md:text-4xl text-navy-900 font-medium leading-tight">
+              Honoring Architecture, Craftsmanship &amp; Sustainable Design in Kutch
+            </h2>
+            <div className="p-4 sm:p-5 bg-sand-100 border-l-4 border-gold-600 border-y border-r border-gold-500/20">
+              <span className="font-mono text-[10px] uppercase tracking-widest text-gold-800 font-semibold block">
+                Official Awards Tagline
+              </span>
+              <p className="font-display text-lg sm:text-xl text-navy-900 font-medium italic mt-0.5">
+                &ldquo;Celebrating the Spirit of Kutch Through Architecture, Craft and Sustainability.&rdquo;
+              </p>
+            </div>
+            <p className="body-editorial text-[#4A4F5C] text-base sm:text-lg">
+              The Kutchmitra Home &amp; Decor Awards 2026 is an institutional platform instituted to spotlight architectural excellence, residential quality, and creative ingenuity across the Kutch region.
+            </p>
+          </div>
+
+          {/* 5 Core Pillars of Awards Focus */}
+          <div className="space-y-4">
+            <div className="border-b border-navy-900/10 pb-2">
+              <span className="font-mono text-xs uppercase tracking-widest text-gold-700 font-semibold">
+                Core Focus Areas
+              </span>
+              <h3 className="font-display text-xl text-navy-900 font-medium mt-1">
+                What the Awards Celebrate
+              </h3>
+            </div>
+
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
+              <div className="p-5 bg-white border border-navy-900/10 space-y-2 shadow-sm">
+                <div className="flex items-center gap-2 text-gold-700">
+                  <Building2 size={18} />
+                  <h4 className="font-display text-base font-medium text-navy-900">
+                    Kutch&apos;s Architectural Heritage
+                  </h4>
+                </div>
+                <p className="text-xs sm:text-sm text-[#4A4F5C] font-sans leading-relaxed">
+                  Honoring the timeless spatial wisdom, climatic adaptation, and distinctive identity developed through centuries of building tradition in Kutch.
+                </p>
+              </div>
+
+              <div className="p-5 bg-white border border-navy-900/10 space-y-2 shadow-sm">
+                <div className="flex items-center gap-2 text-gold-700">
+                  <Sparkles size={18} />
+                  <h4 className="font-display text-base font-medium text-navy-900">
+                    Contemporary Architecture &amp; Design
+                  </h4>
+                </div>
+                <p className="text-xs sm:text-sm text-[#4A4F5C] font-sans leading-relaxed">
+                  Recognizing progressive modern residential architecture, creative planning, contemporary spatial solutions, and sophisticated interior environments.
+                </p>
+              </div>
+
+              <div className="p-5 bg-white border border-navy-900/10 space-y-2 shadow-sm">
+                <div className="flex items-center gap-2 text-gold-700">
+                  <Hammer size={18} />
+                  <h4 className="font-display text-base font-medium text-navy-900">
+                    Local Craftsmanship &amp; Artisan Integration
+                  </h4>
+                </div>
+                <p className="text-xs sm:text-sm text-[#4A4F5C] font-sans leading-relaxed">
+                  Spotlighting the meaningful collaboration between architects and Kutchi artisans in stone carving, woodcraft, metalwork, pottery, plaster, and textiles.
+                </p>
+              </div>
+
+              <div className="p-5 bg-white border border-navy-900/10 space-y-2 shadow-sm">
+                <div className="flex items-center gap-2 text-gold-700">
+                  <Leaf size={18} />
+                  <h4 className="font-display text-base font-medium text-navy-900">
+                    Sustainability &amp; Climate-Responsive Design
+                  </h4>
+                </div>
+                <p className="text-xs sm:text-sm text-[#4A4F5C] font-sans leading-relaxed">
+                  Celebrating designs tuned to the arid and semi-arid conditions of Kutch: passive cooling, natural daylighting, cross-ventilation, and energy efficiency.
+                </p>
+              </div>
+
+              <div className="p-5 bg-white border border-navy-900/10 space-y-2 shadow-sm">
+                <div className="flex items-center gap-2 text-gold-700">
+                  <Layers size={18} />
+                  <h4 className="font-display text-base font-medium text-navy-900">
+                    Regional Materials &amp; Construction Techniques
+                  </h4>
+                </div>
+                <p className="text-xs sm:text-sm text-[#4A4F5C] font-sans leading-relaxed">
+                  Encouraging the thoughtful use of local stone, lime, terracotta, compressed earth, and indigenous construction methodologies suited to the terrain.
+                </p>
+              </div>
+
+              <div className="p-5 bg-white border border-navy-900/10 space-y-2 shadow-sm">
+                <div className="flex items-center gap-2 text-gold-700">
+                  <Award size={18} />
+                  <h4 className="font-display text-base font-medium text-navy-900">
+                    16 Proposed Award Categories
+                  </h4>
+                </div>
+                <p className="text-xs sm:text-sm text-[#4A4F5C] font-sans leading-relaxed">
+                  Spanning single-family bungalows, apartments, farmhouses, vernacular architecture, heritage restorations, craft integration, and sustainable homes.
+                </p>
+              </div>
+            </div>
+          </div>
+
+          {/* Traditional and Contemporary Design Approaches Clarification */}
+          <div className="p-6 sm:p-8 bg-[#FBFAF7] border-l-4 border-gold-600 border-y border-r border-navy-900/10 space-y-4 shadow-sm">
+            <div className="space-y-1">
+              <span className="font-mono text-[10px] uppercase tracking-widest text-gold-800 font-semibold block">
+                Design Philosophy Guidelines
+              </span>
+              <h3 className="font-display text-xl sm:text-2xl text-navy-900 font-medium">
+                Both Traditional and Contemporary Architectural Approaches Are Welcome
+              </h3>
+            </div>
+
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6 text-xs sm:text-sm text-[#4A4F5C] font-sans leading-relaxed">
+              <div className="space-y-2.5">
+                <div className="flex items-center gap-2 text-navy-900 font-medium">
+                  <CheckCircle2 size={16} className="text-gold-600 flex-shrink-0" />
+                  <span>No Requirement to Reproduce Historic Styles</span>
+                </div>
+                <p>
+                  Applicants are <strong>not expected or required to reproduce historic or rustic architectural styles</strong>. The awards embrace progressive architecture that responds effectively to contemporary lifestyles and technical needs.
+                </p>
+              </div>
+
+              <div className="space-y-2.5">
+                <div className="flex items-center gap-2 text-navy-900 font-medium">
+                  <CheckCircle2 size={16} className="text-gold-600 flex-shrink-0" />
+                  <span>Contemporary Interpretations Encouraged</span>
+                </div>
+                <p>
+                  Contemporary interpretations of Kutchi heritage, regional crafts, and climate responsiveness are warmly encouraged. Projects will be evaluated on design excellence, contextual sensitivity, functional clarity, and thoughtful craftsmanship.
+                </p>
+              </div>
+            </div>
+          </div>
+
+          {/* Eligibility Framework Summary */}
+          <div className="p-6 sm:p-8 bg-white border border-navy-900/10 space-y-6 shadow-sm">
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-navy-900/10 pb-4">
+              <div>
+                <span className="font-mono text-xs uppercase tracking-widest text-gold-700 font-semibold">
+                  Participation Criteria
+                </span>
+                <h3 className="font-display text-xl text-navy-900 font-medium mt-0.5">
+                  Core Applicant &amp; Project Eligibility
+                </h3>
+              </div>
+              <Link
+                href="/how-to-nominate"
+                className="inline-flex items-center gap-1.5 font-mono text-xs uppercase text-gold-700 hover:text-navy-900 font-semibold tracking-wider"
+              >
+                <span>Full Eligibility Guidelines</span>
+                <ArrowRight size={13} />
+              </Link>
+            </div>
+
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 font-sans text-xs">
+              <div className="p-4 bg-[#FBFAF7] border border-navy-900/10 space-y-1.5">
+                <div className="flex items-center gap-2 text-gold-700 font-mono text-[11px] uppercase font-semibold">
+                  <Users size={14} />
+                  <span>Applicant Location</span>
+                </div>
+                <p className="font-display text-base font-semibold text-navy-900">
+                  Architect / Firm in Kutch
+                </p>
+                <p className="text-slate-600 leading-relaxed">
+                  Nominating applicant must be an architect based in Kutch or an architectural firm based in Kutch.
+                </p>
+              </div>
+
+              <div className="p-4 bg-[#FBFAF7] border border-navy-900/10 space-y-1.5">
+                <div className="flex items-center gap-2 text-gold-700 font-mono text-[11px] uppercase font-semibold">
+                  <MapPin size={14} />
+                  <span>Project Location</span>
+                </div>
+                <p className="font-display text-base font-semibold text-navy-900">
+                  Within Kutch District
+                </p>
+                <p className="text-slate-600 leading-relaxed">
+                  The nominated project must be physically located within Kutch district.
+                </p>
+              </div>
+
+              <div className="p-4 bg-[#FBFAF7] border border-navy-900/10 space-y-1.5">
+                <div className="flex items-center gap-2 text-gold-700 font-mono text-[11px] uppercase font-semibold">
+                  <Calendar size={14} />
+                  <span>Completion Period</span>
+                </div>
+                <p className="font-display text-base font-semibold text-navy-900">
+                  2024, 2025, or 2026
+                </p>
+                <p className="text-slate-600 leading-relaxed">
+                  Eligible projects must have been completed during calendar years 2024, 2025, or 2026.
+                </p>
+              </div>
+
+              <div className="p-4 bg-[#FBFAF7] border border-navy-900/10 space-y-1.5">
+                <div className="flex items-center gap-2 text-gold-700 font-mono text-[11px] uppercase font-semibold">
+                  <Layers size={14} />
+                  <span>Category Limit</span>
+                </div>
+                <p className="font-display text-base font-semibold text-navy-900">
+                  Max 3 Categories
+                </p>
+                <p className="text-slate-600 leading-relaxed">
+                  An applicant may submit nominations across multiple categories up to a maximum of 3 categories.
+                </p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* ========================================================================= */}
+      {/* SECTION 07 — THE AWARDS & THE OFFICIAL CREDO (DARK AWARDS CTA) */}
       {/* ========================================================================= */}
       <section className="py-12 sm:py-16 lg:py-20 bg-navy-900 text-white relative overflow-hidden border-t-2 border-gold-500/40 border-b border-navy-950">
         {/* Hairline Gold Top Accent */}

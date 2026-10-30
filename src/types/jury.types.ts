@@ -139,6 +139,11 @@ export interface JuryApplicationDossier {
     nominationId: string;
     projectName: string;
     projectCity: string;
+    projectDistrict?: string | null;
+    projectAddress?: string | null;
+    projectBrief?: string | null;
+    declarationAccepted?: boolean;
+    declarationAcceptedAt?: string | null;
     projectState: string;
     projectCompletionDate: string | null;
     builtUpAreaSqft: number | null;

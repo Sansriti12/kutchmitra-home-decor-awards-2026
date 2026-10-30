@@ -13,7 +13,7 @@ export function HowToNominateSection() {
     {
       number: "02",
       title: "Select a Category",
-      description: "Choose from the 12 approved award categories matching your project type or professional practice.",
+      description: "Choose from 16 proposed award categories matching your project type. Applicants may enter up to 3 categories.",
     },
     {
       number: "03",

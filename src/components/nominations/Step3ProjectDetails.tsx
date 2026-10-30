@@ -7,9 +7,12 @@ import { Button } from "@/components/ui/Button";
 export interface ProjectDetailsData {
   projectName: string;
   projectCity: string;
+  projectDistrict?: string;
+  projectAddress?: string;
   projectState: string;
   projectCompletionDate: string | null;
   builtUpAreaSqft: number | null;
+  projectBrief?: string;
 }
 
 interface Step3ProjectDetailsProps {
@@ -34,9 +37,12 @@ export default function Step3ProjectDetails({
   const [formData, setFormData] = useState<ProjectDetailsData>({
     projectName: defaultName,
     projectCity: initialData.projectCity || "Bhuj",
+    projectDistrict: initialData.projectDistrict || "Kutch",
+    projectAddress: initialData.projectAddress || "",
     projectState: initialData.projectState || "Gujarat",
     projectCompletionDate: initialData.projectCompletionDate || "",
     builtUpAreaSqft: initialData.builtUpAreaSqft || null,
+    projectBrief: initialData.projectBrief || "",
   });
 
   const [errors, setErrors] = useState<Record<string, string>>({});
@@ -67,10 +73,14 @@ export default function Step3ProjectDetails({
       errs.projectCompletionDate = "Project completion date is required.";
     } else {
       const compDate = formData.projectCompletionDate.trim();
-      if (compDate < "2023-01-01" || compDate > "2025-12-31") {
+      if (compDate < "2024-01-01" || compDate > "2026-12-31") {
         errs.projectCompletionDate =
-          "Projects must have been completed between January 1, 2023 and December 31, 2025.";
+          "Projects must have been completed between January 1, 2024 and December 31, 2026.";
       }
+    }
+
+    if (formData.projectBrief && formData.projectBrief.length > 500) {
+      errs.projectBrief = `Project brief cannot exceed 500 characters. (Current length: ${formData.projectBrief.length})`;
     }
 
     setErrors(errs);
@@ -157,11 +167,26 @@ export default function Step3ProjectDetails({
           )}
         </div>
 
-        {/* Location: City and State */}
+        {/* Location: District, City and Address */}
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-6 pt-2">
           <div className="space-y-1.5">
             <label className="block font-mono text-xs uppercase tracking-wider text-navy-900 font-semibold">
-              Project City / Town <span className="text-gold-700 font-bold">*</span>
+              Project District <span className="text-gold-700 font-bold">*</span>
+            </label>
+            <div className="p-2.5 bg-emerald-50/70 border border-emerald-200 text-xs font-mono text-emerald-900 flex items-center justify-between">
+              <span className="font-semibold">Kutch District (Mandatory)</span>
+              <span className="text-[10px] uppercase bg-emerald-100 text-emerald-800 px-2 py-0.5 border border-emerald-300">
+                Eligible Zone
+              </span>
+            </div>
+            <p className="text-[11px] text-slate-500">
+              Only projects located physically within Kutch district are eligible for the 2026 Awards.
+            </p>
+          </div>
+
+          <div className="space-y-1.5">
+            <label className="block font-mono text-xs uppercase tracking-wider text-navy-900 font-semibold">
+              Project City / Town / Taluka <span className="text-gold-700 font-bold">*</span>
             </label>
             <div className="relative">
               <MapPin size={16} className="absolute left-3.5 top-3.5 text-slate-400" />
@@ -202,30 +227,64 @@ export default function Step3ProjectDetails({
               <p className="text-xs text-rose-600 font-mono mt-1">{errors.projectCity}</p>
             ) : (
               <p className="text-[11px] text-slate-500">
-                Only projects located within Kutch district are eligible for participation.
+                Specify the specific town, village, or taluka in Kutch where the site is situated.
               </p>
             )}
           </div>
+        </div>
 
-          <div className="space-y-1.5">
+        {/* Site Address / Landmark */}
+        <div className="space-y-1.5 pt-2">
+          <label className="block font-mono text-xs uppercase tracking-wider text-navy-900 font-semibold">
+            Project Site Address / Landmark <span className="text-slate-400 text-[10px] font-normal tracking-normal">(Optional)</span>
+          </label>
+          <input
+            type="text"
+            value={formData.projectAddress || ""}
+            onChange={(e) => setFormData({ ...formData, projectAddress: e.target.value })}
+            className="w-full px-4 py-2.5 border border-navy-900/15 bg-white text-navy-900 focus:outline-none focus:border-gold-500 focus:ring-1 focus:ring-gold-500/20 transition-colors text-sm shadow-2xs"
+            placeholder="e.g. Near Jubilee Ground, Opp. Town Hall, Bhuj"
+          />
+        </div>
+
+        {/* Project Brief with Live Character Counter */}
+        <div className="space-y-1.5 pt-2">
+          <div className="flex items-center justify-between">
             <label className="block font-mono text-xs uppercase tracking-wider text-navy-900 font-semibold">
-              State / Region <span className="text-gold-700 font-bold">*</span>
+              Project Brief (Maximum 500 characters) <span className="text-gold-700 font-bold">*</span>
             </label>
-            <input
-              type="text"
-              required
-              value={formData.projectState}
-              onChange={(e) => {
-                setFormData({ ...formData, projectState: e.target.value });
-                if (errors.projectState) setErrors({ ...errors, projectState: "" });
-              }}
-              className="w-full px-4 py-2.5 border border-navy-900/15 bg-white text-navy-900 focus:outline-none focus:border-gold-500 focus:ring-1 focus:ring-gold-500/20 transition-colors text-sm shadow-2xs"
-              placeholder="e.g. Gujarat"
-            />
-            {errors.projectState && (
-              <p className="text-xs text-rose-600 font-mono mt-1">{errors.projectState}</p>
-            )}
+            <span className={`font-mono text-xs font-semibold ${
+              (formData.projectBrief?.length || 0) > 500
+                ? "text-rose-600"
+                : (formData.projectBrief?.length || 0) >= 450
+                ? "text-amber-600"
+                : "text-slate-500"
+            }`}>
+              {formData.projectBrief?.length || 0} / 500 characters
+            </span>
           </div>
+          <textarea
+            rows={4}
+            maxLength={500}
+            value={formData.projectBrief || ""}
+            onChange={(e) => {
+              setFormData({ ...formData, projectBrief: e.target.value });
+              if (errors.projectBrief) setErrors({ ...errors, projectBrief: "" });
+            }}
+            placeholder="Provide a concise architectural summary of the project: concept, client brief, structural approach, and key spatial or material highlights (strictly max 500 characters)."
+            className={`w-full p-3.5 border bg-white text-navy-900 focus:outline-none transition-colors text-xs leading-relaxed shadow-2xs ${
+              errors.projectBrief
+                ? "border-rose-500 focus:border-rose-600 focus:ring-1 focus:ring-rose-500/20"
+                : "border-navy-900/15 focus:border-gold-500 focus:ring-1 focus:ring-gold-500/20"
+            }`}
+          />
+          {errors.projectBrief ? (
+            <p className="text-xs text-rose-600 font-mono mt-1">{errors.projectBrief}</p>
+          ) : (
+            <p className="text-[11px] text-slate-500">
+              This summary introduces your project to the jury. Focus on intent, regional context, and execution.
+            </p>
+          )}
         </div>
 
         {/* Completion Date & Built-up Area */}
@@ -239,8 +298,8 @@ export default function Step3ProjectDetails({
               <input
                 type="date"
                 required
-                min="2023-01-01"
-                max="2025-12-31"
+                min="2024-01-01"
+                max="2026-12-31"
                 value={formData.projectCompletionDate || ""}
                 onChange={(e) => {
                   setFormData({ ...formData, projectCompletionDate: e.target.value || null });
@@ -257,7 +316,7 @@ export default function Step3ProjectDetails({
               <p className="text-xs text-rose-600 font-mono mt-1">{errors.projectCompletionDate}</p>
             ) : (
               <p className="text-[11px] text-slate-500">
-                Eligible projects must have been completed between January 1, 2023 and December 31, 2025.
+                Eligible projects must have been completed in calendar years 2024, 2025, or 2026 (January 1, 2024 through December 31, 2026).
               </p>
             )}
           </div>

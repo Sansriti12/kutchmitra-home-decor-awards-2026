@@ -390,7 +390,7 @@ export default function AdminReportsClient({ initialData, isSuperAdmin }: AdminR
             )}
           >
             <Layers size={13} />
-            <span>Category Breakdown (12 Active)</span>
+            <span>Category Breakdown ({categoryMetrics.length} Proposed)</span>
           </button>
 
           <button
@@ -665,7 +665,7 @@ export default function AdminReportsClient({ initialData, isSuperAdmin }: AdminR
                             </div>
                           </td>
 
-                          {/* Category with Sequential 01-12 Display */}
+                          {/* Category with Sequential 01-16 Display */}
                           <td className="py-3 px-3.5 whitespace-nowrap">
                             <div className="flex items-center gap-1.5">
                               <span className="font-mono text-[10px] font-bold px-1.5 py-0.2 bg-gold-500/10 text-gold-400 border border-gold-500/30">
@@ -788,10 +788,10 @@ export default function AdminReportsClient({ initialData, isSuperAdmin }: AdminR
             <div className="p-4 border-b border-white/10 bg-navy-950/80 flex items-center justify-between">
               <div>
                 <h3 className="font-mono text-xs uppercase tracking-wider text-white font-semibold">
-                  14 Active Official Award Categories
+                  16 Proposed Award Categories
                 </h3>
                 <p className="text-[11px] text-slate-400 font-sans mt-0.5">
-                  Sequential UI display numbering 01 through 14. Retired categories remain preserved in the database.
+                  Sequential UI display numbering 01 through 16. Retired categories remain preserved in the database.
                 </p>
               </div>
             </div>
@@ -923,7 +923,7 @@ export default function AdminReportsClient({ initialData, isSuperAdmin }: AdminR
             <div className="bg-navy-950/80 border border-white/10 p-4 space-y-1">
               <span className="text-[10px] font-mono uppercase text-slate-400">Total Assignments</span>
               <div className="text-2xl font-bold font-mono text-blue-300">{juryMetric.totalAssignments}</div>
-              <p className="text-[10px] text-slate-500">Across 14 categories</p>
+              <p className="text-[10px] text-slate-500">Across 16 categories</p>
             </div>
 
             <div className="bg-navy-950/80 border border-white/10 p-4 space-y-1">

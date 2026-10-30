@@ -162,7 +162,7 @@ export async function getCmsWorkspaceData(): Promise<CmsWorkspaceData> {
       privacyContactEmail: rawSettings?.privacy_contact_email || "Kutchmitraweb@gmail.com",
       homepageBannerActive: rawSettings?.homepage_banner_active ?? false,
       homepageBannerBadge: rawSettings?.homepage_banner_badge || "ANNOUNCEMENT",
-      homepageBannerText: rawSettings?.homepage_banner_text || "Nominations for the 2026 edition are opening soon across all 14 categories.",
+      homepageBannerText: rawSettings?.homepage_banner_text || "Nominations for the 2026 edition are opening soon across all 16 proposed categories.",
       homepageBannerLink: rawSettings?.homepage_banner_link || "/categories",
       homepageBannerLinkText: rawSettings?.homepage_banner_link_text || "View Categories",
       createdAt: rawSettings?.created_at || new Date().toISOString(),
@@ -207,12 +207,14 @@ export async function getCmsWorkspaceData(): Promise<CmsWorkspaceData> {
       };
     });
 
-    // 6. Fetch Categories (Strictly active categories, 14 count, sequential 01–14)
+    // 6. Fetch Categories (Strictly active categories, 16 count, sequential 01–16)
     const { data: rawCategories } = await adminClient
       .from("categories")
       .select("id, code, name, slug, short_description, full_description, eligibility_criteria, cover_image_url, is_active, display_order")
       .eq("is_active", true)
       .order("display_order", { ascending: true });
+
+    const dbCategoryIds = new Set((rawCategories || []).map((c: any) => c.id));
 
     const categories: CmsCategoryItem[] = getActiveCategories(rawCategories).map((c: any) => ({
       id: c.id,
@@ -226,6 +228,7 @@ export async function getCmsWorkspaceData(): Promise<CmsWorkspaceData> {
       coverImageUrl: c.cover_image_url || c.coverImageUrl || null,
       isActive: c.is_active ?? true,
       displayOrder: c.display_order ?? c.displayOrder ?? 0,
+      isDbSynced: dbCategoryIds.has(c.id),
     }));
 
     // 7. Winner Stats
@@ -861,7 +864,14 @@ export async function updateCmsCategoryContent(
   const now = new Date().toISOString();
 
   try {
-    const { data: prev } = await adminClient.from("categories").select("*").eq("id", id).single();
+    const { data: prev } = await adminClient.from("categories").select("*").eq("id", id).maybeSingle();
+
+    if (!prev) {
+      return {
+        success: false,
+        error: "This category is currently proposed in configuration and pending database migration (11_update_categories_16_proposed.sql). Once the database migration is applied, its database record can be updated.",
+      };
+    }
 
     // Critical Safety: Do NOT allow modifying code, is_active, display_order, or edition_id via CMS
     const { error } = await adminClient

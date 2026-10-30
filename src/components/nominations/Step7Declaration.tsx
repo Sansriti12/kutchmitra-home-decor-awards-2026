@@ -35,6 +35,7 @@ export default function Step7Declaration({
   const router = useRouter();
 
   const [declarations, setDeclarations] = useState({
+    selfDeclaration: false,
     authorship: false,
     accuracy: false,
     license: false,
@@ -46,6 +47,7 @@ export default function Step7Declaration({
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
 
   const allAccepted =
+    declarations.selfDeclaration &&
     declarations.authorship &&
     declarations.accuracy &&
     declarations.license &&
@@ -64,7 +66,13 @@ export default function Step7Declaration({
     setErrorMsg(null);
 
     try {
-      const res = await submitFinalNomination(applicationId, declarations);
+      const res = await submitFinalNomination(applicationId, {
+        selfDeclaration: declarations.selfDeclaration,
+        authorship: declarations.authorship,
+        accuracy: declarations.accuracy,
+        license: declarations.license,
+        terms: declarations.terms,
+      });
 
       if (res.success) {
         setIsModalOpen(false);
@@ -148,11 +156,49 @@ export default function Step7Declaration({
             <span>Official Entrant Declarations</span>
           </h3>
           <span className="text-xs font-mono text-slate-500">
-            4 Checkpoints Required
+            Mandatory Declaration Required
           </span>
         </div>
 
-        <div className="space-y-4">
+        {/* PRIMARY MANDATORY CLIENT SELF-DECLARATION */}
+        <div className={`p-6 border-2 transition-all shadow-sm ${
+          declarations.selfDeclaration
+            ? "bg-gold-500/10 border-gold-500 ring-2 ring-gold-500/20"
+            : "bg-white border-gold-500/40 hover:border-gold-500/70"
+        }`}>
+          <label className="flex items-start gap-4 cursor-pointer">
+            <input
+              type="checkbox"
+              required
+              checked={declarations.selfDeclaration}
+              onChange={() => handleCheckbox("selfDeclaration")}
+              className="mt-1 accent-navy-900 rounded cursor-pointer w-5 h-5 flex-shrink-0"
+            />
+            <div className="space-y-2 flex-1">
+              <div className="flex items-center justify-between">
+                <span className="font-mono text-xs font-bold uppercase tracking-wider text-navy-900 flex items-center gap-2">
+                  <span>Mandatory Self-Declaration</span>
+                  <span className="text-[10px] text-gold-800 bg-gold-500/20 px-2 py-0.5 border border-gold-500/30">
+                    Required for Submission
+                  </span>
+                </span>
+                {declarations.selfDeclaration && (
+                  <span className="text-[10px] font-mono uppercase text-emerald-800 bg-emerald-50 px-2.5 py-0.5 border border-emerald-300 font-bold">
+                    ✓ Accepted &amp; Verified
+                  </span>
+                )}
+              </div>
+              <p className="font-display text-base text-navy-950 font-semibold leading-relaxed italic bg-[#FBFAF7] p-4 border border-navy-900/10">
+                &ldquo;I hereby declare that, to the best of my knowledge, all information provided about myself, my firm and the project in this nomination form is true and accurate.&rdquo;
+              </p>
+              <p className="text-[11px] text-slate-500 font-mono">
+                This declaration is legally recorded with an immutable timestamp upon final submission and verified during the desk audit.
+              </p>
+            </div>
+          </label>
+        </div>
+
+        <div className="space-y-4 pt-2">
           {/* Checkpoint 1: Authorship */}
           <label className={`flex items-start gap-3.5 cursor-pointer p-5 transition-all border shadow-2xs ${
             declarations.authorship

@@ -19,7 +19,7 @@ import {
 import { createAdminClient } from "@/lib/supabase/admin";
 import { getAdminSession } from "@/lib/admin/auth";
 import { redirect } from "next/navigation";
-import { TOTAL_ACTIVE_CATEGORIES } from "@/lib/utils";
+import { getActiveCategories, TOTAL_ACTIVE_CATEGORIES } from "@/lib/utils";
 
 export const dynamic = "force-dynamic";
 
@@ -31,8 +31,8 @@ export default async function AdminDashboardPage() {
 
   const adminClient = createAdminClient();
 
-  // Fetch current edition, users count, and application status breakdown in parallel
-  const [editionRes, usersCountRes, appsRes, recentAppsRes] =
+  // Fetch current edition, users count, applications, recent apps, and categories in parallel
+  const [editionRes, usersCountRes, appsRes, recentAppsRes, categoriesRes] =
     await Promise.all([
       adminClient
         .from("award_editions")
@@ -50,11 +50,17 @@ export default async function AdminDashboardPage() {
         .select("id, nomination_id, project_name, project_city, status, created_at, submitted_at")
         .order("created_at", { ascending: false })
         .limit(5),
+      adminClient
+        .from("categories")
+        .select("id, code, name, slug, is_active")
+        .eq("is_active", true),
     ]);
 
   const currentEdition = editionRes.data;
   const totalUsers = usersCountRes.count ?? 0;
-  const totalCategories = TOTAL_ACTIVE_CATEGORIES;
+  // Shared authoritative category configuration: active categories count (16)
+  const activeCategories = getActiveCategories(categoriesRes?.data);
+  const totalCategories = activeCategories.length || TOTAL_ACTIVE_CATEGORIES;
 
   const appRows = appsRes.data || [];
   const totalApplications = appRows.length;

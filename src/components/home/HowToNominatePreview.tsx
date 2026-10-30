@@ -13,7 +13,7 @@ export function HowToNominatePreview() {
     {
       number: "02",
       title: "Category Selection",
-      desc: "Confirm or switch your award discipline among the 12 approved categories with switch protection.",
+      desc: "Choose from 16 proposed categories matching your project type. Applicants may enter up to 3 categories.",
     },
     {
       number: "03",

@@ -154,7 +154,7 @@ export default function Step2Category({
                 Select an Award Category
               </h3>
               <p className="text-xs text-[#4A4F5C] mt-0.5">
-                Choose from the 14 approved categories for the 2026 inaugural edition.
+                Choose from the 16 proposed categories for the 2026 inaugural edition.
               </p>
             </div>
             <button

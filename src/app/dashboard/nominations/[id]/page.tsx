@@ -143,17 +143,30 @@ export default async function NominationPage({ params }: NominationPageProps) {
     eligibility_criteria: c.eligibility_criteria,
   }));
 
-  // Resolve current nomination's category (matching by ID or code, with fallback to historical row if retired)
+  // Resolve current nomination's category (matching active categories first, with safe fallback to historical row if retired)
   const matchedActive = allCategories.find((c) => c.id === application.category_id || c.code === (application as any).category?.code);
-  const matchedHistorical = !matchedActive && (allCategoriesData || []).find((c) => c.id === application.category_id);
-  const activeCategory: CategoryOption = matchedActive || (matchedHistorical ? {
-    id: matchedHistorical.id,
-    code: matchedHistorical.code,
-    name: matchedHistorical.name,
-    slug: matchedHistorical.slug,
-    short_description: matchedHistorical.short_description,
-    eligibility_criteria: matchedHistorical.eligibility_criteria,
-  } : allCategories[0]);
+  let resolvedCategory: CategoryOption | undefined = matchedActive;
+
+  if (!resolvedCategory) {
+    const { data: histCat } = await supabase
+      .from("categories")
+      .select("id, code, name, slug, short_description, eligibility_criteria")
+      .eq("id", application.category_id)
+      .maybeSingle();
+
+    if (histCat) {
+      resolvedCategory = {
+        id: histCat.id,
+        code: histCat.code,
+        name: histCat.name,
+        slug: histCat.slug,
+        short_description: histCat.short_description,
+        eligibility_criteria: histCat.eligibility_criteria,
+      };
+    }
+  }
+
+  const activeCategory: CategoryOption = resolvedCategory || allCategories[0];
 
   const entrant: EntrantDetailsData = {
     fullName: dbUser?.full_name || user.email?.split("@")[0] || "Entrant",

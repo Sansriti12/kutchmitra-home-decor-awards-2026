@@ -37,6 +37,8 @@ const CATEGORIES_SAMPLE = [
   "Best Organised Township",
   "Best Office Design",
   "Best Commercial Building",
+  "Vernacular Architecture",
+  "Kutchi Craft & Artisan Integration",
 ];
 
 export function Footer() {
@@ -64,7 +66,7 @@ export function Footer() {
               </h3>
             </div>
             <p className="text-xs leading-relaxed text-slate-400 font-sans max-w-xs">
-              Celebrating architectural innovation, interior design excellence, and craftsmanship.
+              Celebrating the Spirit of Kutch Through Architecture, Craft and Sustainability.
             </p>
             <div className="inline-flex items-center gap-1.5 px-2.5 py-1 border border-white/10 bg-navy-900/60 text-[11px] font-mono text-slate-300">
               <Award size={12} className="text-gold-400" />
@@ -146,7 +148,7 @@ export function Footer() {
           <div className="lg:col-span-2 space-y-2">
             <div className="flex items-center justify-between">
               <h4 className="font-mono text-[11px] uppercase tracking-wider text-white font-semibold">
-                14 Categories
+                16 Categories
               </h4>
               <Link
                 href="/categories"

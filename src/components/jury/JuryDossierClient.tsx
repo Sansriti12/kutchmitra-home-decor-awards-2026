@@ -31,6 +31,7 @@ import {
   formatDeterministicDateTime,
   formatDeterministicNumber,
   getCategoryDisplayNumber,
+  isRetiredCategory,
 } from "@/lib/utils";
 import {
   saveJuryEvaluationDraft,
@@ -257,17 +258,23 @@ export default function JuryDossierClient({ dossier }: JuryDossierClientProps) {
           <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
             <div className="space-y-1">
               <div className="flex items-center gap-2 text-[11px] font-mono text-gold-400 uppercase tracking-wider">
-                <span>Category {getCategoryDisplayNumber(application.category)}</span>
+                {isRetiredCategory(application.category) ? (
+                  <span className="px-2 py-0.5 bg-amber-950/80 text-amber-300 border border-amber-500/30">
+                    [Historical / Retired Category]
+                  </span>
+                ) : (
+                  <span>Category {getCategoryDisplayNumber(application.category)}</span>
+                )}
                 <span>//</span>
                 <span>{application.category?.name}</span>
               </div>
               <h1 className="font-display text-2xl sm:text-3xl text-white font-medium">
                 {application.projectName}
               </h1>
-              <div className="flex items-center gap-4 text-xs font-mono text-slate-400 pt-1">
-                <span className="flex items-center gap-1">
-                  <MapPin size={12} className="text-slate-500" />
-                  {application.projectCity}, {application.projectState}
+              <div className="flex items-center gap-4 text-xs font-mono text-slate-400 pt-1 flex-wrap">
+                <span className="flex items-center gap-1 text-emerald-300 font-semibold">
+                  <MapPin size={12} className="text-emerald-400" />
+                  {application.projectCity}, {application.projectDistrict || "Kutch District"} ({application.projectState})
                 </span>
                 {application.builtUpAreaSqft && (
                   <span>Area: {formatDeterministicNumber(application.builtUpAreaSqft)} sq.ft.</span>
@@ -278,7 +285,22 @@ export default function JuryDossierClient({ dossier }: JuryDossierClientProps) {
                     Completed: {formatDeterministicDate(application.projectCompletionDate)}
                   </span>
                 )}
+                <span className="px-2 py-0.5 bg-emerald-950 text-emerald-300 border border-emerald-500/30 text-[10px]">
+                  ✓ Self-Declaration Signed
+                </span>
               </div>
+
+              {application.projectBrief && (
+                <div className="pt-3 mt-3 border-t border-white/10 space-y-1">
+                  <div className="flex items-center justify-between text-[11px] font-mono text-gold-400">
+                    <span className="uppercase tracking-wider font-semibold">Architectural Project Brief</span>
+                    <span className="text-slate-500">{application.projectBrief.length} / 500 chars</span>
+                  </div>
+                  <p className="text-xs text-slate-200 font-sans leading-relaxed bg-navy-950/80 p-3.5 border border-white/10 whitespace-pre-wrap">
+                    {application.projectBrief}
+                  </p>
+                </div>
+              )}
             </div>
 
             {/* Quick action buttons on header */}
@@ -502,7 +524,9 @@ export default function JuryDossierClient({ dossier }: JuryDossierClientProps) {
 
                           <div>
                             <div className="text-[10px] font-mono text-gold-400 uppercase tracking-wider">
-                              {file.uploadType.replace(/_/g, " ")}
+                              {file.uploadType === "floor_plan"
+                                ? "Project Plan (A3 Size) / Drawing"
+                                : file.uploadType.replace(/_/g, " ")}
                             </div>
                             <h4 className="font-sans text-xs font-semibold text-white line-clamp-1">
                               {file.title}

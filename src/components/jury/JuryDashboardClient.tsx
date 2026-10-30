@@ -105,7 +105,7 @@ export default function JuryDashboardClient({
     });
   };
 
-  // Distinct categories in assignments (sorted sequentially by display number 01–14, excluding retired)
+  // Distinct categories in assignments (sorted sequentially by display number 01–16, excluding retired)
   const categoriesInAssignments = Array.from(
     new Map(
       assignments
@@ -414,7 +414,9 @@ export default function JuryDashboardClient({
 
                       <div>
                         <div className="text-[10px] font-mono uppercase tracking-wider text-slate-400">
-                          Cat {getCategoryDisplayNumber(a.category)} // {a.category?.name}
+                          {isRetiredCategory(a.category)
+                            ? `[Historical / Retired: ${a.category?.name || "Category"}]`
+                            : `Cat ${getCategoryDisplayNumber(a.category)} // ${a.category?.name}`}
                         </div>
                         <h3 className="font-display text-lg text-white font-medium line-clamp-1 mt-0.5">
                           {a.projectName}

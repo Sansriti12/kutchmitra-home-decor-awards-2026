@@ -127,7 +127,7 @@ const WIZARD_NEXT_ACTIONS: Record<number, { title: string; desc: string }> = {
   },
   2: {
     title: "Confirm Award Category",
-    desc: "Review your selected discipline or switch to another of the 12 official award categories.",
+    desc: "Review your selected discipline or switch to another of the 16 proposed award categories.",
   },
   3: {
     title: "Enter Project Details & Spatial Data",

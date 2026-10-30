@@ -1079,15 +1079,7 @@ export async function getJuryApplicationDossier(
     const { data: app, error: appErr } = await adminClient
       .from("applications")
       .select(`
-        id,
-        nomination_id,
-        project_name,
-        project_city,
-        project_state,
-        project_completion_date,
-        built_up_area_sqft,
-        status,
-        category_id,
+        *,
         categories (
           id,
           code,
@@ -1295,6 +1287,11 @@ export async function getJuryApplicationDossier(
         nominationId: app.nomination_id,
         projectName: app.project_name || "Untitled Project",
         projectCity: app.project_city || "Kutch",
+        projectDistrict: (app as any).project_district || "Kutch",
+        projectAddress: (app as any).project_address || null,
+        projectBrief: (app as any).project_brief || null,
+        declarationAccepted: Boolean((app as any).declaration_accepted),
+        declarationAcceptedAt: (app as any).declaration_accepted_at || null,
         projectState: app.project_state || "Gujarat",
         projectCompletionDate: app.project_completion_date,
         builtUpAreaSqft: app.built_up_area_sqft ? Number(app.built_up_area_sqft) : null,

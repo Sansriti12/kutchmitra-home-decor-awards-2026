@@ -23,7 +23,7 @@ export async function getPublicWinners(params?: {
     const supabase = createClient();
     const editionId = params?.editionId || CURRENT_EDITION_ID;
 
-    // 1. Fetch active categories (authoritative 14 active categories, ordered 01-14)
+    // 1. Fetch active categories (authoritative 16 active categories, ordered 01-16)
     const { data: rawCategories } = await supabase
       .from("categories")
       .select("id, name, code, slug, display_order")

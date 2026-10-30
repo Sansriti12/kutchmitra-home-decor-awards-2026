@@ -9,6 +9,9 @@ export interface EntrantDetailsData {
   fullName: string;
   email: string;
   phone: string | null;
+  applicantType?: "individual_architect" | "architectural_firm";
+  coaRegistrationNumber?: string | null;
+  applicantDistrict?: string;
   organizationName: string | null;
   designation: string | null;
   city: string;
@@ -17,11 +20,16 @@ export interface EntrantDetailsData {
   addressLine: string | null;
   websiteUrl: string | null;
   portfolioUrl: string | null;
+  isKutchConfirmed?: boolean;
 }
 
 interface Step1EntrantDetailsProps {
   entrant: EntrantDetailsData;
-  onNext: () => void;
+  onNext: (data?: {
+    applicantType: "individual_architect" | "architectural_firm";
+    applicantDistrict: string;
+    coaRegistrationNumber: string;
+  }) => void;
   onProfileUpdated?: (updated: Partial<EntrantDetailsData>) => void;
 }
 
@@ -35,19 +43,29 @@ export default function Step1EntrantDetails({
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
   const [successMsg, setSuccessMsg] = useState<string | null>(null);
 
+  // Applicant eligibility state
+  const [applicantType, setApplicantType] = useState<"individual_architect" | "architectural_firm">(
+    entrant.applicantType || (entrant.organizationName ? "architectural_firm" : "individual_architect")
+  );
+  const [coaNumber, setCoaNumber] = useState(entrant.coaRegistrationNumber || "");
+  const [applicantDistrict, setApplicantDistrict] = useState(entrant.applicantDistrict || "Kutch");
+  const [isKutchConfirmed, setIsKutchConfirmed] = useState<boolean>(entrant.isKutchConfirmed ?? true);
+
   // Edit form state initialized from entrant prop
   const [formState, setFormState] = useState({
     fullName: entrant.fullName,
     phone: entrant.phone || "",
     organizationName: entrant.organizationName || "",
     designation: entrant.designation || "",
-    city: entrant.city,
-    state: entrant.state,
+    city: entrant.city || "Bhuj",
+    state: entrant.state || "Gujarat",
     postalCode: entrant.postalCode || "",
     addressLine: entrant.addressLine || "",
     websiteUrl: entrant.websiteUrl || "",
     portfolioUrl: entrant.portfolioUrl || "",
   });
+
+  const isEligible = isKutchConfirmed && (applicantDistrict.toLowerCase().includes("kutch") || applicantDistrict.toLowerCase().includes("kachchh"));
 
   const handleSaveProfile = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -84,6 +102,10 @@ export default function Step1EntrantDetails({
             addressLine: formState.addressLine,
             websiteUrl: formState.websiteUrl,
             portfolioUrl: formState.portfolioUrl,
+            applicantType,
+            coaRegistrationNumber: coaNumber,
+            applicantDistrict,
+            isKutchConfirmed,
           });
         }
       } else {
@@ -94,6 +116,26 @@ export default function Step1EntrantDetails({
     } finally {
       setIsSubmitting(false);
     }
+  };
+
+  const handleProceed = () => {
+    if (!isEligible) {
+      setErrorMsg("Eligibility Requirement: The nominating applicant must be an architect based in Kutch or an architectural firm based in Kutch.");
+      return;
+    }
+    if (onProfileUpdated) {
+      onProfileUpdated({
+        applicantType,
+        coaRegistrationNumber: coaNumber,
+        applicantDistrict,
+        isKutchConfirmed,
+      });
+    }
+    onNext({
+      applicantType,
+      coaRegistrationNumber: coaNumber,
+      applicantDistrict,
+    });
   };
 
   return (
@@ -355,17 +397,134 @@ export default function Step1EntrantDetails({
         </form>
       )}
 
+      {/* MANDATORY APPLICANT ELIGIBILITY SECTION (CLIENT REQUIREMENT) */}
+      <div className="bg-white border-2 border-gold-500/40 p-6 sm:p-8 shadow-card space-y-5">
+        <div className="border-b border-navy-900/10 pb-4 flex items-center justify-between">
+          <div className="space-y-0.5">
+            <span className="text-[10px] font-mono uppercase tracking-widest text-gold-700 font-bold block">
+              Official Eligibility Condition
+            </span>
+            <h3 className="font-display text-lg text-navy-900 font-semibold flex items-center gap-2">
+              <Building2 size={18} className="text-gold-600" />
+              <span>Architect / Architectural Firm Based in Kutch</span>
+            </h3>
+          </div>
+          <span className="text-xs font-mono text-gold-800 bg-gold-500/15 border border-gold-500/30 px-2.5 py-0.5 font-bold uppercase">
+            Mandatory
+          </span>
+        </div>
+
+        <p className="text-xs text-[#4A4F5C] leading-relaxed">
+          The client guidelines require: <em>&ldquo;The nominating applicant must be an architect based in Kutch or an architectural firm based in Kutch.&rdquo;</em> Please specify your practice category and credentials below.
+        </p>
+
+        {/* Applicant Type Selection */}
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3.5">
+          <label className={`p-4 border cursor-pointer transition-all flex items-start gap-3 ${
+            applicantType === "individual_architect"
+              ? "bg-gold-500/5 border-gold-500/60 ring-1 ring-gold-500/30"
+              : "bg-white border-navy-900/10 hover:border-gold-500/30"
+          }`}>
+            <input
+              type="radio"
+              name="applicantType"
+              value="individual_architect"
+              checked={applicantType === "individual_architect"}
+              onChange={() => setApplicantType("individual_architect")}
+              className="mt-1 accent-navy-900"
+            />
+            <div className="text-xs space-y-0.5">
+              <span className="font-semibold text-navy-900 block">Individual Architect</span>
+              <p className="text-slate-500">Sole architectural practitioner with established practice located in Kutch district.</p>
+            </div>
+          </label>
+
+          <label className={`p-4 border cursor-pointer transition-all flex items-start gap-3 ${
+            applicantType === "architectural_firm"
+              ? "bg-gold-500/5 border-gold-500/60 ring-1 ring-gold-500/30"
+              : "bg-white border-navy-900/10 hover:border-gold-500/30"
+          }`}>
+            <input
+              type="radio"
+              name="applicantType"
+              value="architectural_firm"
+              checked={applicantType === "architectural_firm"}
+              onChange={() => setApplicantType("architectural_firm")}
+              className="mt-1 accent-navy-900"
+            />
+            <div className="text-xs space-y-0.5">
+              <span className="font-semibold text-navy-900 block">Architectural Firm</span>
+              <p className="text-slate-500">Registered architectural studio or firm having its principal office based in Kutch district.</p>
+            </div>
+          </label>
+        </div>
+
+        {/* Professional Details for Verification */}
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 pt-2 text-xs">
+          <div>
+            <label className="block font-mono text-[11px] uppercase tracking-wider text-slate-700 font-semibold mb-1">
+              COA Registration / Firm License No. <span className="text-slate-400 font-normal">(For Verification)</span>
+            </label>
+            <input
+              type="text"
+              value={coaNumber}
+              onChange={(e) => setCoaNumber(e.target.value)}
+              placeholder="e.g. CA/2018/XXXXX or Firm Reg. No."
+              className="w-full px-3.5 py-2.5 border border-navy-900/15 bg-white text-navy-900 focus:outline-none focus:border-gold-500 text-xs"
+            />
+          </div>
+
+          <div>
+            <label className="block font-mono text-[11px] uppercase tracking-wider text-slate-700 font-semibold mb-1">
+              Practice District *
+            </label>
+            <input
+              type="text"
+              value={applicantDistrict}
+              onChange={(e) => setApplicantDistrict(e.target.value)}
+              placeholder="Kutch"
+              className="w-full px-3.5 py-2.5 border border-navy-900/15 bg-white text-navy-900 focus:outline-none focus:border-gold-500 text-xs"
+            />
+          </div>
+        </div>
+
+        {/* Mandatory Affirmation Checkbox */}
+        <label className="flex items-start gap-3 p-4 bg-sand-100/60 border border-gold-500/30 cursor-pointer">
+          <input
+            type="checkbox"
+            checked={isKutchConfirmed}
+            onChange={(e) => setIsKutchConfirmed(e.target.checked)}
+            className="mt-1 accent-navy-900 w-4 h-4 cursor-pointer"
+          />
+          <div className="text-xs text-[#4A4F5C] leading-relaxed">
+            <span className="font-semibold text-navy-900 block">
+              Official Kutch Base Eligibility Confirmation *
+            </span>
+            <span>
+              I affirm that I am an architect based in Kutch or represent an architectural firm with an established office and practice in Kutch district. I understand that eligibility will be verified during admin screening.
+            </span>
+          </div>
+        </label>
+
+        {!isEligible && (
+          <div className="p-3 bg-rose-50 border border-rose-200 text-rose-800 text-xs font-mono">
+            ⚠ Ineligible: Applicants must be based within Kutch district to submit nominations.
+          </div>
+        )}
+      </div>
+
       {/* Next Step Action Bar */}
       <div className="flex items-center justify-between pt-6 border-t border-navy-900/10">
         <span className="text-xs font-mono text-slate-500 flex items-center gap-1.5">
-          <Check size={14} className="text-emerald-600" />
+          <Check size={14} className={isEligible ? "text-emerald-600" : "text-slate-400"} />
           <span>Step 01: Entrant Verified</span>
         </span>
         <Button
-          onClick={onNext}
+          onClick={handleProceed}
           variant="primary"
           size="md"
           icon={<ArrowRight size={14} />}
+          disabled={!isEligible}
         >
           Confirm & Proceed to Category
         </Button>

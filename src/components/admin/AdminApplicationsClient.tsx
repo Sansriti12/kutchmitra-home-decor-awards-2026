@@ -245,7 +245,7 @@ export default function AdminApplicationsClient({
             Applications &amp; Review
           </h1>
           <p className="text-xs text-slate-400 font-sans mt-0.5">
-            Comprehensive registry of all submitted and drafted entries across all 14 official categories.
+            Comprehensive registry of all submitted and drafted entries across all 16 proposed categories.
           </p>
         </div>
 
