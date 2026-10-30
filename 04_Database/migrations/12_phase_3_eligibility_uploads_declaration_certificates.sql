@@ -118,6 +118,7 @@ CREATE INDEX IF NOT EXISTS idx_participant_certificates_status ON participant_ce
 ALTER TABLE participant_certificates ENABLE ROW LEVEL SECURITY;
 
 -- Applicants can view certificates for their own applications
+DROP POLICY IF EXISTS "Applicants view own certificates" ON participant_certificates;
 CREATE POLICY "Applicants view own certificates"
 ON participant_certificates FOR SELECT
 TO authenticated
@@ -129,16 +130,16 @@ USING (
     )
 );
 
--- Admins full access to certificates
+-- Admins and verification team full access to certificates
+DROP POLICY IF EXISTS "Admins manage all certificates" ON participant_certificates;
 CREATE POLICY "Admins manage all certificates"
 ON participant_certificates FOR ALL
 TO authenticated
 USING (
     EXISTS (
-        SELECT 1 FROM user_roles ur
-        JOIN roles r ON ur.role_id = r.id
+        SELECT 1 FROM public.user_roles ur
         WHERE ur.user_id = auth.uid()
-          AND r.name IN ('super_admin', 'committee_admin')
+          AND ur.role_id IN ('admin', 'super_admin', 'verification_team')
     )
 );
 

@@ -6,6 +6,7 @@ import { revalidatePath } from "next/cache";
 import type { Database, UploadType } from "@/types/database.types";
 import { sendNotification, notifyAdmins } from "@/lib/notifications/notification-service";
 import { isRetiredCategory } from "@/lib/utils";
+import { ACTIVE_CATEGORIES } from "@/lib/categories/display-number";
 import { validateImageBuffer } from "./image-validator";
 
 type ApplicationUpdate = Database["public"]["Tables"]["applications"]["Update"];
@@ -36,8 +37,13 @@ export async function getApplicantCategoryQuota(): Promise<{
     .eq("applicant_id", user.id)
     .not("status", "in", '("disqualified","rejected")');
 
+  // Strictly filter out retired categories (03, 06, 13) so historical entries do not consume active 2026 quota
   const enteredCategoryIds = Array.from(
-    new Set((userApps || []).map((a: any) => a.category_id).filter(Boolean))
+    new Set(
+      (userApps || [])
+        .map((a: any) => a.category_id)
+        .filter((id: string) => Boolean(id) && !isRetiredCategory(id))
+    )
   ) as string[];
 
   const distinctCount = enteredCategoryIds.length;
@@ -65,34 +71,75 @@ export async function createDraftApplication(categoryId: string) {
     return { success: false, error: "Authentication required to create a nomination." };
   }
 
-  // 1. Verify category exists and is active (and not retired)
-  const { data: category, error: catErr } = await supabase
-    .from("categories")
-    .select("id, edition_id, code, name")
-    .eq("id", categoryId)
-    .eq("is_active", true)
-    .single();
-
-  if (catErr || !category || isRetiredCategory(categoryId) || isRetiredCategory(category.code)) {
-    return { success: false, error: "The selected category is inactive or invalid." };
+  // 1. Verify category is not retired
+  if (isRetiredCategory(categoryId)) {
+    return {
+      success: false,
+      error: "Action Blocked: This category has been retired and is not open for nominations in the 2026 cycle.",
+    };
   }
 
   const adminClient = createAdminClient();
 
   // 1b. Maximum 3 Categories Check (Client Requirement)
-  // An applicant may submit nominations across a maximum of 3 award categories.
+  // An applicant may submit nominations across a maximum of 3 active award categories.
   const { data: userApps } = await adminClient
     .from("applications")
-    .select("category_id")
+    .select("id, category_id, nomination_id, status, current_wizard_step, project_name")
     .eq("applicant_id", user.id)
     .not("status", "in", '("disqualified","rejected")');
 
-  const existingCategoryIds = new Set((userApps || []).map((a: any) => a.category_id).filter(Boolean));
+  const existingCategoryIds = new Set(
+    (userApps || [])
+      .map((a: any) => a.category_id)
+      .filter((id: string) => Boolean(id) && !isRetiredCategory(id))
+  );
+
   if (!existingCategoryIds.has(categoryId) && existingCategoryIds.size >= 3) {
     return {
       success: false,
       error:
         "Category Limit Reached: An applicant may submit nominations in a maximum of 3 award categories. You have already initiated nominations across 3 categories.",
+    };
+  }
+
+  // 1c. Resolve canonical category definition from active catalog
+  const canonicalCat = ACTIVE_CATEGORIES.find(
+    (c) => c.id === categoryId || c.code === categoryId || c.slug === categoryId
+  );
+
+  // 1d. Verify category exists and is active in the Supabase database
+  const { data: category, error: catErr } = await supabase
+    .from("categories")
+    .select("id, edition_id, code, name, is_active")
+    .eq("id", categoryId)
+    .maybeSingle();
+
+  if (catErr || !category || !category.is_active || isRetiredCategory(category.code)) {
+    if (canonicalCat) {
+      return {
+        success: false,
+        error: `Database synchronization required: Category "${canonicalCat.name}" (#${canonicalCat.displayNumber}) is not yet active in the database. Please apply Migration 11 in Supabase.`,
+      };
+    }
+    return { success: false, error: "The selected category is inactive or invalid." };
+  }
+
+  // 1e. Re-use existing unsubmitted stub draft in the same category (prevents duplicate stubs)
+  const existingStub = (userApps || []).find(
+    (a: any) =>
+      a.category_id === category.id &&
+      a.status === "draft" &&
+      a.current_wizard_step === 1 &&
+      typeof a.project_name === "string" &&
+      a.project_name.startsWith("Draft Entry (")
+  );
+
+  if (existingStub) {
+    return {
+      success: true,
+      applicationId: existingStub.id,
+      nominationId: existingStub.nomination_id,
     };
   }
 
@@ -393,6 +440,13 @@ export async function saveWizardProgress(params: {
     }
 
     if (params.patch.categoryId && params.patch.categoryId !== app.category_id) {
+      if (isRetiredCategory(params.patch.categoryId)) {
+        return {
+          success: false,
+          error: "Action Blocked: The selected category is retired and not open for nominations.",
+        };
+      }
+
       // Validate applicant 3-category limit when switching categories
       const { data: userApps } = await adminClient
         .from("applications")
@@ -401,7 +455,12 @@ export async function saveWizardProgress(params: {
         .neq("id", params.applicationId)
         .not("status", "in", '("disqualified","rejected")');
 
-      const existingCategoryIds = new Set((userApps || []).map((a: any) => a.category_id).filter(Boolean));
+      const existingCategoryIds = new Set(
+        (userApps || [])
+          .map((a: any) => a.category_id)
+          .filter((id: string) => Boolean(id) && !isRetiredCategory(id))
+      );
+
       if (!existingCategoryIds.has(params.patch.categoryId) && existingCategoryIds.size >= 3) {
         return {
           success: false,
@@ -419,8 +478,13 @@ export async function saveWizardProgress(params: {
         .eq("is_active", true)
         .maybeSingle();
 
-      if (newCat && !isRetiredCategory(newCat.id)) {
+      if (newCat) {
         updatePayload.category_id = newCat.id;
+      } else {
+        return {
+          success: false,
+          error: "Selected category is not active in the database.",
+        };
       }
     }
   }
@@ -886,14 +950,18 @@ export async function submitFinalNomination(
     };
   }
 
-  // 3f. Maximum 3 Categories Check: Applicant cannot enter more than 3 distinct categories
+  // 3f. Maximum 3 Categories Check: Applicant cannot enter more than 3 distinct active categories
   const { data: allUserApps } = await adminClient
     .from("applications")
     .select("category_id")
     .eq("applicant_id", user.id)
     .not("status", "in", '("disqualified","rejected")');
 
-  const distinctUserCategories = new Set((allUserApps || []).map((a: any) => a.category_id).filter(Boolean));
+  const distinctUserCategories = new Set(
+    (allUserApps || [])
+      .map((a: any) => a.category_id)
+      .filter((id: string) => Boolean(id) && !isRetiredCategory(id))
+  );
   if (distinctUserCategories.size > 3) {
     return {
       success: false,
