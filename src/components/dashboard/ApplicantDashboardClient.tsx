@@ -383,48 +383,45 @@ export default function ApplicantDashboardClient({
         {/* ========================================================================= */}
         {/* DASHBOARD SUMMARY / KPI STRIP */}
         {/* ========================================================================= */}
-        {/* ========================================================================= */}
-        {/* DASHBOARD SUMMARY / KPI STRIP */}
-        {/* ========================================================================= */}
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
           <div className="bg-[#FBFAF7] border border-navy-900/10 p-5 shadow-card space-y-1">
-            <span className="text-[10px] font-mono uppercase tracking-wider text-slate-500 block font-medium">
+            <span className="text-[11px] font-sans uppercase tracking-wider text-slate-500 block font-medium">
               Active Drafts
             </span>
             <div className="flex items-baseline gap-2">
-              <span className="font-display text-3xl text-navy-900 font-semibold">{drafts.length}</span>
-              <span className="text-xs font-mono text-amber-700">
-                {drafts.length === 1 ? "1 in progress" : `${drafts.length} in progress`}
-              </span>
+              <span className="font-display text-3xl sm:text-4xl text-navy-900 font-semibold">{drafts.length}</span>
             </div>
+            <p className="text-xs text-amber-800/90 font-sans pt-0.5">
+              Drafts currently in progress
+            </p>
           </div>
 
           <div className="bg-[#FBFAF7] border border-navy-900/10 p-5 shadow-card space-y-1">
-            <span className="text-[10px] font-mono uppercase tracking-wider text-slate-500 block font-medium">
+            <span className="text-[11px] font-sans uppercase tracking-wider text-slate-500 block font-medium">
               Submitted Entries
             </span>
             <div className="flex items-baseline gap-2">
-              <span className="font-display text-3xl text-navy-900 font-semibold">{submitted.length}</span>
-              <span className="text-xs font-mono text-blue-700">
-                {submitted.length === 1 ? "1 submitted" : `${submitted.length} submitted`}
-              </span>
+              <span className="font-display text-3xl sm:text-4xl text-navy-900 font-semibold">{submitted.length}</span>
             </div>
+            <p className="text-xs text-blue-800/90 font-sans pt-0.5">
+              Lodged for jury review
+            </p>
           </div>
 
           <div className="bg-[#FBFAF7] border border-navy-900/10 p-5 shadow-card space-y-1">
-            <span className="text-[10px] font-mono uppercase tracking-wider text-slate-500 block font-medium">
+            <span className="text-[11px] font-sans uppercase tracking-wider text-slate-500 block font-medium">
               Total Nominations
             </span>
             <div className="flex items-baseline gap-2">
-              <span className="font-display text-3xl text-navy-900 font-semibold">{applications.length}</span>
-              <span className="text-xs font-mono text-slate-500">
-                {applications.length === 1 ? "1 total entry" : `${applications.length} total entries`}
-              </span>
+              <span className="font-display text-3xl sm:text-4xl text-navy-900 font-semibold">{applications.length}</span>
             </div>
+            <p className="text-xs text-slate-500 font-sans pt-0.5">
+              Across all categories (Max 3)
+            </p>
           </div>
 
           <div className="bg-[#FBFAF7] border border-navy-900/10 p-5 shadow-card space-y-1">
-            <span className="text-[10px] font-mono uppercase tracking-wider text-slate-500 block font-medium">
+            <span className="text-[11px] font-sans uppercase tracking-wider text-slate-500 block font-medium">
               Portal Submission State
             </span>
             <div className="pt-1">
@@ -448,7 +445,7 @@ export default function ApplicantDashboardClient({
                 Begin Your First Nomination
               </h3>
               <p className="text-xs sm:text-sm text-[#4A4F5C] leading-relaxed font-sans">
-                Welcome to the Kutchmitra Home &amp; Decor Awards 2026. You can begin a nomination in any of our 12 award disciplines, save your draft at any step, and return to complete it whenever you wish.
+                Welcome to the Kutchmitra Home &amp; Decor Awards 2026. You can begin a nomination in any of our 16 award categories, save your draft at any step, and return to complete it whenever you wish.
               </p>
             </div>
             <div className="pt-2">

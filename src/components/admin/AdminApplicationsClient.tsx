@@ -495,7 +495,8 @@ export default function AdminApplicationsClient({
           </div>
         )}
 
-        <div className="overflow-x-auto">
+        {/* Desktop & Tablet Table View (>= 640px) */}
+        <div className="hidden sm:block overflow-x-auto">
           <table className="w-full text-left text-xs border-collapse">
             <thead>
               <tr className="border-b border-white/10 bg-navy-950/90 text-slate-400 font-mono text-[11px] uppercase tracking-wider">
@@ -714,6 +715,138 @@ export default function AdminApplicationsClient({
               )}
             </tbody>
           </table>
+        </div>
+
+        {/* Mobile Compact Card-Based List (< 640px) */}
+        <div className="block sm:hidden divide-y divide-white/10">
+          {initialApplications.length === 0 ? (
+            <div className="p-8 text-center text-slate-400 space-y-2">
+              <FileText className="mx-auto text-slate-600 mb-2" size={28} />
+              <p className="font-mono text-xs text-slate-300">No applications match your filter criteria.</p>
+              <button
+                onClick={handleResetFilters}
+                className="mt-2 px-3 py-1.5 bg-white/5 border border-white/10 text-xs font-mono text-slate-300"
+              >
+                Clear All Filters
+              </button>
+            </div>
+          ) : (
+            initialApplications.map((app) => {
+              const statusInfo = STATUS_CONFIG[app.status] || {
+                label: app.status,
+                text: "text-slate-300",
+                bg: "bg-slate-800",
+                border: "border-slate-700",
+                dot: "bg-slate-400",
+              };
+              const isKutch = isKutchLocation(app.project_city);
+
+              return (
+                <div key={app.id} className="p-4 space-y-3 bg-navy-950/40">
+                  {/* Top Bar: Nomination ID & Status Badge */}
+                  <div className="flex items-center justify-between gap-2">
+                    <div className="flex items-center gap-1.5">
+                      <Link
+                        href={`/admin/applications/${app.id}`}
+                        className="font-mono text-xs font-semibold text-gold-400 hover:text-gold-200"
+                      >
+                        {app.nomination_id}
+                      </Link>
+                      <button
+                        onClick={(e) => handleCopy(app.nomination_id, e)}
+                        title="Copy Nomination ID"
+                        className="text-slate-500 hover:text-slate-300 p-1 rounded"
+                      >
+                        {copiedId === app.nomination_id ? (
+                          <Check size={12} className="text-emerald-400" />
+                        ) : (
+                          <Copy size={12} />
+                        )}
+                      </button>
+                    </div>
+                    <span
+                      className={cn(
+                        "inline-flex items-center gap-1.5 px-2 py-0.5 text-[10px] font-mono uppercase font-semibold border",
+                        statusInfo.bg,
+                        statusInfo.text,
+                        statusInfo.border
+                      )}
+                    >
+                      <span className={cn("w-1.5 h-1.5 rounded-full", statusInfo.dot)} />
+                      <span>{statusInfo.label}</span>
+                    </span>
+                  </div>
+
+                  {/* Project Name & Location / District */}
+                  <div className="space-y-1">
+                    <Link
+                      href={`/admin/applications/${app.id}`}
+                      className="font-medium text-sm text-white hover:text-gold-300 transition-colors block line-clamp-1"
+                    >
+                      {app.project_name || "Untitled Draft"}
+                    </Link>
+                    <div className="flex items-center gap-1.5 text-xs text-slate-400">
+                      <MapPin size={12} className="text-slate-500 flex-shrink-0" />
+                      <span>
+                        {app.project_city || "Gujarat"}
+                        {app.project_state ? `, ${app.project_state}` : ""}
+                      </span>
+                      {isKutch && (
+                        <span className="text-[10px] font-mono px-1 py-0.2 bg-emerald-950/80 text-emerald-400 border border-emerald-500/30 uppercase">
+                          Kutch Sited
+                        </span>
+                      )}
+                    </div>
+                  </div>
+
+                  {/* Category & Entrant */}
+                  <div className="grid grid-cols-1 gap-1.5 text-xs pt-1 border-t border-white/5">
+                    <div className="flex items-center gap-1.5">
+                      <span className="text-slate-500 text-[11px] font-mono uppercase w-16 flex-shrink-0">Category:</span>
+                      {app.category ? (
+                        <span className="text-slate-200 line-clamp-1 font-medium">
+                          #{getCategoryDisplayNumber(app.category.code)} {app.category.name}
+                        </span>
+                      ) : (
+                        <span className="text-slate-500 italic">Unassigned</span>
+                      )}
+                    </div>
+
+                    <div className="flex items-center gap-1.5">
+                      <span className="text-slate-500 text-[11px] font-mono uppercase w-16 flex-shrink-0">Applicant:</span>
+                      {app.applicant ? (
+                        <span className="text-slate-300 line-clamp-1">
+                          {app.applicant.full_name}
+                          {app.applicant.organization_name ? ` (${app.applicant.organization_name})` : ""}
+                        </span>
+                      ) : (
+                        <span className="text-slate-500 italic">Unknown</span>
+                      )}
+                    </div>
+                  </div>
+
+                  {/* Actions & Timestamp */}
+                  <div className="flex items-center justify-between pt-2 border-t border-white/5">
+                    <span className="text-[10px] font-mono text-slate-500">
+                      {app.submitted_at ? "Submitted: " : "Created: "}
+                      {new Date(app.submitted_at || app.created_at).toLocaleDateString("en-IN", {
+                        day: "numeric",
+                        month: "short",
+                        year: "numeric",
+                      })}
+                    </span>
+                    <Link
+                      href={`/admin/applications/${app.id}`}
+                      className="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-mono font-medium text-gold-400 hover:text-navy-950 bg-gold-500/10 hover:bg-gold-500 border border-gold-500/30 transition-all"
+                    >
+                      <Eye size={12} />
+                      <span>View Dossier</span>
+                    </Link>
+                  </div>
+                </div>
+              );
+            })
+          )}
         </div>
 
         {/* Table Footer / Pagination */}

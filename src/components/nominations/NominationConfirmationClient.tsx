@@ -14,7 +14,7 @@ import {
   FileCheck,
 } from "lucide-react";
 import { Button } from "@/components/ui/Button";
-import { getCategoryDisplayNumber } from "@/lib/utils";
+import { formatDeterministicDate, formatDeterministicDateTime, getCategoryDisplayNumber } from "@/lib/utils";
 
 interface NominationConfirmationClientProps {
   applicationId: string;
@@ -43,16 +43,8 @@ export default function NominationConfirmationClient({
     setTimeout(() => setCopied(false), 2000);
   };
 
-  const formattedDate = new Date(submittedAt).toLocaleDateString("en-IN", {
-    day: "numeric",
-    month: "long",
-    year: "numeric",
-  });
-
-  const formattedTime = new Date(submittedAt).toLocaleTimeString("en-IN", {
-    hour: "2-digit",
-    minute: "2-digit",
-  });
+  const formattedDate = formatDeterministicDate(submittedAt);
+  const formattedTime = formatDeterministicDateTime(submittedAt);
 
   return (
     <div className="min-h-screen bg-[#F4F1EA] py-12 px-4 sm:px-6 lg:px-8 print:bg-white print:p-0">
@@ -131,11 +123,10 @@ export default function NominationConfirmationClient({
             </div>
 
             <div className="p-3 bg-white border border-navy-900/10">
-              <span className="font-mono text-[10px] text-slate-400 uppercase block">Timestamp (IST)</span>
-              <span className="font-semibold text-navy-900 truncate block">
-                {formattedDate}
+              <span className="font-mono text-[10px] text-slate-400 uppercase block">Submission Timestamp</span>
+              <span className="font-semibold text-navy-900 truncate block text-xs">
+                {formattedTime}
               </span>
-              <span className="text-[11px] text-slate-500">{formattedTime} IST</span>
             </div>
           </div>
 

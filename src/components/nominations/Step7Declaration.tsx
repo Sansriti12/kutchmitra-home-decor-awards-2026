@@ -191,9 +191,6 @@ export default function Step7Declaration({
               <p className="font-display text-base text-navy-950 font-semibold leading-relaxed italic bg-[#FBFAF7] p-4 border border-navy-900/10">
                 &ldquo;I hereby declare that, to the best of my knowledge, all information provided about myself, my firm and the project in this nomination form is true and accurate.&rdquo;
               </p>
-              <p className="text-[11px] text-slate-500 font-mono">
-                This declaration is legally recorded with an immutable timestamp upon final submission and verified during the desk audit.
-              </p>
             </div>
           </label>
         </div>

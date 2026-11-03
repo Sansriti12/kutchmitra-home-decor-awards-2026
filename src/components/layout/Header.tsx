@@ -110,7 +110,7 @@ export function Header() {
           </nav>
 
           {/* Desktop Right Actions: Applicant Login + Nominate Now */}
-          <div className="hidden lg:flex items-center gap-2.5 2xl:gap-3.5 flex-nowrap flex-shrink-0">
+          <div className="hidden xl:flex items-center gap-2.5 2xl:gap-3.5 flex-nowrap flex-shrink-0">
             <Link
               href="/login"
               className="whitespace-nowrap inline-flex items-center gap-1 text-[11px] 2xl:text-xs tracking-wider uppercase font-medium text-slate-300 hover:text-gold-400 px-2 py-1 transition-colors duration-150"

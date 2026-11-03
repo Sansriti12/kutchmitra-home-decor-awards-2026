@@ -98,7 +98,7 @@ export default function NominationWizard({
 
   // Save feedback state
   const [isSaving, setIsSaving] = useState(false);
-  const [lastSavedAt, setLastSavedAt] = useState<Date | null>(new Date());
+  const [lastSavedAt, setLastSavedAt] = useState<Date | null>(null);
   const [saveToast, setSaveToast] = useState<string | null>(null);
 
   // Flash toast helper

@@ -645,20 +645,20 @@ export default function JuryDossierClient({ dossier }: JuryDossierClientProps) {
                               })
                             }
                             className={cn(
-                              "p-3 border text-left space-y-1 transition-all",
+                              "min-h-[48px] p-3 border text-left space-y-1 transition-all flex flex-col justify-between active:scale-[0.99] touch-manipulation",
                               current.rating === opt.rating
-                                ? "bg-gold-500/20 border-gold-500 text-white"
+                                ? "bg-gold-500/20 border-gold-500 text-white ring-1 ring-gold-500/40"
                                 : "bg-navy-950 border-white/10 text-slate-400 hover:text-white hover:border-white/20",
                               (isLocked || isConflict) && "cursor-not-allowed opacity-80"
                             )}
                           >
-                            <div className="flex items-center justify-between">
+                            <div className="flex items-center justify-between w-full">
                               <span className="font-mono text-xs font-bold">{opt.rating}</span>
                               {current.rating === opt.rating && (
-                                <Check size={13} className="text-gold-400" />
+                                <Check size={14} className="text-gold-400 flex-shrink-0" />
                               )}
                             </div>
-                            <div className="text-[10px] font-sans text-slate-400 leading-tight">
+                            <div className="text-[11px] font-sans text-slate-400 leading-tight">
                               {opt.desc}
                             </div>
                           </button>
@@ -763,20 +763,20 @@ export default function JuryDossierClient({ dossier }: JuryDossierClientProps) {
                       disabled={isLocked || isConflict}
                       onClick={() => setRecommendation(rec.value)}
                       className={cn(
-                        "p-3 border text-left space-y-1 transition-all",
+                        "min-h-[48px] p-3 border text-left space-y-1 transition-all flex flex-col justify-between active:scale-[0.99] touch-manipulation",
                         recommendation === rec.value
-                          ? "bg-gold-500/20 border-gold-500 text-white"
+                          ? "bg-gold-500/20 border-gold-500 text-white ring-1 ring-gold-500/40"
                           : "bg-navy-950 border-white/10 text-slate-400 hover:text-white hover:border-white/20",
                         (isLocked || isConflict) && "cursor-not-allowed opacity-80"
                       )}
                     >
-                      <div className="flex items-center justify-between">
+                      <div className="flex items-center justify-between w-full">
                         <span className="font-mono text-xs font-bold">{rec.label}</span>
                         {recommendation === rec.value && (
-                          <Check size={13} className="text-gold-400" />
+                          <Check size={14} className="text-gold-400 flex-shrink-0" />
                         )}
                       </div>
-                      <div className="text-[10px] font-sans text-slate-400 leading-tight">
+                      <div className="text-[11px] font-sans text-slate-400 leading-tight">
                         {rec.desc}
                       </div>
                     </button>

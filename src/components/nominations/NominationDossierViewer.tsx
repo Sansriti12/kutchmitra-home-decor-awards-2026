@@ -19,7 +19,7 @@ import {
   ExternalLink,
 } from "lucide-react";
 import { Button } from "@/components/ui/Button";
-import { formatDeterministicDate, getCategoryDisplayNumber } from "@/lib/utils";
+import { formatDeterministicDate, formatDeterministicDateTime, getCategoryDisplayNumber } from "@/lib/utils";
 import { getSignedFileUrl } from "@/lib/nominations/actions";
 import { formatAnswer, NOT_PROVIDED_LABEL } from "@/lib/nominations/answer-format";
 import CertificateView from "@/components/certificates/CertificateView";
@@ -229,18 +229,7 @@ export default function NominationDossierViewer({
               </p>
               {application.submitted_at && (
                 <p className="text-[11px] font-mono text-slate-400 mt-1">
-                  Submitted:{" "}
-                  {new Date(application.submitted_at).toLocaleDateString("en-IN", {
-                    day: "numeric",
-                    month: "long",
-                    year: "numeric",
-                  })}{" "}
-                  at{" "}
-                  {new Date(application.submitted_at).toLocaleTimeString("en-IN", {
-                    hour: "2-digit",
-                    minute: "2-digit",
-                  })}{" "}
-                  IST
+                  Submitted: {formatDeterministicDateTime(application.submitted_at)}
                 </p>
               )}
             </div>

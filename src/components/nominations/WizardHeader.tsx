@@ -1,6 +1,6 @@
 "use client";
 
-import React from "react";
+import React, { useState, useEffect } from "react";
 import Link from "next/link";
 import { ArrowLeft, Save, Check, Loader2 } from "lucide-react";
 
@@ -38,6 +38,11 @@ export default function WizardHeader({
   onStepClick,
   canNavigateToStep = () => true,
 }: WizardHeaderProps) {
+  const [mounted, setMounted] = useState(false);
+  useEffect(() => {
+    setMounted(true);
+  }, []);
+
   const progressPercent = Math.round(((currentStep - 1) / (totalSteps - 1)) * 100);
 
   return (
@@ -72,7 +77,7 @@ export default function WizardHeader({
 
         {/* Right: Step Counter & Save Draft Action */}
         <div className="flex items-center gap-3 ml-auto">
-          {lastSavedAt && !isSaving && (
+          {mounted && lastSavedAt && !isSaving && (
             <span className="hidden sm:inline text-[11px] font-mono text-slate-400">
               Saved {lastSavedAt.toLocaleTimeString("en-IN", { hour: "2-digit", minute: "2-digit" })}
             </span>
