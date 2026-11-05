@@ -6,6 +6,7 @@ import { getAdminSession } from "@/lib/admin/auth";
 import { getJurySession } from "@/lib/jury/auth";
 import { sendNotification, notifyAdmins } from "@/lib/notifications/notification-service";
 import { isRetiredCategory } from "@/lib/utils";
+import { matchApprovedJuryProfile } from "@/lib/data/jury-profiles";
 import type {
   JuryMemberItem,
   JuryAssignmentItem,
@@ -854,10 +855,13 @@ export async function getJuryDashboardData(): Promise<{
     organization: string | null;
     designation: string | null;
     honorific: string | null;
+    photoUrl?: string | null;
+    city?: string | null;
   };
   stats?: {
     totalAssigned: number;
     pendingCount: number;
+    inProgressCount: number;
     completedCount: number;
     conflictCount: number;
   };
@@ -929,6 +933,8 @@ export async function getJuryDashboardData(): Promise<{
           status,
           is_locked,
           submitted_at,
+          updated_at,
+          created_at,
           recommendation,
           general_comment
         )
@@ -976,6 +982,8 @@ export async function getJuryDashboardData(): Promise<{
               status: ev.status,
               isLocked: ev.is_locked,
               submittedAt: ev.submitted_at,
+              updatedAt: ev.updated_at,
+              createdAt: ev.created_at,
               recommendation: ev.recommendation,
               generalComment: ev.general_comment,
             }
@@ -984,25 +992,55 @@ export async function getJuryDashboardData(): Promise<{
     });
 
     const totalAssigned = assignments.length;
-    const completedCount = assignments.filter((a) => a.status === "completed").length;
-    const conflictCount = assignments.filter((a) => a.conflictDeclared).length;
-    const pendingCount = assignments.filter(
-      (a) => !a.conflictDeclared && a.status !== "completed"
+    const completedCount = assignments.filter(
+      (a) => !a.conflictDeclared && (a.status === "completed" || Boolean(a.evaluation?.isLocked))
     ).length;
+    const conflictCount = assignments.filter((a) => a.conflictDeclared).length;
+    const inProgressCount = assignments.filter(
+      (a) =>
+        !a.conflictDeclared &&
+        !a.evaluation?.isLocked &&
+        a.status !== "completed" &&
+        a.evaluation?.status === "draft"
+    ).length;
+    const pendingCount = assignments.filter(
+      (a) =>
+        !a.conflictDeclared &&
+        a.status !== "completed" &&
+        !a.evaluation?.isLocked &&
+        a.evaluation?.status !== "draft"
+    ).length;
+
+    // Check if authenticated juror maps to one of the 4 approved panel profiles
+    const approvedProfile = matchApprovedJuryProfile({
+      fullName: session.user.fullName,
+      email: session.user.email,
+      organization: session.juryProfile?.organization || null,
+      designation: session.juryProfile?.designation || null,
+    });
 
     return {
       success: true,
       juror: {
         id: juryProfileId,
-        fullName: session.user.fullName,
+        fullName: approvedProfile?.name || session.user.fullName,
         email: session.user.email,
-        organization: session.juryProfile?.organization || "Independent Design Expert",
-        designation: session.juryProfile?.designation || "Jury Member",
+        organization:
+          approvedProfile?.organization ||
+          session.juryProfile?.organization ||
+          "Grand Jury Panel",
+        designation:
+          approvedProfile?.designation ||
+          session.juryProfile?.designation ||
+          "Jury Member",
         honorific: session.juryProfile?.honorific || null,
+        photoUrl: approvedProfile?.image || null,
+        city: approvedProfile?.city || null,
       },
       stats: {
         totalAssigned,
         pendingCount,
+        inProgressCount,
         completedCount,
         conflictCount,
       },

@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useState, useTransition } from "react";
+import Image from "next/image";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import {
@@ -12,17 +13,16 @@ import {
   CheckCircle2,
   AlertTriangle,
   Search,
-  Filter,
   ArrowRight,
-  ExternalLink,
   Shield,
-  Building,
-  Briefcase,
-  Lock,
   Eye,
   Check,
+  MapPin,
+  FileEdit,
+  Lock,
+  RotateCcw,
 } from "lucide-react";
-import { cn, getCategoryDisplayNumber, isRetiredCategory } from "@/lib/utils";
+import { cn, formatDeterministicDate, getCategoryDisplayNumber, isRetiredCategory } from "@/lib/utils";
 import { createClient } from "@/lib/supabase/client";
 import { declareJuryConflict } from "@/lib/jury/actions";
 import type { JuryAssignmentItem } from "@/types/jury.types";
@@ -35,10 +35,13 @@ interface JuryDashboardClientProps {
     organization: string | null;
     designation: string | null;
     honorific: string | null;
+    photoUrl?: string | null;
+    city?: string | null;
   };
   stats: {
     totalAssigned: number;
     pendingCount: number;
+    inProgressCount?: number;
     completedCount: number;
     conflictCount: number;
   };
@@ -54,14 +57,28 @@ export default function JuryDashboardClient({
   const [isPending, startTransition] = useTransition();
 
   const [searchTerm, setSearchTerm] = useState("");
-  const [statusFilter, setStatusFilter] = useState<"all" | "pending" | "completed" | "conflict">("all");
+  const [statusFilter, setStatusFilter] = useState<
+    "all" | "pending" | "in_progress" | "completed" | "conflict"
+  >("all");
   const [categoryFilter, setCategoryFilter] = useState<string>("all");
+  const [headerImgError, setHeaderImgError] = useState(false);
+  const [bannerImgError, setBannerImgError] = useState(false);
 
   // Conflict modal state
   const [conflictTarget, setConflictTarget] = useState<JuryAssignmentItem | null>(null);
   const [conflictReason, setConflictReason] = useState("");
   const [isDeclaringConflict, setIsDeclaringConflict] = useState(true);
   const [feedback, setFeedback] = useState<{ type: "success" | "error"; text: string } | null>(null);
+
+  const inProgressCount =
+    stats.inProgressCount ??
+    assignments.filter(
+      (a) =>
+        !a.conflictDeclared &&
+        !a.evaluation?.isLocked &&
+        a.status !== "completed" &&
+        a.evaluation?.status === "draft"
+    ).length;
 
   const handleSignOut = async () => {
     try {
@@ -120,6 +137,11 @@ export default function JuryDashboardClient({
 
   // Filtered assignments
   const filteredAssignments = assignments.filter((a) => {
+    const isConflict = Boolean(a.conflictDeclared);
+    const isLocked = Boolean(a.evaluation?.isLocked || a.status === "completed");
+    const isDraft = !isConflict && !isLocked && a.evaluation?.status === "draft";
+    const isPendingEntry = !isConflict && !isLocked && !isDraft;
+
     const matchesSearch =
       a.nominationId.toLowerCase().includes(searchTerm.toLowerCase()) ||
       a.projectName.toLowerCase().includes(searchTerm.toLowerCase()) ||
@@ -130,15 +152,22 @@ export default function JuryDashboardClient({
 
     let matchesStatus = true;
     if (statusFilter === "pending") {
-      matchesStatus = !a.conflictDeclared && a.status !== "completed";
+      matchesStatus = isPendingEntry;
+    } else if (statusFilter === "in_progress") {
+      matchesStatus = isDraft;
     } else if (statusFilter === "completed") {
-      matchesStatus = a.status === "completed";
+      matchesStatus = isLocked;
     } else if (statusFilter === "conflict") {
-      matchesStatus = a.conflictDeclared;
+      matchesStatus = isConflict;
     }
 
     return matchesSearch && matchesCategory && matchesStatus;
   });
+
+  // Initials for avatar fallback
+  const initials = juror.fullName
+    ? juror.fullName.replace(/^(ID\.|Ar\.)\s*/i, "").trim().slice(0, 2).toUpperCase()
+    : "JM";
 
   return (
     <div className="min-h-screen bg-navy-950 text-slate-200">
@@ -160,14 +189,34 @@ export default function JuryDashboardClient({
         </div>
 
         <div className="flex items-center gap-4">
-          <div className="text-right hidden sm:block">
-            <div className="text-xs font-medium text-white">
-              {juror.honorific ? `${juror.honorific} ` : ""}
-              {juror.fullName}
+          <div className="flex items-center gap-3 text-right">
+            {/* Header Juror Photo / Avatar */}
+            <div className="relative w-8 h-8 rounded-full overflow-hidden bg-navy-900 border border-gold-500/30 flex items-center justify-center flex-shrink-0">
+              {juror.photoUrl && !headerImgError ? (
+                <Image
+                  src={juror.photoUrl}
+                  alt={juror.fullName}
+                  fill
+                  sizes="32px"
+                  className="object-cover object-top"
+                  onError={() => setHeaderImgError(true)}
+                />
+              ) : (
+                <span className="font-display text-xs font-bold text-gold-400">
+                  {initials}
+                </span>
+              )}
             </div>
-            <div className="text-[10px] font-mono text-slate-400 truncate max-w-[220px]">
-              {juror.designation ? `${juror.designation}, ` : ""}
-              {juror.organization || juror.email}
+
+            <div className="hidden sm:block text-left">
+              <div className="text-xs font-medium text-white leading-tight">
+                {juror.honorific ? `${juror.honorific} ` : ""}
+                {juror.fullName}
+              </div>
+              <div className="text-[10px] font-mono text-slate-400 truncate max-w-[220px]">
+                {juror.designation ? `${juror.designation}` : "Jury Member"}
+                {juror.city ? ` • ${juror.city}` : ""}
+              </div>
             </div>
           </div>
 
@@ -185,33 +234,84 @@ export default function JuryDashboardClient({
 
       {/* Main Container */}
       <main className="max-w-7xl mx-auto px-4 sm:px-8 py-8 space-y-8">
-        {/* Juror Welcome & Overview Header */}
-        <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 pb-6 border-b border-white/10">
-          <div className="space-y-1">
-            <div className="flex items-center gap-2 text-xs font-mono text-gold-400 uppercase tracking-wider">
-              <Scale size={14} />
-              <span>Jury Evaluation Portal // 2026 Edition</span>
-            </div>
-            <h1 className="font-display text-2xl sm:text-3xl lg:text-4xl text-white font-medium">
-              Welcome, {juror.honorific ? `${juror.honorific} ` : ""}
-              {juror.fullName}
-            </h1>
-            <p className="text-xs sm:text-sm text-slate-400 max-w-2xl font-sans">
-              Review and evaluate qualifying design nominations assigned to your portfolio against the five official Kutchmitra criteria.
-            </p>
-          </div>
+        {/* Juror Welcome Section */}
+        <section className="bg-navy-900/90 border border-white/10 p-6 sm:p-8 relative overflow-hidden shadow-card">
+          <div className="absolute top-0 right-0 w-80 h-80 bg-gold-500/5 rounded-full blur-3xl pointer-events-none" />
 
-          <div className="p-3 bg-navy-900/90 border border-white/10 flex items-center gap-3">
-            <div className="w-10 h-10 bg-gold-500/10 border border-gold-500/30 flex items-center justify-center text-gold-400 flex-shrink-0">
-              <Award size={20} />
+          <div className="relative z-10 flex flex-col md:flex-row items-start md:items-center justify-between gap-6">
+            {/* Left: Juror Portrait & Editorial Identity */}
+            <div className="flex flex-col sm:flex-row items-start sm:items-center gap-5 min-w-0">
+              <div className="relative w-24 h-28 sm:w-28 sm:h-32 flex-shrink-0 bg-navy-950 border border-gold-500/40 shadow-xl overflow-hidden">
+                {juror.photoUrl && !bannerImgError ? (
+                  <Image
+                    src={juror.photoUrl}
+                    alt={juror.fullName}
+                    fill
+                    sizes="(max-width: 640px) 96px, 112px"
+                    className="object-cover object-top"
+                    onError={() => setBannerImgError(true)}
+                  />
+                ) : (
+                  <div className="w-full h-full flex flex-col items-center justify-center p-2 text-center bg-navy-950">
+                    <span className="font-display text-2xl sm:text-3xl font-bold text-gold-400">
+                      {initials}
+                    </span>
+                    <span className="text-[9px] font-mono uppercase tracking-widest text-slate-400 mt-1">
+                      Juror
+                    </span>
+                  </div>
+                )}
+              </div>
+
+              <div className="space-y-2 min-w-0">
+                <div className="flex flex-wrap items-center gap-2">
+                  <span className="inline-flex items-center gap-1 px-2.5 py-0.5 bg-gold-500/20 text-gold-300 border border-gold-500/30 text-[10px] font-mono uppercase font-bold tracking-wider">
+                    <Award size={11} /> Grand Jury Panelist
+                  </span>
+                  {juror.city && (
+                    <span className="inline-flex items-center gap-1 px-2 py-0.5 bg-navy-950 border border-white/10 text-slate-300 text-[10px] font-mono uppercase tracking-wider">
+                      <MapPin size={10} className="text-gold-400" />
+                      {juror.city}
+                    </span>
+                  )}
+                  <span className="inline-flex items-center gap-1 px-2 py-0.5 bg-navy-950 border border-white/10 text-slate-400 text-[10px] font-mono uppercase tracking-wider">
+                    <Scale size={10} className="text-gold-400" />
+                    Edition 2026
+                  </span>
+                </div>
+
+                <h1 className="font-display text-2xl sm:text-3xl lg:text-4xl text-white font-medium tracking-tight">
+                  Welcome, {juror.honorific ? `${juror.honorific} ` : ""}
+                  {juror.fullName}
+                </h1>
+
+                <div className="text-xs font-mono space-y-0.5">
+                  <div className="text-gold-400 font-semibold">
+                    {juror.designation || "Distinguished Jury Member"}
+                  </div>
+                  <div className="text-slate-300 uppercase tracking-wider text-[11px]">
+                    {juror.organization || "Grand Jury Panel"}
+                  </div>
+                </div>
+
+                <p className="text-xs text-slate-300 max-w-2xl font-sans leading-relaxed pt-1">
+                  Welcome to your confidential Grand Jury evaluation workspace. Review qualifying architectural and interior nominations assigned to your portfolio against the five official Kutchmitra criteria.
+                </p>
+              </div>
             </div>
-            <div className="text-xs font-mono">
-              <div className="text-slate-400 uppercase text-[10px]">Appointed Role</div>
-              <div className="text-white font-semibold">Grand Jury Panelist</div>
-              <div className="text-gold-400/90 text-[10px]">Kutchmitra Awards 2026</div>
+
+            {/* Right: Governance Badge */}
+            <div className="w-full md:w-auto p-4 bg-navy-950/80 border border-white/10 space-y-2 flex-shrink-0">
+              <div className="flex items-center gap-2 text-xs font-mono text-gold-400 uppercase tracking-wider font-semibold">
+                <Shield size={13} />
+                <span>Confidential Assessment</span>
+              </div>
+              <p className="text-[11px] text-slate-400 font-sans max-w-xs leading-normal">
+                Evaluation operates under strict qualitative criteria with blind assessment protocols and conflict-of-interest compliance.
+              </p>
             </div>
           </div>
-        </div>
+        </section>
 
         {/* Feedback Banner */}
         {feedback && (
@@ -234,6 +334,84 @@ export default function JuryDashboardClient({
           </div>
         )}
 
+        {/* Four Distinct Dashboard Statistics */}
+        <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
+          {/* 1. Total Assigned */}
+          <div className="p-5 bg-navy-900/90 border border-white/10 space-y-2 shadow-card hover:border-blue-500/30 transition-colors">
+            <div className="text-[11px] font-mono text-slate-400 uppercase tracking-wider flex items-center justify-between">
+              <span>Total Assigned</span>
+              <FileText size={15} className="text-blue-400" />
+            </div>
+            <div className="text-3xl sm:text-4xl font-mono font-bold text-white">
+              {stats.totalAssigned}
+            </div>
+            <div className="text-[11px] font-mono text-slate-400">
+              Total In Portfolio
+            </div>
+          </div>
+
+          {/* 2. Pending (Not Started) */}
+          <div className="p-5 bg-navy-900/90 border border-white/10 space-y-2 shadow-card hover:border-slate-400/30 transition-colors">
+            <div className="text-[11px] font-mono text-slate-400 uppercase tracking-wider flex items-center justify-between">
+              <span>Pending Review</span>
+              <Clock size={15} className="text-slate-400" />
+            </div>
+            <div className="text-3xl sm:text-4xl font-mono font-bold text-slate-200">
+              {stats.pendingCount}
+            </div>
+            <div className="text-[11px] font-mono text-slate-400">
+              Assigned, Not Started
+            </div>
+          </div>
+
+          {/* 3. In Progress (Draft Saved) */}
+          <div className="p-5 bg-navy-900/90 border border-white/10 space-y-2 shadow-card hover:border-amber-500/40 transition-colors">
+            <div className="text-[11px] font-mono text-slate-400 uppercase tracking-wider flex items-center justify-between">
+              <span>In Progress</span>
+              <FileEdit size={15} className="text-amber-400" />
+            </div>
+            <div className="text-3xl sm:text-4xl font-mono font-bold text-amber-300">
+              {inProgressCount}
+            </div>
+            <div className="text-[11px] font-mono text-amber-400/80">
+              Evaluation Draft Saved
+            </div>
+          </div>
+
+          {/* 4. Completed & Locked */}
+          <div className="p-5 bg-navy-900/90 border border-white/10 space-y-2 shadow-card hover:border-emerald-500/40 transition-colors">
+            <div className="text-[11px] font-mono text-slate-400 uppercase tracking-wider flex items-center justify-between">
+              <span>Completed</span>
+              <CheckCircle2 size={15} className="text-emerald-400" />
+            </div>
+            <div className="text-3xl sm:text-4xl font-mono font-bold text-emerald-300">
+              {stats.completedCount}
+            </div>
+            <div className="text-[11px] font-mono text-emerald-400/80">
+              Submitted &amp; Locked
+            </div>
+          </div>
+        </div>
+
+        {/* Conflict-of-Interest Alert Banner (displayed if conflicts exist) */}
+        {stats.conflictCount > 0 && (
+          <div className="p-4 bg-red-950/60 border border-red-500/40 flex flex-col sm:flex-row sm:items-center justify-between gap-3 text-xs font-mono text-red-200">
+            <div className="flex items-center gap-2.5">
+              <AlertTriangle size={16} className="text-red-400 flex-shrink-0" />
+              <span>
+                <strong>{stats.conflictCount} Nomination(s) Recused:</strong> Conflict of interest declared. Evaluation controls have been recused in accordance with integrity protocols.
+              </span>
+            </div>
+            <button
+              type="button"
+              onClick={() => setStatusFilter("conflict")}
+              className="text-red-300 hover:text-white underline font-semibold text-left sm:text-right whitespace-nowrap"
+            >
+              Filter Recused ({stats.conflictCount})
+            </button>
+          </div>
+        )}
+
         {/* Five Evaluation Pillars Summary Card */}
         <div className="bg-navy-900/70 border border-white/10 p-5 space-y-3 relative overflow-hidden">
           <div className="flex items-center gap-2 text-xs font-mono text-gold-400 uppercase tracking-wider font-semibold">
@@ -249,7 +427,7 @@ export default function JuryDashboardClient({
             {[
               { num: "01", name: "Design Excellence & Innovation", focus: "Originality & Spatial Clarity" },
               { num: "02", name: "Functionality & Usability", focus: "Space Planning & Liveability" },
-              { num: "03", name: "Quality of Craftsmanship", focus: "Detaching & Execution Quality" },
+              { num: "03", name: "Quality of Craftsmanship", focus: "Detailing & Execution Quality" },
               { num: "04", name: "Sustainability & Material", focus: "Climate & Resource Efficiency" },
               { num: "05", name: "Contextual Relevance", focus: "Kutch Identity & Heritage" },
             ].map((crit) => (
@@ -267,45 +445,6 @@ export default function JuryDashboardClient({
           <div className="pt-2 text-[11px] font-mono text-slate-400 flex items-center gap-2">
             <span className="text-amber-400">● Conflict Policy:</span>
             <span>If you hold a commercial, personal, or collaborative connection with any entry, declare a conflict before evaluating.</span>
-          </div>
-        </div>
-
-        {/* Summary Metric Strip */}
-        <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
-          <div className="p-4 bg-navy-900/80 border border-white/10 space-y-1">
-            <div className="text-[10px] font-mono text-slate-400 uppercase tracking-wider flex items-center justify-between">
-              <span>Assigned Entries</span>
-              <FileText size={14} className="text-blue-400" />
-            </div>
-            <div className="text-3xl font-mono font-bold text-white">{stats.totalAssigned}</div>
-            <div className="text-[10px] font-mono text-slate-400">Total in Portfolio</div>
-          </div>
-
-          <div className="p-4 bg-navy-900/80 border border-white/10 space-y-1">
-            <div className="text-[10px] font-mono text-slate-400 uppercase tracking-wider flex items-center justify-between">
-              <span>Pending Review</span>
-              <Clock size={14} className="text-amber-400" />
-            </div>
-            <div className="text-3xl font-mono font-bold text-amber-300">{stats.pendingCount}</div>
-            <div className="text-[10px] font-mono text-slate-400">Awaiting Final Submission</div>
-          </div>
-
-          <div className="p-4 bg-navy-900/80 border border-white/10 space-y-1">
-            <div className="text-[10px] font-mono text-slate-400 uppercase tracking-wider flex items-center justify-between">
-              <span>Completed &amp; Locked</span>
-              <CheckCircle2 size={14} className="text-emerald-400" />
-            </div>
-            <div className="text-3xl font-mono font-bold text-emerald-300">{stats.completedCount}</div>
-            <div className="text-[10px] font-mono text-emerald-400/80">Evaluation Submitted</div>
-          </div>
-
-          <div className="p-4 bg-navy-900/80 border border-white/10 space-y-1">
-            <div className="text-[10px] font-mono text-slate-400 uppercase tracking-wider flex items-center justify-between">
-              <span>Conflicts of Interest</span>
-              <AlertTriangle size={14} className="text-red-400" />
-            </div>
-            <div className="text-3xl font-mono font-bold text-red-300">{stats.conflictCount}</div>
-            <div className="text-[10px] font-mono text-red-400/80">Conflicts of Interest Recorded</div>
           </div>
         </div>
 
@@ -342,7 +481,8 @@ export default function JuryDashboardClient({
               className="bg-navy-950 border border-white/10 text-xs text-white py-2 px-3 focus:outline-none focus:border-gold-500 font-mono"
             >
               <option value="all">All Statuses ({assignments.length})</option>
-              <option value="pending">Pending Evaluation ({stats.pendingCount})</option>
+              <option value="pending">Pending Review ({stats.pendingCount})</option>
+              <option value="in_progress">In Progress / Draft ({inProgressCount})</option>
               <option value="completed">Completed &amp; Locked ({stats.completedCount})</option>
               <option value="conflict">Declared Conflict ({stats.conflictCount})</option>
             </select>
@@ -369,45 +509,65 @@ export default function JuryDashboardClient({
               </p>
             </div>
           ) : (
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
               {filteredAssignments.map((a) => {
-                const isConflict = a.conflictDeclared;
-                const isLocked = a.evaluation?.isLocked;
-                const isDraft = !isLocked && a.evaluation?.status === "draft";
+                const isConflict = Boolean(a.conflictDeclared);
+                const isLocked = Boolean(a.evaluation?.isLocked || a.status === "completed");
+                const isDraft = !isConflict && !isLocked && a.evaluation?.status === "draft";
+                const isPendingEntry = !isConflict && !isLocked && !isDraft;
+
+                // Reliable timestamp determination
+                let timestampText = "";
+                if (isConflict) {
+                  timestampText = a.completedAt
+                    ? `Conflict recorded ${formatDeterministicDate(a.completedAt)}`
+                    : "Conflict declared";
+                } else if (isLocked && a.evaluation?.submittedAt) {
+                  timestampText = `Submitted on ${formatDeterministicDate(a.evaluation.submittedAt)}`;
+                } else if (isDraft && (a.evaluation?.updatedAt || a.evaluation?.createdAt)) {
+                  timestampText = `Draft saved on ${formatDeterministicDate(
+                    a.evaluation.updatedAt || a.evaluation.createdAt!
+                  )}`;
+                } else if (a.assignedAt) {
+                  timestampText = `Assigned on ${formatDeterministicDate(a.assignedAt)}`;
+                }
 
                 return (
                   <div
                     key={a.id}
                     className={cn(
-                      "bg-navy-900/90 border p-5 flex flex-col justify-between space-y-4 transition-all duration-150 relative",
+                      "bg-navy-900/90 border p-5 flex flex-col justify-between space-y-4 transition-all duration-150 relative shadow-card",
                       isConflict
-                        ? "border-red-500/30 opacity-75"
+                        ? "border-red-500/30 opacity-80"
                         : isLocked
                         ? "border-emerald-500/30 hover:border-emerald-500/60"
+                        : isDraft
+                        ? "border-amber-500/30 hover:border-amber-500/60"
                         : "border-white/10 hover:border-gold-500/50"
                     )}
                   >
                     {/* Top Tag & Status */}
-                    <div className="space-y-2">
+                    <div className="space-y-2.5">
                       <div className="flex items-center justify-between text-xs font-mono">
                         <span className="text-gold-400 font-bold tracking-wider">
                           {a.nominationId}
                         </span>
+
                         {isConflict ? (
                           <span className="inline-flex items-center gap-1 text-[10px] uppercase px-2 py-0.5 bg-red-950 text-red-300 border border-red-500/40 font-semibold">
                             <AlertTriangle size={10} /> Recused
                           </span>
                         ) : isLocked ? (
                           <span className="inline-flex items-center gap-1 text-[10px] uppercase px-2 py-0.5 bg-emerald-950 text-emerald-300 border border-emerald-500/40 font-semibold">
-                            <CheckCircle2 size={10} /> Evaluated
+                            <CheckCircle2 size={10} /> Completed
                           </span>
                         ) : isDraft ? (
                           <span className="inline-flex items-center gap-1 text-[10px] uppercase px-2 py-0.5 bg-amber-950 text-amber-300 border border-amber-500/40 font-semibold">
-                            <Clock size={10} /> Draft Saved
+                            <Clock size={10} /> In Progress
                           </span>
                         ) : (
-                          <span className="inline-flex items-center gap-1 text-[10px] uppercase px-2 py-0.5 bg-blue-950 text-blue-300 border border-blue-500/40 font-semibold">
-                            <span>Pending</span>
+                          <span className="inline-flex items-center gap-1 text-[10px] uppercase px-2 py-0.5 bg-blue-950/80 text-blue-300 border border-blue-500/40 font-semibold">
+                            <FileText size={10} /> Pending
                           </span>
                         )}
                       </div>
@@ -425,6 +585,14 @@ export default function JuryDashboardClient({
                           {a.projectCity}, {a.projectState}
                         </div>
                       </div>
+
+                      {/* Last updated timestamp indicator */}
+                      {timestampText && (
+                        <div className="text-[11px] font-mono text-slate-400 flex items-center gap-1.5 pt-1">
+                          <Clock size={11} className="text-slate-500 flex-shrink-0" />
+                          <span>{timestampText}</span>
+                        </div>
+                      )}
 
                       {/* Conflict note */}
                       {isConflict && a.conflictReason && (
@@ -453,9 +621,10 @@ export default function JuryDashboardClient({
                             setConflictTarget(a);
                             setIsDeclaringConflict(false);
                           }}
-                          className="text-[11px] text-slate-400 hover:text-white underline"
+                          className="text-[11px] text-slate-400 hover:text-white underline inline-flex items-center gap-1"
                         >
-                          Revoke Conflict
+                          <RotateCcw size={10} />
+                          <span>Revoke Conflict</span>
                         </button>
                       ) : (
                         <button
@@ -471,11 +640,23 @@ export default function JuryDashboardClient({
                         </button>
                       )}
 
-                      {!isConflict && (
+                      {isConflict ? (
+                        <button
+                          type="button"
+                          onClick={() => {
+                            setConflictTarget(a);
+                            setIsDeclaringConflict(false);
+                          }}
+                          className="inline-flex items-center gap-1 px-2.5 py-1.5 bg-red-950/60 text-red-300 border border-red-500/30 text-xs font-mono uppercase"
+                        >
+                          <AlertTriangle size={11} />
+                          <span>View Conflict</span>
+                        </button>
+                      ) : (
                         <Link
                           href={`/jury/applications/${a.applicationId}`}
                           className={cn(
-                            "inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-mono uppercase font-bold tracking-wider transition-colors",
+                            "inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-mono uppercase font-bold tracking-wider transition-colors shadow-sm",
                             isLocked
                               ? "bg-navy-800 hover:bg-navy-700 text-slate-200 border border-white/15"
                               : isDraft
@@ -486,7 +667,8 @@ export default function JuryDashboardClient({
                           {isLocked ? (
                             <>
                               <Eye size={12} />
-                              <span>Application Details</span>
+                              <span>View Evaluation</span>
+                              <Lock size={10} className="text-emerald-400 ml-0.5" />
                             </>
                           ) : isDraft ? (
                             <>
@@ -549,13 +731,11 @@ export default function JuryDashboardClient({
                         : "bg-navy-900 border-white/10 text-slate-400 hover:text-white"
                     )}
                   >
-                    <div className="font-bold flex items-center gap-1.5">
-                      <AlertTriangle size={13} />
-                      <span>Declare Conflict</span>
+                    <div className="font-bold flex items-center justify-between">
+                      <span>Conflict Exists</span>
+                      {isDeclaringConflict && <Check size={14} className="text-red-400" />}
                     </div>
-                    <div className="text-[10px] text-slate-400 font-sans">
-                      I have a professional, personal, or financial association with this project.
-                    </div>
+                    <div className="text-[10px] text-slate-400">Recuse from scoring</div>
                   </button>
 
                   <button
@@ -568,63 +748,51 @@ export default function JuryDashboardClient({
                         : "bg-navy-900 border-white/10 text-slate-400 hover:text-white"
                     )}
                   >
-                    <div className="font-bold flex items-center gap-1.5">
-                      <CheckCircle2 size={13} />
-                      <span>Confirm No Conflict</span>
+                    <div className="font-bold flex items-center justify-between">
+                      <span>No Conflict</span>
+                      {!isDeclaringConflict && <Check size={14} className="text-emerald-400" />}
                     </div>
-                    <div className="text-[10px] text-slate-400 font-sans">
-                      I am completely independent and able to assess this entry impartially.
-                    </div>
+                    <div className="text-[10px] text-slate-400">Clear for evaluation</div>
                   </button>
                 </div>
               </div>
 
               {isDeclaringConflict && (
-                <div>
-                  <label className="block text-[11px] font-mono text-red-300 mb-1">
-                    Explanatory Reason for Conflict *
+                <div className="space-y-1.5">
+                  <label className="block text-[11px] font-mono text-slate-400 uppercase">
+                    Reason for Conflict of Interest *
                   </label>
                   <textarea
                     rows={3}
                     required
                     value={conflictReason}
                     onChange={(e) => setConflictReason(e.target.value)}
-                    placeholder="e.g. My studio collaborated as a consultant on this project, or I have a personal acquaintance with the lead architect."
-                    className="w-full bg-navy-900 border border-white/10 text-white p-2.5 text-xs focus:border-red-500"
+                    placeholder="Describe relationship: e.g., project collaborator, commercial interest, personal associate, or competitor firm..."
+                    className="w-full bg-navy-900 border border-white/10 text-white p-2.5 text-xs font-sans placeholder-slate-600 focus:outline-none focus:border-gold-500"
                   />
                 </div>
               )}
 
-              <div className="flex justify-end gap-2 pt-3 border-t border-white/10">
+              <div className="flex justify-end gap-2 pt-2 border-t border-white/10">
                 <button
                   type="button"
                   onClick={() => setConflictTarget(null)}
-                  className="px-4 py-2 bg-navy-900 text-slate-300 border border-white/10 text-xs font-mono uppercase"
+                  className="px-3 py-1.5 border border-white/10 text-slate-300 font-mono text-xs uppercase"
                 >
                   Cancel
                 </button>
                 <button
                   type="submit"
                   disabled={isPending}
-                  className={cn(
-                    "px-4 py-2 text-xs font-mono font-bold uppercase transition-colors disabled:opacity-50",
-                    isDeclaringConflict
-                      ? "bg-red-600 hover:bg-red-500 text-white"
-                      : "bg-emerald-600 hover:bg-emerald-500 text-white"
-                  )}
+                  className="px-4 py-1.5 bg-gold-500 hover:bg-gold-400 text-navy-950 font-mono text-xs font-bold uppercase"
                 >
-                  {isPending ? "Recording..." : isDeclaringConflict ? "Record Conflict of Interest" : "Confirm Independence"}
+                  {isPending ? "Updating..." : "Confirm Status"}
                 </button>
               </div>
             </form>
           </div>
         </div>
       )}
-
-      {/* Footer */}
-      <footer className="border-t border-white/10 py-6 text-center text-xs font-mono text-slate-500 mt-12">
-        Kutchmitra Home &amp; Decor Awards 2026 // Grand Jury Evaluation Workspace
-      </footer>
     </div>
   );
 }

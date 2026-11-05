@@ -90,6 +90,8 @@ export interface JuryAssignmentItem {
     status: JuryEvaluationStatus;
     isLocked: boolean;
     submittedAt: string | null;
+    updatedAt?: string | null;
+    createdAt?: string | null;
     recommendation: JuryRecommendation | null;
     generalComment: string | null;
   } | null;
