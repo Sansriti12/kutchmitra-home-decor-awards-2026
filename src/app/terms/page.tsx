@@ -169,50 +169,59 @@ export default function TermsPage() {
                   SECTION 04
                 </span>
                 <h2 className="font-display text-2xl sm:text-3xl text-navy-900 font-medium tracking-tight">
-                  04. Eligibility
+                  04. Eligibility Criteria &amp; Rules
                 </h2>
               </div>
               <ul className="space-y-3 text-sm sm:text-base text-[#4A4F5C] leading-relaxed list-disc pl-5">
                 <li>
-                  Participants must be legally registered and operational in Kutch district, wherever applicable, and only projects located within Kutch district are eligible for participation.
+                  <strong className="text-navy-900 font-semibold">Kutch-Based Applicant / Firm:</strong> The nominating applicant or nominee must be an individual architect based in Kutch or an architectural firm with an established office and practice located within Kutch district.
                 </li>
                 <li>
-                  Submitted projects must have been completed within the three years preceding the Awards.
+                  <strong className="text-navy-900 font-semibold">Project Location within Kutch District:</strong> The nominated project must be physically located within the territorial limits of Kutch district. Applicant location and project location are two distinct requirements—both must be based within Kutch.
                 </li>
                 <li>
-                  Entries must relate to work, products or projects that are active or have been completed within the applicable period specified for the relevant category.
+                  <strong className="text-navy-900 font-semibold">Exact Project Completion Period:</strong> The nominated project must have been completed between <strong className="text-navy-900">1 January 2024 and 31 December 2026</strong> (calendar years 2024, 2025, or 2026). Ongoing or unbuilt concept projects are strictly ineligible.
                 </li>
                 <li>
-                  Employees, partners and affiliates of Awards Management are not eligible to participate.
+                  <strong className="text-navy-900 font-semibold">Category Nomination Limit:</strong> Each applicant is restricted to a maximum of <strong className="text-navy-900">3 category nominations</strong>. The nomination portal strictly enforces this limit through both client-side controls and backend validation. Each nomination requires a distinct project dossier.
                 </li>
                 <li>
-                  All entries must comply with the definitions, eligibility requirements and evaluation criteria applicable to the respective category.
+                  Employees, partners, and affiliates of Awards Management and jury panel members are not eligible to participate.
+                </li>
+                <li>
+                  All entries must comply with the approved category descriptions, eligibility requirements, and evaluation rubrics applicable to the respective category.
                 </li>
               </ul>
             </article>
 
-            {/* 05. Awards Process */}
+            {/* 05. Awards Process & Submission Specifications */}
             <article className="pt-8 space-y-4">
               <div className="space-y-1">
                 <span className="font-mono text-xs text-gold-700 font-semibold tracking-wider block">
                   SECTION 05
                 </span>
                 <h2 className="font-display text-2xl sm:text-3xl text-navy-900 font-medium tracking-tight">
-                  05. Awards Process
+                  05. Awards Process &amp; Submission Specifications
                 </h2>
               </div>
               <ul className="space-y-3 text-sm sm:text-base text-[#4A4F5C] leading-relaxed list-disc pl-5">
                 <li>
-                  All submitted entries will undergo an initial screening to verify eligibility and completeness.
+                  <strong className="text-navy-900 font-semibold">Project Plan Upload:</strong> Applicants must provide an architectural project plan / drawing in <strong className="text-navy-900">A3 size</strong> format.
                 </li>
                 <li>
-                  Entries meeting the eligibility requirements will proceed to evaluation by the designated jury panel.
+                  <strong className="text-navy-900 font-semibold">Image Upload Specifications:</strong> High-resolution project photography must be at least <strong className="text-navy-900">500 × 500 pixels</strong>. Uploads below this minimum are automatically rejected by the portal. A resolution of <strong className="text-navy-900">1000 × 1000 pixels or higher</strong> is recommended for HD zoom and jury viewing. Allowed formats are strictly <strong className="text-navy-900">JPEG (.jpg, .jpeg) and PNG (.png)</strong> only; maximum file size is <strong className="text-navy-900">10 MB per image</strong>. A square 1:1 aspect ratio is recommended.
                 </li>
                 <li>
-                  Awards Management reserves the right to modify, merge or withdraw any category depending on the level of participation or the quality of entries received.
+                  <strong className="text-navy-900 font-semibold">Retirement of Before Photo:</strong> The &ldquo;Before Photo&rdquo; upload option has been completely removed from the nomination form; only completed project documentation and photography are accepted.
                 </li>
                 <li>
-                  The decision of the Jury shall be final and binding.
+                  <strong className="text-navy-900 font-semibold">Project Brief:</strong> Submissions must include Project Name, Project Location, Built-up Area (Sq. Ft.), and a concise Project Brief with a strict maximum of <strong className="text-navy-900">500 characters</strong>.
+                </li>
+                <li>
+                  All submitted entries undergo an initial administrative screening to verify eligibility, complete documentation, and adherence to rules. Entries meeting all requirements proceed to confidential scoring by the Grand Jury.
+                </li>
+                <li>
+                  Awards Management reserves the right to modify, merge or withdraw any category depending on participation levels or entry quality. The decision of the Jury shall be final, conclusive, and binding.
                 </li>
               </ul>
             </article>
@@ -283,13 +292,16 @@ export default function TermsPage() {
               </p>
               <ul className="space-y-3 text-sm sm:text-base text-[#4A4F5C] leading-relaxed list-disc pl-5">
                 <li>
-                  All information and materials provided are true, accurate and complete.
+                  <strong className="text-navy-900 font-semibold">Mandatory Self-Declaration:</strong> Every applicant must formally affirm the following declaration prior to final submission: <em className="text-navy-900">&ldquo;I hereby declare that, to the best of my knowledge, all information provided about myself, my firm and the project in this nomination form is true and accurate.&rdquo;</em>
                 </li>
                 <li>
-                  They have the necessary authority and rights to submit the entry and the materials provided.
+                  All information, spatial data, and documentation provided are true, accurate, and complete.
                 </li>
                 <li>
-                  The submitted material does not infringe upon the intellectual property or other rights of any third party.
+                  They have the necessary professional authority and rights to submit the entry and the materials provided, and all collaborators credited have provided their consent.
+                </li>
+                <li>
+                  The submitted material does not infringe upon the intellectual property, copyright, or proprietary rights of any third party.
                 </li>
                 <li>
                   They agree to indemnify Awards Management against claims arising from or in connection with their submission.

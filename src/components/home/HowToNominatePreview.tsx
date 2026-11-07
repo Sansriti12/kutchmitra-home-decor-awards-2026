@@ -13,7 +13,7 @@ export function HowToNominatePreview() {
     {
       number: "02",
       title: "Category Selection",
-      desc: "Choose from 16 proposed categories matching your project type. Applicants may enter up to 3 categories.",
+      desc: "Choose from 16 categories matching your project type. Applicants may enter up to 3 categories.",
     },
     {
       number: "03",

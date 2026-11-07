@@ -151,7 +151,7 @@ export default function CategorySelectorClient({
           />
         </div>
 
-        {/* Categories Grid (16 Proposed Categories) */}
+        {/* Categories Grid (16 Award Categories) */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
           {filteredCategories.map((cat) => {
             const isLoading = loadingCategoryId === cat.id;

@@ -14,7 +14,7 @@ export function FeaturedCategoriesSection() {
           <div className="space-y-3">
             <SectionMarker number="02" label="Award Disciplines" theme="light" />
             <h2 className="heading-editorial text-navy-900">
-              16 Proposed Award Categories
+              16 Award Categories
             </h2>
           </div>
           <div className="flex flex-col sm:flex-row sm:items-center gap-4">

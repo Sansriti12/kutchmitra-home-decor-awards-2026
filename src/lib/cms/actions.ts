@@ -162,7 +162,7 @@ export async function getCmsWorkspaceData(): Promise<CmsWorkspaceData> {
       privacyContactEmail: rawSettings?.privacy_contact_email || "Kutchmitraweb@gmail.com",
       homepageBannerActive: rawSettings?.homepage_banner_active ?? false,
       homepageBannerBadge: rawSettings?.homepage_banner_badge || "ANNOUNCEMENT",
-      homepageBannerText: rawSettings?.homepage_banner_text || "Nominations for the 2026 edition are opening soon across all 16 proposed categories.",
+      homepageBannerText: rawSettings?.homepage_banner_text || "Nominations for the 2026 edition are opening soon across all 16 categories.",
       homepageBannerLink: rawSettings?.homepage_banner_link || "/categories",
       homepageBannerLinkText: rawSettings?.homepage_banner_link_text || "View Categories",
       createdAt: rawSettings?.created_at || new Date().toISOString(),

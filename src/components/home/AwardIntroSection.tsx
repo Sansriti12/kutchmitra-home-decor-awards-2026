@@ -21,7 +21,7 @@ export function AwardIntroSection() {
               &ldquo;Celebrating the Spirit of Kutch Through Architecture, Craft and Sustainability.&rdquo;
             </p>
             <p className="body-editorial text-[#4A4F5C]">
-              The Kutchmitra Home &amp; Decor Awards 2026 celebrate outstanding residential architecture, interior design, and local craftsmanship across Kutch. Welcoming both traditional and contemporary design approaches, the awards recognize architects and architectural firms based in Kutch for projects completed in 2024, 2025, or 2026 within Kutch district.
+              The Kutchmitra Home &amp; Decor Awards 2026 celebrate outstanding residential architecture, interior design, and local craftsmanship across Kutch. Welcoming both traditional and contemporary design approaches, the awards recognize architects and architectural firms based in Kutch for projects completed between 1 January 2024 and 31 December 2026 (calendar years 2024, 2025, or 2026) within Kutch district.
             </p>
             <div>
               <EditorialLink href="/about" theme="light" showArrow>

@@ -390,7 +390,7 @@ export default function AdminReportsClient({ initialData, isSuperAdmin }: AdminR
             )}
           >
             <Layers size={13} />
-            <span>Category Breakdown ({categoryMetrics.length} Proposed)</span>
+            <span>Category Breakdown ({categoryMetrics.length} Categories)</span>
           </button>
 
           <button
@@ -788,7 +788,7 @@ export default function AdminReportsClient({ initialData, isSuperAdmin }: AdminR
             <div className="p-4 border-b border-white/10 bg-navy-950/80 flex items-center justify-between">
               <div>
                 <h3 className="font-mono text-xs uppercase tracking-wider text-white font-semibold">
-                  16 Proposed Award Categories
+                  16 Award Categories
                 </h3>
                 <p className="text-[11px] text-slate-400 font-sans mt-0.5">
                   Sequential UI display numbering 01 through 16. Retired categories remain preserved in the database.

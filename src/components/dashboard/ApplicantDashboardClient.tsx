@@ -127,7 +127,7 @@ const WIZARD_NEXT_ACTIONS: Record<number, { title: string; desc: string }> = {
   },
   2: {
     title: "Confirm Award Category",
-    desc: "Review your selected discipline or switch to another of the 16 proposed award categories.",
+    desc: "Review your selected discipline or switch to another of the 16 award categories.",
   },
   3: {
     title: "Enter Project Details & Spatial Data",
@@ -937,7 +937,50 @@ export default function ApplicantDashboardClient({
               )}
             </div>
 
-            {/* 3. AWARDS HELP & SUPPORT CARD */}
+            {/* 3. NOMINATION RULES & UPLOAD SPECIFICATIONS CARD */}
+            <div className="bg-[#FBFAF7] border border-navy-900/10 p-6 shadow-card space-y-3.5">
+              <div className="flex items-center gap-2 border-b border-navy-900/10 pb-3">
+                <ShieldCheck size={16} className="text-gold-600" />
+                <h3 className="font-display text-base text-navy-900 font-medium">
+                  Rules &amp; Specifications
+                </h3>
+              </div>
+
+              <div className="space-y-2.5 text-xs font-sans text-[#4A4F5C]">
+                <div className="p-2.5 bg-white border border-navy-900/10 space-y-1">
+                  <span className="font-mono text-[10px] uppercase tracking-wider text-gold-700 font-bold block">
+                    Applicant &amp; Project Eligibility
+                  </span>
+                  <p className="text-[11px] leading-relaxed">
+                    Applicant must be a Kutch-based architect or architectural firm. Nominated project must be located within Kutch district and completed between <strong className="text-navy-900">1 Jan 2024 and 31 Dec 2026</strong>.
+                  </p>
+                </div>
+
+                <div className="p-2.5 bg-white border border-navy-900/10 space-y-1">
+                  <span className="font-mono text-[10px] uppercase tracking-wider text-gold-700 font-bold block">
+                    Nomination Limit
+                  </span>
+                  <p className="text-[11px] leading-relaxed">
+                    Maximum of <strong className="text-navy-900">3 category nominations</strong> per applicant. Each nomination requires a distinct project dossier.
+                  </p>
+                </div>
+
+                <div className="p-2.5 bg-white border border-navy-900/10 space-y-1">
+                  <span className="font-mono text-[10px] uppercase tracking-wider text-gold-700 font-bold block">
+                    Upload &amp; Image Rules
+                  </span>
+                  <ul className="text-[11px] leading-relaxed list-disc pl-4 space-y-0.5">
+                    <li>Project Plan in <strong className="text-navy-900">A3 size</strong> format.</li>
+                    <li>Min <strong className="text-navy-900">500 × 500 px</strong> (auto-rejected below min); 1000 × 1000 px recommended.</li>
+                    <li>Max <strong className="text-navy-900">10 MB</strong> per image; JPG/PNG only; square 1:1 recommended.</li>
+                    <li>Project Brief strictly max <strong className="text-navy-900">500 characters</strong>.</li>
+                    <li>Before Photo option has been retired.</li>
+                  </ul>
+                </div>
+              </div>
+            </div>
+
+            {/* 4. AWARDS HELP & SUPPORT CARD */}
             <div className="bg-[#FBFAF7] border border-navy-900/10 p-6 shadow-card space-y-3">
               <div className="flex items-center gap-2 text-gold-600">
                 <HelpCircle size={16} />

@@ -14,7 +14,7 @@ export function CategoriesSection() {
           <div className="space-y-3">
             <SectionMarker number="02" label="Disciplines &amp; Categories" theme="light" />
             <h2 className="heading-editorial text-navy-900">
-              16 Proposed Award Categories
+              16 Award Categories
             </h2>
           </div>
           <p className="body-editorial text-[#4A4F5C] max-w-md text-sm sm:text-base">

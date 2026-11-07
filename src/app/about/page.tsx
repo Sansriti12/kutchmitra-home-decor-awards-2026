@@ -580,7 +580,7 @@ export default function AboutPage() {
                 <div className="flex items-center gap-2 text-gold-700">
                   <Award size={18} />
                   <h4 className="font-display text-base font-medium text-navy-900">
-                    16 Proposed Award Categories
+                    16 Award Categories
                   </h4>
                 </div>
                 <p className="text-xs sm:text-sm text-[#4A4F5C] font-sans leading-relaxed">
@@ -677,10 +677,10 @@ export default function AboutPage() {
                   <span>Completion Period</span>
                 </div>
                 <p className="font-display text-base font-semibold text-navy-900">
-                  2024, 2025, or 2026
+                  1 Jan 2024 – 31 Dec 2026
                 </p>
                 <p className="text-slate-600 leading-relaxed">
-                  Eligible projects must have been completed during calendar years 2024, 2025, or 2026.
+                  The project must have been completed between 1 January 2024 and 31 December 2026 (calendar years 2024, 2025, or 2026).
                 </p>
               </div>
 

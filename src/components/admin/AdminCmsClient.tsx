@@ -465,7 +465,7 @@ export default function AdminCmsClient({ initialData, isSuperAdmin }: AdminCmsCl
           { id: "jury", label: "Jury Profiles", icon: Users, count: juryProfiles.filter((j) => j.isPublic).length },
           { id: "announcements", label: "Announcements", icon: Megaphone, count: announcements.length },
           { id: "contact", label: "Contact Info", icon: Mail, count: undefined },
-          { id: "categories", label: `Categories (${categories.length} Proposed)`, icon: Layers, count: categories.length },
+          { id: "categories", label: `Categories (${categories.length})`, icon: Layers, count: categories.length },
           { id: "winners", label: "Winners Showcase", icon: Trophy, count: initialData.winnerStats.publishedWinners },
         ].map((tab) => {
           const Icon = tab.icon;
@@ -530,7 +530,7 @@ export default function AdminCmsClient({ initialData, isSuperAdmin }: AdminCmsCl
             </div>
 
             <div className="p-4 bg-navy-900/60 border border-white/10 space-y-1">
-              <span className="text-[11px] font-mono text-slate-400 uppercase tracking-wider">Proposed Categories</span>
+              <span className="text-[11px] font-mono text-slate-400 uppercase tracking-wider">Award Categories</span>
               <p className="text-2xl font-display font-bold text-white">{categories.length}</p>
               <span className="text-[10px] font-mono text-slate-400">Sequential 01–16 Display</span>
             </div>
@@ -1150,7 +1150,7 @@ export default function AdminCmsClient({ initialData, isSuperAdmin }: AdminCmsCl
       )}
 
       {/* ========================================================================= */}
-      {/* TAB 7: CATEGORIES (16 PROPOSED CATEGORIES) */}
+      {/* TAB 7: CATEGORIES (16 AWARD CATEGORIES) */}
       {/* ========================================================================= */}
       {activeTab === "categories" && (
         <div className="space-y-4">
@@ -1161,7 +1161,7 @@ export default function AdminCmsClient({ initialData, isSuperAdmin }: AdminCmsCl
             </div>
             <p className="text-xs text-slate-300 font-sans leading-relaxed">
               Award categories are strictly tied to the database schema. Retired categories
-              remain preserved for historical integrity. Visible numbering is strictly <strong>01–16</strong> across the 16 proposed
+              remain preserved for historical integrity. Visible numbering is strictly <strong>01–16</strong> across the 16
               categories. Editing is restricted to public descriptions and criteria text.
             </p>
           </div>

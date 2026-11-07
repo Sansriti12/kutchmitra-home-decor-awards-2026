@@ -27,13 +27,13 @@ export const HOMEPAGE_FAQS: FaqItem[] = [
     id: "faq-4",
     question: "What is the eligible project completion period?",
     answer:
-      "Eligible projects must have been completed during calendar years 2024, 2025, or 2026. Only fully completed built or interior works are eligible for entry.",
+      "Eligible projects must have been completed between 1 January 2024 and 31 December 2026 (calendar years 2024, 2025, or 2026). Only fully completed built or interior works are eligible for entry.",
   },
   {
     id: "faq-5",
     question: "How many award categories can an applicant enter?",
     answer:
-      "An applicant may submit nominations across multiple categories up to a maximum of 3 categories. Each nomination requires a dedicated, distinct project submission dossier.",
+      "An applicant may submit nominations across multiple categories up to a strict maximum of 3 category nominations. Each nomination requires a dedicated, distinct project submission dossier.",
   },
   {
     id: "faq-6",
@@ -57,7 +57,7 @@ export const HOMEPAGE_FAQS: FaqItem[] = [
     id: "faq-9",
     question: "How does the nomination process work?",
     answer:
-      "The nomination process is conducted entirely online through a structured 7-step digital portal: create an applicant account, select from the 16 proposed categories, provide project details and credits, answer dynamic category questionnaires, upload drawings and high-resolution media dossiers, review your submission preview, and confirm final declaration.",
+      "The nomination process is conducted entirely online through a structured 7-step digital portal: create an applicant account, select from the 16 categories, provide project details and credits, answer dynamic category questionnaires, upload drawings and high-resolution media dossiers, review your submission preview, and confirm final declaration.",
   },
   {
     id: "faq-10",
@@ -69,7 +69,7 @@ export const HOMEPAGE_FAQS: FaqItem[] = [
     id: "faq-11",
     question: "What types of media and documents can be uploaded?",
     answer:
-      "Supported upload types include cover images, project photography, interior and exterior views, architectural floor plans and drawings, 3D views and renderings, studio portfolios or project brochures, and supporting documents. Detailed file specifications will be confirmed prior to nomination opening.",
+      "Supported upload types include: (1) Project Plan in A3 size; (2) High-resolution project photography: minimum 500 × 500 pixels (auto-rejected if below), 1000 × 1000 pixels or higher recommended for HD zoom, JPEG and PNG only, maximum 10 MB per image, square 1:1 ratio recommended; (3) 3D views and renderings; (4) Supporting documents. Note: The Before Photo option has been retired and is not required.",
   },
   {
     id: "faq-12",

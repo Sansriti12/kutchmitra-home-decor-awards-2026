@@ -45,16 +45,16 @@ export default function HowToNominatePage() {
     {
       icon: Calendar,
       label: "Project Completion Period",
-      headline: "Calendar Years 2024, 2025, or 2026",
+      headline: "1 Jan 2024 – 31 Dec 2026",
       description:
-        "Eligible projects must have reached completion during calendar years 2024, 2025, or 2026. Ongoing or unbuilt concept projects are not eligible.",
+        "The project must have been completed between 1 January 2024 and 31 December 2026 (calendar years 2024, 2025, or 2026). Ongoing or unbuilt concept projects are strictly ineligible.",
     },
     {
       icon: Layers,
       label: "Maximum Category Entries",
       headline: "Up to 3 Categories per Applicant",
       description:
-        "An applicant may submit nominations across multiple categories up to a maximum of 3 categories. Each submission requires a distinct project dossier.",
+        "An applicant may submit nominations across multiple categories up to a strict maximum of 3 categories. Each submission requires a distinct project dossier.",
     },
   ];
 
@@ -66,8 +66,8 @@ export default function HowToNominatePage() {
     },
     {
       number: "02",
-      title: "Select Category (16 Proposed)",
-      desc: "Choose from the 16 proposed award categories matching your project type. Applicants may enter up to a maximum of 3 categories.",
+      title: "Select Category (16 Categories)",
+      desc: "Choose from the 16 award categories matching your project type. Applicants may enter up to a maximum of 3 categories.",
     },
     {
       number: "03",
@@ -130,12 +130,12 @@ export default function HowToNominatePage() {
   ];
 
   const SUPPORTED_UPLOADS = [
-    { name: "Cover Image", note: "Primary hero image representing the project" },
-    { name: "Project Photos", note: "Photographs documenting the built work" },
-    { name: "Interior & Exterior Photos", note: "Detailed spatial and environmental photography" },
-    { name: "Floor Plans / Drawings", note: "Architectural layouts and drawings where applicable" },
+    { name: "Cover Image", note: "Primary hero image (min 500×500 px, 1000×1000 px recommended, max 10 MB, JPG/PNG, square 1:1 recommended)" },
+    { name: "Project Photos", note: "High-resolution photography documenting built work (min 500×500 px, max 10 MB, JPG/PNG)" },
+    { name: "Interior & Exterior Photos", note: "Detailed spatial photography (min 500×500 px, 1000×1000 px recommended, max 10 MB)" },
+    { name: "Floor Plans / Drawings", note: "Architectural project plan in A3 size format for jury review" },
     { name: "3D Views / Renderings", note: "Spatial visualizations and concept renderings" },
-    { name: "Portfolio / Brochure", note: "Studio overview or project narrative document" },
+    { name: "Portfolio / Brochure", note: "Studio overview or project narrative document (PDF format)" },
     { name: "Supporting Documents", note: "Supplementary approvals, credits, or verification notes" },
   ];
 
