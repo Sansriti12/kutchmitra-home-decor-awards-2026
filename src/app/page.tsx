@@ -5,7 +5,8 @@ import { getPublicSiteSettings } from "@/lib/cms/public";
 import { HeroSection } from "@/components/home/HeroSection";
 import { AwardIntroSection } from "@/components/home/AwardIntroSection";
 import { FeaturedCategoriesSection } from "@/components/home/FeaturedCategoriesSection";
-import { WhyParticipateSection } from "@/components/home/WhyParticipateSection";
+import { WhyNominateSection } from "@/components/home/WhyNominateSection";
+import { SelectionProcessSection } from "@/components/home/SelectionProcessSection";
 import { JourneyToRecognition } from "@/components/home/JourneyToRecognition";
 import { EvaluationMethodologySection } from "@/components/home/EvaluationMethodologySection";
 import { JuryPreviewSection } from "@/components/home/JuryPreviewSection";
@@ -52,10 +53,13 @@ export default async function Home() {
       {/* 3. Featured Award Categories (6 Categories) */}
       <FeaturedCategoriesSection />
 
-      {/* 4. Why Participate / Why Nominate */}
-      <WhyParticipateSection />
+      {/* 4. Why Nominate (6 Key Pillars) */}
+      <WhyNominateSection />
 
-      {/* 5. Journey to Recognition (Timeline Roadmap) */}
+      {/* 5. Selection Process (6 Process Steps) */}
+      <SelectionProcessSection />
+
+      {/* 6. Journey to Recognition (Timeline Roadmap) */}
       <JourneyToRecognition />
 
       {/* 6. Evaluation Methodology (5 Core Criteria) */}

@@ -175,7 +175,7 @@ export default function PrivacyPage() {
                 </h2>
               </div>
               <p className="text-sm sm:text-base text-[#4A4F5C] leading-relaxed">
-                Shortlisted entries, winners and approved project information may be featured or published on Kutchmitra platforms and associated partner networks in accordance with the Awards Terms &amp; Conditions.
+                Winners and approved project information may be featured or published on Kutchmitra platforms and associated partner networks in accordance with the Awards Terms &amp; Conditions.
               </p>
               <p className="text-sm sm:text-base text-[#4A4F5C] leading-relaxed">
                 Applicants should review the Terms &amp; Conditions before submitting a nomination, particularly the provisions relating to publicity, editorial use, promotional use, marketing use and intellectual property.

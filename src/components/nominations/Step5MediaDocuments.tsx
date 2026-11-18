@@ -17,6 +17,7 @@ import {
   X,
   AlertTriangle,
   FolderCheck,
+  ShieldCheck,
 } from "lucide-react";
 import { Button } from "@/components/ui/Button";
 import { uploadNominationFile, deleteNominationFile, getSignedFileUrl } from "@/lib/nominations/actions";
@@ -376,6 +377,17 @@ export default function Step5MediaDocuments({
             <li><strong>Notice:</strong> Before Photo upload option has been retired; only completed project photography and drawings are accepted.</li>
           </ul>
         </div>
+      </div>
+
+      {/* Upload & Publication Disclaimer Callout */}
+      <div className="p-4 sm:p-5 bg-[#FBFAF7] border-l-4 border-gold-600 border-y border-r border-navy-900/10 shadow-2xs space-y-2">
+        <div className="flex items-center gap-2 font-mono text-xs font-semibold text-navy-900 uppercase tracking-wide">
+          <ShieldCheck size={16} className="text-gold-700 flex-shrink-0" />
+          <span>Upload &amp; Publication Disclaimer</span>
+        </div>
+        <p className="text-xs sm:text-sm text-[#4A4F5C] leading-relaxed font-sans">
+          The photographs and documents uploaded by applicants will be used internally for the evaluation process of these Awards. However, photographs of the projects of the winners may be published in Kutchmitra or Janmabhoomi Group newspapers, as required, and may also be displayed through digital platforms.
+        </p>
       </div>
 
       {errorMsg && (

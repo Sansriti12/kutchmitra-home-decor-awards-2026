@@ -119,7 +119,7 @@ export const AWARD_CATEGORIES: AwardCategory[] = [
     title: "Best Smart Home",
     shortDescription: "Recognising residences that integrate automated technologies for lighting, climate control, security, entertainment and other aspects of modern home living.",
     recognizes: "Residences that integrate automated technologies for lighting, climate control, security, entertainment and other aspects of modern home living.",
-    image: "https://images.unsplash.com/photo-1558002038-1055907df827?auto=format&fit=crop&w=800&q=80",
+    image: "https://images.unsplash.com/photo-1600585154526-990dced4db0d?auto=format&fit=crop&w=800&q=80",
     suggestedParameters: [
       "Demonstrable performance and usefulness of technologies.",
       "Energy efficiency and intelligent climate control.",
@@ -176,7 +176,7 @@ export const AWARD_CATEGORIES: AwardCategory[] = [
     title: "Best Organised Township of the Year",
     shortDescription: "Recognising well-planned township developments integrating residential spaces, infrastructure, amenities, open spaces and community facilities.",
     recognizes: "Well-planned township developments integrating residential spaces, infrastructure, amenities, open spaces and community facilities.",
-    image: "https://images.unsplash.com/photo-1519999482648-25049ddd37b1?auto=format&fit=crop&w=800&q=80",
+    image: "https://images.unsplash.com/photo-1592595896551-12b371d546d5?auto=format&fit=crop&w=800&q=80",
     suggestedParameters: [
       "Integrated planning and community facilities.",
       "Open spaces and climate-responsive planning.",
@@ -204,7 +204,7 @@ export const AWARD_CATEGORIES: AwardCategory[] = [
     title: "Best Commercial Building of the Year",
     shortDescription: "Recognising commercial buildings demonstrating excellence in architectural design, functionality, construction quality, sustainability and user-oriented facilities.",
     recognizes: "Commercial buildings demonstrating excellence in architectural design, functionality, construction quality, sustainability and user-oriented facilities.",
-    image: "https://images.unsplash.com/photo-1486406146926-c627a92ad1ab?auto=format&fit=crop&w=800&q=80",
+    image: "https://images.unsplash.com/photo-1554469384-e58fac16e23a?auto=format&fit=crop&w=800&q=80",
     suggestedParameters: [
       "Architectural quality and user experience.",
       "Sustainable design, climate response and material sensitivity.",
@@ -218,7 +218,7 @@ export const AWARD_CATEGORIES: AwardCategory[] = [
     title: "Excellence in Vernacular Architecture",
     shortDescription: "Recognising homes and residential projects that thoughtfully reinterpret Kutch's traditional architecture, including the bhunga, local building forms, courtyards, proportions and traditional spatial planning, while responding to contemporary living needs.",
     recognizes: "Homes and residential projects that thoughtfully reinterpret Kutch's traditional architecture, including the bhunga, local building forms, courtyards, proportions and traditional spatial planning, while responding to contemporary living needs.",
-    image: "https://images.unsplash.com/photo-1590381105924-c72589b9ef3f?auto=format&fit=crop&w=800&q=80",
+    image: "https://images.unsplash.com/photo-1777816268632-4f1b695d4b36?auto=format&fit=crop&w=800&q=80",
     suggestedParameters: [
       "Authentic understanding of traditional Kutchi building forms and spatial planning.",
       "Thoughtful interpretation of bhunga forms, courtyards and local architectural vocabulary.",
@@ -233,7 +233,7 @@ export const AWARD_CATEGORIES: AwardCategory[] = [
     title: "Excellence in Kutchi Craft & Artisan Integration",
     shortDescription: "Recognising interior or residential projects that meaningfully integrate Kutchi crafts and regional artisans, including embroidery, Ajrakh, Bandhani, woodwork, pottery, metalwork, leatherwork and other local craft traditions.",
     recognizes: "Interior or residential projects that meaningfully integrate Kutchi crafts and regional artisans, including embroidery, Ajrakh, Bandhani, woodwork, pottery, metalwork, leatherwork and other local craft traditions.",
-    image: "https://images.unsplash.com/photo-1600585152220-90363fe7e115?auto=format&fit=crop&w=800&q=80",
+    image: "https://images.unsplash.com/photo-1616046229478-9901c5536a45?auto=format&fit=crop&w=800&q=80",
     suggestedParameters: [
       "Meaningful and sensitive integration of Kutchi crafts.",
       "Quality, originality and relevance of craft application.",
