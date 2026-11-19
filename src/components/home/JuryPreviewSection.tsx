@@ -12,6 +12,7 @@ const JUROR_OBJECT_POSITIONS: Record<string, string> = {
   "parul-zaveri": "center 6%",
   "hiren-patel": "center 18%",
   "sarosh-wadia": "center 8%",
+  "paresh-shah": "center 20%",
 };
 
 export function JuryPreviewSection() {
@@ -51,8 +52,8 @@ export function JuryPreviewSection() {
           </div>
         </div>
 
-        {/* 4-Card Compact Grid: 2 columns mobile/tablet, 4 columns desktop */}
-        <div className="grid grid-cols-2 lg:grid-cols-4 gap-3.5 sm:gap-4 lg:gap-5">
+        {/* 5-Card Compact Grid: 2 columns mobile, 3 columns tablet, 5 columns desktop */}
+        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-3.5 sm:gap-4 lg:gap-4">
           {jurors.map((juror) => {
             const hasError = failedImages[juror.id];
             return (

@@ -98,6 +98,30 @@ export const APPROVED_JURY_PROFILES: JuryProfile[] = [
       "Professional leadership",
     ],
   },
+  {
+    id: "paresh-shah",
+    name: "Ar. Paresh Shah",
+    designation: "Proprietor & Principal Architect",
+    organization: "Kshetravastu",
+    city: "Mumbai",
+    image: "/assets/jury/paresh-shah.jpg",
+    shortBio:
+      "Proprietor & Principal Architect at Kshetravastu with over 35 years of distinguished practice spanning 300+ projects across Maharashtra and Gujarat, known for disciplined spatial planning, practical Vastu integration, and post-disaster village rehabilitation in Kutch.",
+    fullBio: [
+      "Ar. Paresh Shah is the Proprietor and Principal Architect of Mumbai-based Kshetravastu, established following his architectural education at Rachna Sansad’s Academy of Architecture (1983–1988) and early professional practice with R. W. Gudal & Associates. Over more than 35 years of comprehensive practice, he has completed over 300 projects across Maharashtra, Gujarat, and beyond, spanning private residences, commercial developments, healthcare facilities, and landmark educational campuses.",
+      "At Kshetravastu, architecture is approached as the quiet alignment of human purpose, spatial clarity, and structural honesty. Rather than chasing fleeting decorative trends, his practice focuses on disciplined spatial flow, natural light, and clean proportions, while organically integrating practical, non-destructive Vastu principles directly into contemporary architectural blueprints.",
+      "Deeply connected to Kutch and regional community development, Ar. Paresh Shah contributed his architectural perspective to the rehabilitation and planning of multiple villages following the devastating 2001 Kutch earthquake, helping build resilient, culturally rooted communities. His portfolio also encompasses the sensitive preservation and reconstitution of sacred spaces, Derasars, Upashrayas, and cost-effective community institutions.",
+      "A registered member of the Council of Architecture and Life Member of PEATA (India), he brings extensive leadership across institutional governance, public advocacy, and community mentorship, communicating effortlessly across Kutchi, Gujarati, Hindi, English, and Marathi to foster meaningful collaboration among diverse stakeholders.",
+    ],
+    areasOfExperience: [
+      "Architecture",
+      "Interior architecture",
+      "Institutional planning",
+      "Practical Vastu integration",
+      "Post-disaster rehabilitation",
+      "Civic & sacred spaces",
+    ],
+  },
 ];
 
 export function getApprovedJuryProfiles(): JuryProfile[] {
@@ -144,6 +168,9 @@ export function matchApprovedJuryProfile(juror: {
       return profile;
     }
     if (profile.id === "sarosh-wadia" && (org.includes("azmi & sarosh") || email.includes("saroshazmi"))) {
+      return profile;
+    }
+    if (profile.id === "paresh-shah" && (org.includes("kshetravastu") || email.includes("kshetravastu") || email.includes("paresh"))) {
       return profile;
     }
   }
